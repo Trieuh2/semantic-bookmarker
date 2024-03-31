@@ -8,8 +8,8 @@ import AuthSocialButton from "./AuthSocialButton";
 import { BsGoogle } from "react-icons/bs";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Input from "../../components/inputs/Input";
-import Button from "../../components/Button";
+import Input from "@/app/components/inputs/Input";
+import Button from "@/app/components/Button";
 
 const AuthForm = () => {
   const session = useSession();
