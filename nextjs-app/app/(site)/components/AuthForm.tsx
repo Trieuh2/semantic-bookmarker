@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import AuthSocialButton from "./AuthSocialButton";
 import { BsGoogle } from "react-icons/bs";
@@ -10,17 +10,25 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Input from "@/app/components/inputs/Input";
 import Button from "@/app/components/Button";
+import axios from "axios";
+
+type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm = () => {
   const session = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [variant, setVariant] = useState<Variant>("LOGIN");
 
   useEffect(() => {
     if (session?.status === "authenticated") {
       router.push("/collections");
     }
   }, [session?.status, router]);
+
+  const toggleVariant = useCallback(() => {
+    setVariant(variant === "LOGIN" ? "REGISTER" : "LOGIN");
+  }, [variant]);
 
   const {
     register,
@@ -48,8 +56,37 @@ const AuthForm = () => {
       .finally(() => setIsLoading(false));
   };
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setIsLoading(true);
+
+    if (variant === "REGISTER") {
+      try {
+        await axios.post("/api/register", data);
+        signIn("credentials", data);
+      } catch (error) {
+        console.error("Error during registration:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (variant === "LOGIN") {
+      try {
+        const callback = await signIn("credentials", {
+          ...data,
+          redirect: false,
+        });
+
+        if (callback?.error) {
+        } else if (callback?.ok) {
+          router.push("/collections");
+        }
+      } catch (error) {
+          console.error("Error during registration:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -63,9 +100,10 @@ const AuthForm = () => {
       />
       <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
-          label="Email or username"
+          label="Email Address"
           id="email"
           type="email"
+          required
           register={register}
           disabled={isLoading}
         />
@@ -77,19 +115,31 @@ const AuthForm = () => {
           disabled={isLoading}
         />
         <Button type="submit" fullWidth>
-          Sign in
+          {variant === "LOGIN" ? "Sign in" : "Sign up"}
         </Button>
       </form>
       <div className="w-full border-t border-neutral-700 my-4" />
-      <div>
-        <div className="flex gap-2">
-          <AuthSocialButton
-            icon={BsGoogle}
-            onClick={() => socialSignIn("google")}
-            source="Google"
-            disabled={isLoading}
-          />
-        </div>
+      <div className="flex flex-col gap-4">
+        <AuthSocialButton
+          icon={BsGoogle}
+          onClick={() => socialSignIn("google")}
+          source="Google"
+          disabled={isLoading}
+        />
+        <button
+          className="
+          px-2
+          py-1
+          text-orange-300
+          hover:bg-zinc-700
+          rounded-md
+          transition-colors
+          duration-150
+        "
+          onClick={toggleVariant}
+        >
+          {variant === "LOGIN" ? "Sign up" : "Sign in"}
+        </button>
       </div>
     </div>
   );

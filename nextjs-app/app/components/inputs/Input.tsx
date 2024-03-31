@@ -1,10 +1,11 @@
-import clsx from 'clsx';
-import { FieldValues, UseFormRegister } from 'react-hook-form';
+import clsx from "clsx";
+import { FieldValues, UseFormRegister } from "react-hook-form";
 
 interface InputProps {
   label: string;
   id: string;
   type?: string;
+  required?: boolean;
   register: UseFormRegister<FieldValues>;
   disabled?: boolean;
 }
@@ -13,6 +14,7 @@ const Input: React.FC<InputProps> = ({
   label,
   id,
   type,
+  required,
   register,
   disabled,
 }) => {
@@ -42,14 +44,20 @@ const Input: React.FC<InputProps> = ({
     focus:bg-transparent
     transition-colors
     duration-100`,
-    disabled && 'opacity-50 cursor-default'
+    disabled && "opacity-50 cursor-default"
   );
 
   return (
     <div>
       <label className={labelClasses}>{label}</label>
       <div className="mt-1">
-        <input type={type} className={inputClasses} disabled={disabled}></input>
+        <input
+          id={id}
+          type={type}
+          {...register(id, { required })}
+          className={inputClasses}
+          disabled={disabled}
+        ></input>
       </div>
     </div>
   );
