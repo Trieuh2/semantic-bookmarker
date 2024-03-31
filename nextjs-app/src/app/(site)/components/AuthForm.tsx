@@ -1,17 +1,26 @@
-'use client';
+"use client";
 
-import Button from '@/app/components/Button';
-import Input from '@/app/components/inputs/Input';
-import Image from 'next/image';
+import Image from "next/image";
 
-import { useState } from 'react';
-import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import SocialButton from './AuthSocialButton';
-import AuthSocialButton from './AuthSocialButton';
-import { BsGoogle } from 'react-icons/bs';
+import { useEffect, useState } from "react";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import AuthSocialButton from "./AuthSocialButton";
+import { BsGoogle } from "react-icons/bs";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Input from "../../components/inputs/Input";
+import Button from "../../components/Button";
 
 const AuthForm = () => {
+  const session = useSession();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/collections");
+    }
+  }, [session?.status, router]);
 
   const {
     register,
@@ -19,16 +28,29 @@ const AuthForm = () => {
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+  const socialSignIn = (source: string) => {
     setIsLoading(true);
-    console.log(1);
+
+    signIn(source, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          // TODO: ADD TOAST
+        }
+        if (callback?.ok && !callback?.error) {
+          // TODO: ADD TOAST
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    setIsLoading(true);
+  };
 
   return (
     <div className="flex flex-col w-full max-w-[400px] mx-auto">
@@ -63,7 +85,7 @@ const AuthForm = () => {
         <div className="flex gap-2">
           <AuthSocialButton
             icon={BsGoogle}
-            onClick={() => console.log(1)}
+            onClick={() => socialSignIn("google")}
             source="Google"
             disabled={isLoading}
           />
