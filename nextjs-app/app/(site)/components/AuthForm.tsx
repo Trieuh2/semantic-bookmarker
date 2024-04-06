@@ -15,16 +15,9 @@ import axios from "axios";
 type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm = () => {
-  const session = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [variant, setVariant] = useState<Variant>("LOGIN");
-
-  useEffect(() => {
-    if (session?.status === "authenticated") {
-      router.push("/collections");
-    }
-  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     setVariant(variant === "LOGIN" ? "REGISTER" : "LOGIN");
@@ -82,7 +75,7 @@ const AuthForm = () => {
           router.push("/collections");
         }
       } catch (error) {
-          console.error("Error during registration:", error);
+        console.error("Error during registration:", error);
       } finally {
         setIsLoading(false);
       }
