@@ -27,7 +27,7 @@ model User {
   collections Collection[]
   bookmarks Bookmark[]
   tags Tag[]
-  session Session?
+  sessions Session[]
 }
 
 model Account {
