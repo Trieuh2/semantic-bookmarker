@@ -27,6 +27,7 @@ model User {
   collections Collection[]
   bookmarks Bookmark[]
   tags Tag[]
+  session Session?
 }
 
 model Account {
@@ -92,4 +93,15 @@ model TagToBookmark {
   bookmarkId String @db.ObjectId
 
   @@unique([tagId, bookmarkId])
+}
+
+model Session {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @db.ObjectId @unique
+  expires      DateTime
+  sessionToken String    @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expires])
 }
