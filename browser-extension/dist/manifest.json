@@ -9,7 +9,8 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "cookies"
+    "cookies",
+    "tabs"
   ],
   "action": {
     "default_icon": {

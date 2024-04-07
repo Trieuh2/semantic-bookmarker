@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "host_permissions": ["*://*/*"],
-  "permissions": ["activeTab", "scripting", "cookies"],
+  "permissions": ["activeTab", "scripting", "cookies", "tabs"],
   "action": {
     "default_icon": {
       "16": "assets/icons/16.png",
