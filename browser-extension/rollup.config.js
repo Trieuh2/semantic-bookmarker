@@ -35,10 +35,6 @@ export default {
     commonjs(),
     typescript(),
     postcss(),
-    // postcss({
-    //   extract: true,
-    //   plugins: [require("tailwindcss"), require("autoprefixer")],
-    // }),
     emptyDir(),
     isProduction && zip({ dir: "releases" }),
   ],

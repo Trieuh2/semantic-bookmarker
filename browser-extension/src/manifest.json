@@ -1,9 +1,7 @@
 {
   "manifest_version": 3,
-  "background": {
-    "service_worker": "background.ts"
-  },
-  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["*://*/*"],
+  "permissions": ["activeTab", "scripting", "cookies"],
   "action": {
     "default_icon": {
       "16": "assets/icons/16.png",

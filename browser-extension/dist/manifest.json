@@ -3,13 +3,13 @@
   "name": "semantic-bookmarker",
   "version": "1.0.0",
   "description": "",
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
+  "host_permissions": [
+    "*://*/*"
+  ],
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "cookies"
   ],
   "action": {
     "default_icon": {
