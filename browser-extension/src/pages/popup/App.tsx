@@ -16,11 +16,16 @@ const App: React.FC = () => {
   const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(
     null
   );
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    localStorage.getItem("isAuthenticated") === "true"
+  );
 
   useEffect(() => {
     const fetchSessionToken = async () => {
       const sessionToken = await getSessionTokenFromCookie();
+      if (!sessionToken) {
+        setIsAuthenticated(false);
+      }
       setSessionToken(sessionToken);
     };
     fetchSessionToken();
@@ -43,13 +48,12 @@ const App: React.FC = () => {
     if (sessionRecord !== null) {
       const isSessionExpired = sessionRecord?.expires < Date.now();
       setIsAuthenticated(!isSessionExpired);
+      localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
     }
   }, [sessionRecord]);
 
   return (
-    <div className=" bg-zinc-800">
-      {/* PLACEHOLDER for Login / Bookmark components */}
-      {/* {JSON.stringify(sessionRecord)} */}
+    <div className="bg-zinc-800">
       {isAuthenticated ? <BookmarkForm /> : <ExtAuthForm />}
     </div>
   );

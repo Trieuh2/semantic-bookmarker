@@ -2905,10 +2905,13 @@ const BookmarkForm = () => {
 const App = () => {
     const [sessionToken, setSessionToken] = react.useState("");
     const [sessionRecord, setSessionRecord] = react.useState(null);
-    const [isAuthenticated, setIsAuthenticated] = react.useState(false);
+    const [isAuthenticated, setIsAuthenticated] = react.useState(localStorage.getItem("isAuthenticated") === "true");
     react.useEffect(() => {
         const fetchSessionToken = () => __awaiter(void 0, void 0, void 0, function* () {
             const sessionToken = yield getSessionTokenFromCookie();
+            if (!sessionToken) {
+                setIsAuthenticated(false);
+            }
             setSessionToken(sessionToken);
         });
         fetchSessionToken();
@@ -2928,9 +2931,10 @@ const App = () => {
         if (sessionRecord !== null) {
             const isSessionExpired = (sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.expires) < Date.now();
             setIsAuthenticated(!isSessionExpired);
+            localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
         }
     }, [sessionRecord]);
-    return (react.createElement("div", { className: " bg-zinc-800" }, isAuthenticated ? react.createElement(BookmarkForm, null) : react.createElement(ExtAuthForm, null)));
+    return (react.createElement("div", { className: "bg-zinc-800" }, isAuthenticated ? react.createElement(BookmarkForm, null) : react.createElement(ExtAuthForm, null)));
 };
 
 /**
