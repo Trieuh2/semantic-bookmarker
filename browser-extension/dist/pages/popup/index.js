@@ -2911,6 +2911,7 @@ const App = () => {
             const sessionToken = yield getSessionTokenFromCookie();
             if (!sessionToken) {
                 setIsAuthenticated(false);
+                localStorage.setItem("isAuthenticated", "false");
             }
             setSessionToken(sessionToken);
         });
@@ -2923,8 +2924,16 @@ const App = () => {
                 if (serverSession !== null) {
                     setSessionRecord(serverSession);
                 }
+                else {
+                    setIsAuthenticated(false);
+                    localStorage.setItem("isAuthenticated", "false");
+                }
             });
             fetchServerSession();
+        }
+        else {
+            setIsAuthenticated(false);
+            localStorage.setItem("isAuthenticated", "false");
         }
     }, [sessionToken]);
     react.useEffect(() => {

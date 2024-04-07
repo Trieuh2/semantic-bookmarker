@@ -25,6 +25,7 @@ const App: React.FC = () => {
       const sessionToken = await getSessionTokenFromCookie();
       if (!sessionToken) {
         setIsAuthenticated(false);
+        localStorage.setItem("isAuthenticated", "false");
       }
       setSessionToken(sessionToken);
     };
@@ -38,9 +39,15 @@ const App: React.FC = () => {
 
         if (serverSession !== null) {
           setSessionRecord(serverSession);
+        } else {
+          setIsAuthenticated(false);
+          localStorage.setItem("isAuthenticated", "false");
         }
       };
       fetchServerSession();
+    } else {
+      setIsAuthenticated(false);
+      localStorage.setItem("isAuthenticated", "false");
     }
   }, [sessionToken]);
 
