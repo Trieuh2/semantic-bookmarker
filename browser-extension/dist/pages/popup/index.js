@@ -2931,10 +2931,6 @@ const App = () => {
             });
             fetchServerSession();
         }
-        else {
-            setIsAuthenticated(false);
-            localStorage.setItem("isAuthenticated", "false");
-        }
     }, [sessionToken]);
     react.useEffect(() => {
         if (sessionRecord !== null) {

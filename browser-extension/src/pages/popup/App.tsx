@@ -45,9 +45,6 @@ const App: React.FC = () => {
         }
       };
       fetchServerSession();
-    } else {
-      setIsAuthenticated(false);
-      localStorage.setItem("isAuthenticated", "false");
     }
   }, [sessionToken]);
 
