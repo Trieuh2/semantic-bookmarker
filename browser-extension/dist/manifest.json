@@ -26,5 +26,15 @@
     "64": "assets/icons/64.png",
     "128": "assets/icons/128.png",
     "256": "assets/icons/256.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/icons/*.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

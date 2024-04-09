@@ -6,10 +6,7 @@ interface SignInButtonProps {
   disabled?: boolean;
 }
 
-const SignInButton: React.FC<SignInButtonProps> = ({
-  children,
-  disabled,
-}) => {
+const SignInButton: React.FC<SignInButtonProps> = ({ children, disabled }) => {
   const buttonClasses = clsx(
     `
     flex
@@ -36,7 +33,7 @@ const SignInButton: React.FC<SignInButtonProps> = ({
   return (
     <button
       className={buttonClasses}
-      onClick={handleSignIn}
+      onMouseUp={handleSignIn}
       disabled={disabled}
     >
       {children}

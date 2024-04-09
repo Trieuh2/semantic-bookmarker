@@ -57,7 +57,7 @@ const App: React.FC = () => {
   }, [sessionRecord]);
 
   return (
-    <div className="bg-zinc-800">
+    <div className="bg-zinc-800 font-sans text-sm text-gray-400">
       {isAuthenticated ? <BookmarkForm /> : <ExtAuthForm />}
     </div>
   );
