@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import getSessionTokenFromCookie from "../../actions/getSessionTokenFromCookie";
-import getServerSession from "../../actions/getServerSession";
+import getServerSession from "../../actions/apiActions/getServerSession";
 import ExtAuthForm from "./components/extAuthForm/ExtAuthForm";
-import BookmarkForm from "./components/bookmarkForm/BookmarkForm";
+import BookmarkForm from "./components/BookmarkForm";
 
 interface SessionRecord {
   id: string;
@@ -58,7 +58,11 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-zinc-800 font-sans text-sm text-gray-400">
-      {isAuthenticated ? <BookmarkForm /> : <ExtAuthForm />}
+      {isAuthenticated ? (
+        <BookmarkForm sessionRecord={sessionRecord} />
+      ) : (
+        <ExtAuthForm />
+      )}
     </div>
   );
 };

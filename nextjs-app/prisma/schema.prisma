@@ -63,7 +63,8 @@ model Collection {
 model Bookmark {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   title String
-  url String @unique
+  page_url String
+  note String?
   excerpt String?
   createdAt DateTime @default(now())
 
@@ -74,6 +75,8 @@ model Bookmark {
 
   userId String @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([page_url, userId])
 }
 
 model Tag {
