@@ -54,7 +54,7 @@ const AuthForm = () => {
 
     if (variant === "REGISTER") {
       try {
-        await axios.post("/api/register", data);
+        await axios.post("/api/auth/register", data);
         signIn("credentials", data);
       } catch (error) {
         console.error("Error during registration:", error);

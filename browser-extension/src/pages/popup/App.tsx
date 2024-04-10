@@ -20,6 +20,7 @@ const App: React.FC = () => {
     localStorage.getItem("isAuthenticated") === "true"
   );
 
+  // Fetch the local session token from the local cookie data
   useEffect(() => {
     const fetchSessionToken = async () => {
       const sessionToken = await getSessionTokenFromCookie();
@@ -32,12 +33,13 @@ const App: React.FC = () => {
     fetchSessionToken();
   }, [sessionToken]);
 
+  // Use the local session token to fetch the session from the server
   useEffect(() => {
-    if (sessionToken !== null && sessionToken !== "") {
+    if (sessionToken) {
       const fetchServerSession = async () => {
         const serverSession = await getServerSession(sessionToken);
 
-        if (serverSession !== null) {
+        if (serverSession) {
           setSessionRecord(serverSession);
         } else {
           setIsAuthenticated(false);
@@ -49,17 +51,28 @@ const App: React.FC = () => {
   }, [sessionToken]);
 
   useEffect(() => {
-    if (sessionRecord !== null) {
+    if (sessionRecord) {
       const isSessionExpired = sessionRecord?.expires < Date.now();
       setIsAuthenticated(!isSessionExpired);
       localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
     }
   }, [sessionRecord]);
 
+  const handleSignOut = () => {
+    localStorage.setItem("isAuthenticated", "false");
+    setIsAuthenticated(false);
+    setSessionToken(null);
+    setSessionRecord(null);
+  };
+
   return (
     <div className="bg-zinc-800 font-sans text-sm text-gray-400">
       {isAuthenticated ? (
-        <BookmarkForm sessionRecord={sessionRecord} />
+        <BookmarkForm
+          key={isAuthenticated.toString()}
+          sessionRecord={sessionRecord}
+          parentOnSignOut={handleSignOut}
+        />
       ) : (
         <ExtAuthForm />
       )}

@@ -4,9 +4,11 @@ import TextArea from "./TextArea";
 import Input from "./Input";
 import createOrUpdateBookmark from "../../../actions/apiActions/createOrUpdateBookmark";
 import getBookmarkRecord from "../../../actions/apiActions/getBookmarkRecord";
+import signOut from "../../../actions/apiActions/signOut";
 
 interface BookmarkFormProps {
   sessionRecord: SessionRecord | null;
+  parentOnSignOut: () => void;
 }
 
 interface SessionRecord {
@@ -28,7 +30,10 @@ interface BookmarkRecord {
   excerpt: string;
 }
 
-const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
+const BookmarkForm: React.FC<BookmarkFormProps> = ({
+  sessionRecord,
+  parentOnSignOut,
+}) => {
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
   const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(
     null
@@ -111,6 +116,15 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
     });
   };
 
+  const handleSignOut = () => {
+    const performSignOut = async () => {
+      const sessionToken = sessionRecord?.sessionToken ?? "";
+      await signOut(sessionToken);
+      parentOnSignOut();
+    };
+    performSignOut();
+  };
+
   return (
     <div>
       <div
@@ -153,7 +167,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
             rounded-md
             transition-colors
             duration-150"
-            onMouseUp={handleRedirectToWebsite}
+            onMouseUp={handleSignOut}
           >
             Log out
           </button>
@@ -173,7 +187,10 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
         {/* Note */}
         <div className="w-full p-1 flex">
           <div className="min-w-20 p-2 text-end">Note</div>
-          <TextArea useBackground />
+          <TextArea
+            initialText={bookmarkRecord?.note ? bookmarkRecord.note : ""}
+            useBackground
+          />
         </div>
 
         {/* Collection */}

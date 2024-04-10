@@ -3040,7 +3040,33 @@ const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, 
     }
 });
 
-const BookmarkForm = ({ sessionRecord }) => {
+const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const url = "http://localhost:3000/api/auth/signout";
+        const postData = {
+            sessionToken: sessionToken,
+        };
+        const response = yield fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        // Parse the JSON response
+        const data = yield response.json();
+        return data;
+    }
+    catch (error) {
+        console.error("Failed to sign out of current session:", error);
+        throw error;
+    }
+});
+
+const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
@@ -3101,19 +3127,28 @@ const BookmarkForm = ({ sessionRecord }) => {
             url: "http://localhost:3000/",
         });
     };
+    const handleSignOut = () => {
+        const performSignOut = () => __awaiter(void 0, void 0, void 0, function* () {
+            var _a;
+            const sessionToken = (_a = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _a !== void 0 ? _a : "";
+            yield signOut(sessionToken);
+            parentOnSignOut();
+        });
+        performSignOut();
+    };
     return (react.createElement("div", null,
         react.createElement("div", { className: "\r\n        w-[400px]\r\n        h-[400px]\r\n        flex\r\n        flex-col\r\n        gap-2\r\n        p-2\r\n        items-start\r\n        text-start\r\n      " },
             react.createElement("div", { className: "w-full flex justify-between" },
                 react.createElement("button", { className: "\r\n            p-2\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleRedirectToWebsite },
                     react.createElement("img", { src: chrome.runtime.getURL("assets/icons/64.png"), alt: "App logo", width: "24", height: "24" })),
-                react.createElement("button", { className: "\r\n            p-2\r\n            text-lg\r\n            font-bold\r\n          text-white\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleRedirectToWebsite }, "Log out")),
+                react.createElement("button", { className: "\r\n            p-2\r\n            text-lg\r\n            font-bold\r\n          text-white\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleSignOut }, "Log out")),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Title"),
                 react.createElement("div", { className: "w-full h-full font-bold text-sm" },
                     react.createElement(TextArea, { initialText: (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.title) ? bookmarkRecord.title : "", useUnderline: true }))),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Note"),
-                react.createElement(TextArea, { useBackground: true })),
+                react.createElement(TextArea, { initialText: (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.note) ? bookmarkRecord.note : "", useBackground: true })),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Collection"),
                 react.createElement(TextArea, { useBackground: true })),
@@ -3130,6 +3165,7 @@ const App = () => {
     const [sessionToken, setSessionToken] = react.useState("");
     const [sessionRecord, setSessionRecord] = react.useState(null);
     const [isAuthenticated, setIsAuthenticated] = react.useState(localStorage.getItem("isAuthenticated") === "true");
+    // Fetch the local session token from the local cookie data
     react.useEffect(() => {
         const fetchSessionToken = () => __awaiter(void 0, void 0, void 0, function* () {
             const sessionToken = yield getSessionTokenFromCookie();
@@ -3141,11 +3177,12 @@ const App = () => {
         });
         fetchSessionToken();
     }, [sessionToken]);
+    // Use the local session token to fetch the session from the server
     react.useEffect(() => {
-        if (sessionToken !== null && sessionToken !== "") {
+        if (sessionToken) {
             const fetchServerSession = () => __awaiter(void 0, void 0, void 0, function* () {
                 const serverSession = yield getServerSession(sessionToken);
-                if (serverSession !== null) {
+                if (serverSession) {
                     setSessionRecord(serverSession);
                 }
                 else {
@@ -3157,13 +3194,19 @@ const App = () => {
         }
     }, [sessionToken]);
     react.useEffect(() => {
-        if (sessionRecord !== null) {
+        if (sessionRecord) {
             const isSessionExpired = (sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.expires) < Date.now();
             setIsAuthenticated(!isSessionExpired);
             localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
         }
     }, [sessionRecord]);
-    return (react.createElement("div", { className: "bg-zinc-800 font-sans text-sm text-gray-400" }, isAuthenticated ? (react.createElement(BookmarkForm, { sessionRecord: sessionRecord })) : (react.createElement(ExtAuthForm, null))));
+    const handleSignOut = () => {
+        localStorage.setItem("isAuthenticated", "false");
+        setIsAuthenticated(false);
+        setSessionToken(null);
+        setSessionRecord(null);
+    };
+    return (react.createElement("div", { className: "bg-zinc-800 font-sans text-sm text-gray-400" }, isAuthenticated ? (react.createElement(BookmarkForm, { key: isAuthenticated.toString(), sessionRecord: sessionRecord, parentOnSignOut: handleSignOut })) : (react.createElement(ExtAuthForm, null))));
 };
 
 /**
