@@ -1,4 +1,5 @@
 import prisma from "@/app/libs/prismadb";
+import getIsSessionValid from "./getIsSessionValid";
 
 const getBookmarkRecord = async (
   sessionToken: string,
@@ -10,7 +11,9 @@ const getBookmarkRecord = async (
       return null;
     }
 
-    // TODO: VALIDATE SESSION IS VALID
+    if (!getIsSessionValid(sessionToken)) {
+      return null
+    }
 
     // Fetch the Session record from the DB
     const bookmarkRecord = await prisma.bookmark.findFirst({
@@ -20,11 +23,7 @@ const getBookmarkRecord = async (
       },
     });
 
-    if (bookmarkRecord !== null) {
-      return bookmarkRecord;
-    } else {
-      return null;
-    }
+    return bookmarkRecord;
   } catch (error) {
     console.log(error);
     return null;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getBookmarkRecord from "@/app/actions/getBookmarkRecord";
+import getIsSessionValid from "@/app/actions/getIsSessionValid";
 
 export async function GET(request: Request) {
   try {
@@ -19,7 +20,9 @@ export async function GET(request: Request) {
       return new NextResponse("Missing page_url.", { status: 400 });
     }
 
-    // TODO: VALIDATE SESSION IS VALID
+    if (!getIsSessionValid(sessionToken)) {
+      return new NextResponse("Invalid or expired session.", { status: 401 });
+    }
 
     const bookmarkRecord = await getBookmarkRecord(
       sessionToken,
@@ -43,11 +46,13 @@ export async function POST(request: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    if (!getIsSessionValid(sessionToken)) {
+      return new NextResponse("Invalid or expired session.", { status: 401 });
+    }
+
     if (!title || !page_url) {
       return new NextResponse("Missing information.", { status: 400 });
     }
-
-    // TODO: validate userId and sessionToken
 
     // Check if bookmark already exists for this url
     const existingBookmark = await prisma.bookmark.findFirst({
