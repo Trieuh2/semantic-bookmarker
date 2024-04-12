@@ -28,6 +28,7 @@ interface BookmarkRecord {
   page_url: string;
   note: string;
   excerpt: string;
+  createdAt: string | null;
 }
 
 const BookmarkForm: React.FC<BookmarkFormProps> = ({
@@ -125,6 +126,22 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     performSignOut();
   };
 
+  const formatDate = (date: string): string => {
+    const dateObj = new Date(date);
+    const month = dateObj.getMonth() + 1;
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+
+    let hour = dateObj.getHours();
+    const mins = ("0" + dateObj.getMinutes()).slice(-2); // Ensure two digit mins]
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    hour = hour ? hour : 12; // Convert 0 to 12 for 12 AM
+
+    return `${month}/${day}/${year} ${hour}:${mins} ${ampm}`;
+  };
+
   return (
     <div>
       <div
@@ -202,7 +219,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         {/* Tags */}
         <div className="w-full p-1 flex">
           <div className="min-w-20 p-2 text-end">Tags</div>
-          {/* <EditableLabel labelBackground /> */}
           <Input id="tags"></Input>
         </div>
 
@@ -214,6 +230,14 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
             useBackground
           />
         </div>
+
+        {/* Created At */}
+        {bookmarkRecord?.createdAt && (
+          <div className="w-full p-1 flex flex-shrink-0">
+            <div className="min-w-20 p-2 text-end"></div>
+            Saved {formatDate(bookmarkRecord?.createdAt)}
+          </div>
+        )}
       </div>
       <Footer />
     </div>
