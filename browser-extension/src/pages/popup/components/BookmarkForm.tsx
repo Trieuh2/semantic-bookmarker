@@ -188,7 +188,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     <div
       className="
         w-[400px]
-        h-[400px]
         flex
         flex-col
         items-start
@@ -285,8 +284,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
 
       {/* Created At */}
       {bookmarkRecord?.createdAt && (
-        <div className="w-full p-1 flex flex-shrink-0 bg-zinc-800">
-          <div className="min-w-20 p-2 text-end bg-zinc-800" />
+        <div className="w-full py-2 px-4 flex bg-zinc-800">
+          <div className="min-w-20 bg-zinc-800" />
           Saved {formatDate(bookmarkRecord?.createdAt)}
         </div>
       )}

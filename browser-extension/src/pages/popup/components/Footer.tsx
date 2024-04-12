@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <div className="w-full text-right p-2 text-gray-600 font-bold font-mono bg-zinc-800">
+    <div className="w-full text-right py-2 px-4 text-gray-600 font-bold font-mono bg-zinc-800">
       <button onMouseUp={handleOnClick}>{gitHubLabel}</button>
     </div>
   );
