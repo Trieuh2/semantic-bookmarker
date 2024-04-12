@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Footer from "./Footer";
 import TextArea from "./TextArea";
 import Input from "./Input";
@@ -39,6 +39,10 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(
     null
   );
+  const [title, setTitle] = useState<string>("");
+  const [note, setNote] = useState<string>("");
+  const [page_url, setPageUrl] = useState<string>("");
+
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
 
@@ -74,6 +78,9 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
 
         if (response) {
           setBookmarkRecord(response);
+          setTitle(response.title);
+          setNote(response.note);
+          setPageUrl(response.page_url);
         }
 
         setInitialFetchAttempted(true);
@@ -104,12 +111,47 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
 
         if (bookmark) {
           setBookmarkRecord(bookmark);
-        } else {
+          setTitle(bookmark.title);
+          setNote(bookmark.note);
+          setPageUrl(bookmark.page_url);
         }
       };
       createBookmarkRecord();
     }
   }, [initialFetchAttempted]);
+
+  const initialTitle = useMemo(
+    () => bookmarkRecord?.title ?? "",
+    [bookmarkRecord]
+  );
+
+  const handleResetTitle = () => {
+    if (!title) {
+      setTitle(initialTitle);
+    }
+  };
+
+  const initialNote = useMemo(
+    () => bookmarkRecord?.note ?? "",
+    [bookmarkRecord]
+  );
+
+  const handleResetNote = () => {
+    if (!note) {
+      setNote(initialNote);
+    }
+  };
+
+  const initialPageUrl = useMemo(
+    () => bookmarkRecord?.page_url ?? "",
+    [bookmarkRecord]
+  );
+
+  const handleResetPageUrl = () => {
+    if (!page_url) {
+      setPageUrl(initialPageUrl);
+    }
+  };
 
   const handleRedirectToWebsite = () => {
     chrome.tabs.create({
@@ -195,8 +237,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           <div className="min-w-20 p-2 text-end">Title</div>
           <div className="w-full h-full font-bold text-sm">
             <TextArea
-              initialText={bookmarkRecord?.title ? bookmarkRecord.title : ""}
+              value={title}
               useUnderline
+              onTextChange={(value) => {
+                setTitle(value);
+              }}
+              onBlur={handleResetTitle}
             />
           </div>
         </div>
@@ -205,15 +251,19 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         <div className="w-full p-1 flex">
           <div className="min-w-20 p-2 text-end">Note</div>
           <TextArea
-            initialText={bookmarkRecord?.note ? bookmarkRecord.note : ""}
+            value={note}
             useBackground
+            onTextChange={(value) => {
+              setNote(value);
+            }}
+            onBlur={handleResetNote}
           />
         </div>
 
         {/* Collection */}
         <div className="w-full p-1 flex">
           <div className="min-w-20 p-2 text-end">Collection</div>
-          <TextArea useBackground />
+          <TextArea useBackground onTextChange={() => {}} onBlur={() => {}} />
         </div>
 
         {/* Tags */}
@@ -226,15 +276,19 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         <div className="w-full p-1 flex">
           <div className="min-w-20 p-2 text-end">URL</div>
           <TextArea
-            initialText={currentTab?.url ? currentTab.url : ""}
+            value={page_url}
             useBackground
+            onTextChange={(value) => {
+              setPageUrl(value);
+            }}
+            onBlur={handleResetPageUrl}
           />
         </div>
 
         {/* Created At */}
         {bookmarkRecord?.createdAt && (
           <div className="w-full p-1 flex flex-shrink-0">
-            <div className="min-w-20 p-2 text-end"></div>
+            <div className="min-w-20 p-2 text-end" />
             Saved {formatDate(bookmarkRecord?.createdAt)}
           </div>
         )}

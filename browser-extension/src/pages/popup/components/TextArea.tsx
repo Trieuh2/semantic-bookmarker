@@ -2,23 +2,27 @@ import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 
 type TextAreaProps = {
-  initialText?: string;
+  value?: string;
   useBackground?: boolean;
   useUnderline?: boolean;
+  onTextChange: (value: string) => void;
+  onBlur: () => void;
 };
 
 const TextArea: React.FC<TextAreaProps> = ({
-  initialText = "",
+  value = "",
   useBackground,
   useUnderline,
+  onTextChange,
+  onBlur,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [text, setText] = useState<string>(initialText);
+  const [text, setText] = useState<string>(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setText(initialText);
-  }, [initialText]);
+    setText(value);
+  }, [value]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -30,20 +34,6 @@ const TextArea: React.FC<TextAreaProps> = ({
       }
     }
   }, [isFocused, text]);
-
-  const handleTextAreaBlur = () => {
-    if (text.trim() === "") {
-      setText(initialText);
-    }
-    setIsFocused(false);
-  };
-
-  const handleTextAreaChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const newValue = event.target.value;
-    setText(newValue);
-  };
 
   const textAreaClasses = clsx(
     `
@@ -70,8 +60,8 @@ const TextArea: React.FC<TextAreaProps> = ({
         ref={textareaRef}
         className={textAreaClasses}
         value={text}
-        onChange={handleTextAreaChange}
-        onBlur={handleTextAreaBlur}
+        onChange={(e) => onTextChange(e.target.value)}
+        onBlur={onBlur}
         onFocus={() => setIsFocused(true)}
         rows={1}
         style={{

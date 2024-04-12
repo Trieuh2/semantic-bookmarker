@@ -2902,13 +2902,13 @@ const ExtAuthForm = () => {
         react.createElement(Footer, null)));
 };
 
-const TextArea = ({ initialText = "", useBackground, useUnderline, }) => {
+const TextArea = ({ value = "", useBackground, useUnderline, onTextChange, onBlur, }) => {
     const [isFocused, setIsFocused] = react.useState(false);
-    const [text, setText] = react.useState(initialText);
+    const [text, setText] = react.useState(value);
     const textareaRef = react.useRef(null);
     react.useEffect(() => {
-        setText(initialText);
-    }, [initialText]);
+        setText(value);
+    }, [value]);
     react.useEffect(() => {
         if (textareaRef.current) {
             if (isFocused) {
@@ -2920,16 +2920,6 @@ const TextArea = ({ initialText = "", useBackground, useUnderline, }) => {
             }
         }
     }, [isFocused, text]);
-    const handleTextAreaBlur = () => {
-        if (text.trim() === "") {
-            setText(initialText);
-        }
-        setIsFocused(false);
-    };
-    const handleTextAreaChange = (event) => {
-        const newValue = event.target.value;
-        setText(newValue);
-    };
     const textAreaClasses = clsx(`
     w-full
     box-border
@@ -2945,7 +2935,7 @@ const TextArea = ({ initialText = "", useBackground, useUnderline, }) => {
     outline-none
     transition`, useBackground && "bg-zinc-900", !useUnderline && "focus:ring-2 focus:ring-orange-300 focus:bg-transparent");
     return (react.createElement("div", { className: "w-full flex text-white items-center justify-center relative" },
-        react.createElement("textarea", { ref: textareaRef, className: textAreaClasses, value: text, onChange: handleTextAreaChange, onBlur: handleTextAreaBlur, onFocus: () => setIsFocused(true), rows: 1, style: {
+        react.createElement("textarea", { ref: textareaRef, className: textAreaClasses, value: text, onChange: (e) => onTextChange(e.target.value), onBlur: onBlur, onFocus: () => setIsFocused(true), rows: 1, style: {
                 overflowY: isFocused ? "auto" : "hidden",
             } }),
         useUnderline && (react.createElement("div", { className: clsx("absolute bottom-0 left-0 right-0 h-0.5 mx-2", isFocused && "bg-orange-300") }))));
@@ -3069,6 +3059,9 @@ const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* ()
 const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
+    const [title, setTitle] = react.useState("");
+    const [note, setNote] = react.useState("");
+    const [page_url, setPageUrl] = react.useState("");
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
     // Parse the page for initial information
     react.useEffect(() => {
@@ -3097,6 +3090,9 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const response = yield getBookmarkRecord(sessionToken, userId, page_url);
                 if (response) {
                     setBookmarkRecord(response);
+                    setTitle(response.title);
+                    setNote(response.note);
+                    setPageUrl(response.page_url);
                 }
                 setInitialFetchAttempted(true);
             });
@@ -3117,11 +3113,32 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const bookmark = yield createOrUpdateBookmark(title, page_url, note, excerpt, userId, sessionToken);
                 if (bookmark) {
                     setBookmarkRecord(bookmark);
+                    setTitle(bookmark.title);
+                    setNote(bookmark.note);
+                    setPageUrl(bookmark.page_url);
                 }
             });
             createBookmarkRecord();
         }
     }, [initialFetchAttempted]);
+    const initialTitle = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.title) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    const handleResetTitle = () => {
+        if (!title) {
+            setTitle(initialTitle);
+        }
+    };
+    const initialNote = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.note) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    const handleResetNote = () => {
+        if (!note) {
+            setNote(initialNote);
+        }
+    };
+    const initialPageUrl = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.page_url) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    const handleResetPageUrl = () => {
+        if (!page_url) {
+            setPageUrl(initialPageUrl);
+        }
+    };
     const handleRedirectToWebsite = () => {
         chrome.tabs.create({
             url: "http://localhost:3000/",
@@ -3157,19 +3174,25 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Title"),
                 react.createElement("div", { className: "w-full h-full font-bold text-sm" },
-                    react.createElement(TextArea, { initialText: (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.title) ? bookmarkRecord.title : "", useUnderline: true }))),
+                    react.createElement(TextArea, { value: title, useUnderline: true, onTextChange: (value) => {
+                            setTitle(value);
+                        }, onBlur: handleResetTitle }))),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Note"),
-                react.createElement(TextArea, { initialText: (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.note) ? bookmarkRecord.note : "", useBackground: true })),
+                react.createElement(TextArea, { value: note, useBackground: true, onTextChange: (value) => {
+                        setNote(value);
+                    }, onBlur: handleResetNote })),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Collection"),
-                react.createElement(TextArea, { useBackground: true })),
+                react.createElement(TextArea, { useBackground: true, onTextChange: () => { }, onBlur: () => { } })),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "Tags"),
                 react.createElement(Input, { id: "tags" })),
             react.createElement("div", { className: "w-full p-1 flex" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }, "URL"),
-                react.createElement(TextArea, { initialText: (currentTab === null || currentTab === void 0 ? void 0 : currentTab.url) ? currentTab.url : "", useBackground: true })),
+                react.createElement(TextArea, { value: page_url, useBackground: true, onTextChange: (value) => {
+                        setPageUrl(value);
+                    }, onBlur: handleResetPageUrl })),
             (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.createdAt) && (react.createElement("div", { className: "w-full p-1 flex flex-shrink-0" },
                 react.createElement("div", { className: "min-w-20 p-2 text-end" }),
                 "Saved ",
