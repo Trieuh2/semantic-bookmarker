@@ -41,6 +41,7 @@ const TextArea: React.FC<TextAreaProps> = ({
     box-border
     py-2
     px-2
+    mx-2
     rounded-md
     resize-none
     border-transparent
@@ -55,7 +56,7 @@ const TextArea: React.FC<TextAreaProps> = ({
   );
 
   return (
-    <div className="w-full flex text-white items-center justify-center relative">
+    <div className="w-full flex text-white items-center justify-center relative bg-zinc-800">
       <textarea
         ref={textareaRef}
         className={textAreaClasses}

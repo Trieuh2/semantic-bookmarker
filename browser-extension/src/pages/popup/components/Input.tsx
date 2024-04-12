@@ -7,11 +7,7 @@ interface InputProps {
   required?: boolean;
 }
 
-const Input: React.FC<InputProps> = ({
-  id,
-  type,
-  required,
-}) => {
+const Input: React.FC<InputProps> = ({ id, type, required }) => {
   const inputClasses = clsx(
     `
     form-input
@@ -35,12 +31,8 @@ const Input: React.FC<InputProps> = ({
   );
 
   return (
-    <div className="w-full h-full">
-      <input
-        id={id}
-        type={type}
-        className={inputClasses}
-      ></input>
+    <div className="w-full h-full bg-zinc-800 mx-2">
+      <input id={id} type={type} className={inputClasses}></input>
     </div>
   );
 };

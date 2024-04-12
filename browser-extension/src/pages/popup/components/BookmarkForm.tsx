@@ -185,39 +185,37 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   };
 
   return (
-    <div>
-      <div
-        className="
+    <div
+      className="
         w-[400px]
         h-[400px]
         flex
         flex-col
-        gap-2
-        p-2
         items-start
         text-start
+        bg-zinc-800
       "
-      >
-        {/* Header icon and Logout Button */}
-        <div className="w-full flex justify-between">
-          <button
-            className="
+    >
+      {/* Header icon and Logout Button */}
+      <div className="w-full p-2 flex justify-between bg-zinc-800">
+        <button
+          className="
             p-2
             hover:bg-zinc-700
             rounded-md
             transition-colors
             duration-150"
-            onMouseUp={handleRedirectToWebsite}
-          >
-            <img
-              src={chrome.runtime.getURL("assets/icons/64.png")}
-              alt="App logo"
-              width="24"
-              height="24"
-            />
-          </button>
-          <button
-            className="
+          onMouseUp={handleRedirectToWebsite}
+        >
+          <img
+            src={chrome.runtime.getURL("assets/icons/64.png")}
+            alt="App logo"
+            width="24"
+            height="24"
+          />
+        </button>
+        <button
+          className="
             p-2
             text-lg
             font-bold
@@ -226,73 +224,72 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
             rounded-md
             transition-colors
             duration-150"
-            onMouseUp={handleSignOut}
-          >
-            Log out
-          </button>
-        </div>
-
-        {/* Title */}
-        <div className="w-full p-1 flex">
-          <div className="min-w-20 p-2 text-end">Title</div>
-          <div className="w-full h-full font-bold text-sm">
-            <TextArea
-              value={title}
-              useUnderline
-              onTextChange={(value) => {
-                setTitle(value);
-              }}
-              onBlur={handleResetTitle}
-            />
-          </div>
-        </div>
-
-        {/* Note */}
-        <div className="w-full p-1 flex">
-          <div className="min-w-20 p-2 text-end">Note</div>
-          <TextArea
-            value={note}
-            useBackground
-            onTextChange={(value) => {
-              setNote(value);
-            }}
-            onBlur={handleResetNote}
-          />
-        </div>
-
-        {/* Collection */}
-        <div className="w-full p-1 flex">
-          <div className="min-w-20 p-2 text-end">Collection</div>
-          <TextArea useBackground onTextChange={() => {}} onBlur={() => {}} />
-        </div>
-
-        {/* Tags */}
-        <div className="w-full p-1 flex">
-          <div className="min-w-20 p-2 text-end">Tags</div>
-          <Input id="tags"></Input>
-        </div>
-
-        {/* URL */}
-        <div className="w-full p-1 flex">
-          <div className="min-w-20 p-2 text-end">URL</div>
-          <TextArea
-            value={page_url}
-            useBackground
-            onTextChange={(value) => {
-              setPageUrl(value);
-            }}
-            onBlur={handleResetPageUrl}
-          />
-        </div>
-
-        {/* Created At */}
-        {bookmarkRecord?.createdAt && (
-          <div className="w-full p-1 flex flex-shrink-0">
-            <div className="min-w-20 p-2 text-end" />
-            Saved {formatDate(bookmarkRecord?.createdAt)}
-          </div>
-        )}
+          onMouseUp={handleSignOut}
+        >
+          Log out
+        </button>
       </div>
+
+      {/* Title */}
+      <div className="w-full p-1 flex bg-zinc-800">
+        <div className="min-w-20 p-2 text-end bg-zinc-800">Title</div>
+        <div className="w-full h-full font-bold text-sm bg-zinc-800">
+          <TextArea
+            value={title}
+            useUnderline
+            onTextChange={(value) => {
+              setTitle(value);
+            }}
+            onBlur={handleResetTitle}
+          />
+        </div>
+      </div>
+
+      {/* Note */}
+      <div className="w-full p-1 flex bg-zinc-800">
+        <div className="min-w-20 p-2 text-end bg-zinc-800">Note</div>
+        <TextArea
+          value={note}
+          useBackground
+          onTextChange={(value) => {
+            setNote(value);
+          }}
+          onBlur={handleResetNote}
+        />
+      </div>
+
+      {/* Collection */}
+      <div className="w-full p-1 flex bg-zinc-800">
+        <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
+        <TextArea useBackground onTextChange={() => {}} onBlur={() => {}} />
+      </div>
+
+      {/* Tags */}
+      <div className="w-full p-1 flex bg-zinc-800">
+        <div className="min-w-20 p-2 text-end bg-zinc-800">Tags</div>
+        <Input id="tags"></Input>
+      </div>
+
+      {/* URL */}
+      <div className="w-full p-1 flex bg-zinc-800">
+        <div className="min-w-20 p-2 text-end bg-zinc-800">URL</div>
+        <TextArea
+          value={page_url}
+          useBackground
+          onTextChange={(value) => {
+            setPageUrl(value);
+          }}
+          onBlur={handleResetPageUrl}
+        />
+      </div>
+
+      {/* Created At */}
+      {bookmarkRecord?.createdAt && (
+        <div className="w-full p-1 flex flex-shrink-0 bg-zinc-800">
+          <div className="min-w-20 p-2 text-end bg-zinc-800" />
+          Saved {formatDate(bookmarkRecord?.createdAt)}
+        </div>
+      )}
       <Footer />
     </div>
   );
