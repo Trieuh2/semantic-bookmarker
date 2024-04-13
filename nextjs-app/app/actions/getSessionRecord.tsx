@@ -2,11 +2,11 @@ import prisma from "@/app/libs/prismadb";
 import { SessionError } from "../types";
 
 const getSessionRecord = async (sessionToken: string) => {
-  if (!sessionToken) {
-    throw new SessionError("Session token is required", "MISSING_TOKEN");
-  }
-
   try {
+    if (!sessionToken) {
+      throw new SessionError("Session token is required", "MISSING_TOKEN");
+    }
+
     const sessionRecord = await prisma.session.findUnique({
       where: {
         sessionToken: sessionToken,
@@ -23,7 +23,7 @@ const getSessionRecord = async (sessionToken: string) => {
     return sessionRecord;
   } catch (error) {
     console.log("Error accessing the database:", error);
-    throw new SessionError("Database access error", "DB_ERROR");
+    return null;
   }
 };
 

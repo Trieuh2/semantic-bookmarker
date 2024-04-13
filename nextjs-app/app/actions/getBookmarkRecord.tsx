@@ -8,11 +8,15 @@ const getBookmarkRecord = async (
 ) => {
   try {
     if (!sessionToken || !userId || !page_url) {
-      return null;
+      throw new Error(
+        "Missing required fields (sessionToken, userId, page_url)"
+      );
     }
 
-    if (!getIsSessionValid(sessionToken)) {
-      return null
+    const isSessionValid = await getIsSessionValid(sessionToken);
+
+    if (!isSessionValid) {
+      throw new Error("Invalid or expired session.");
     }
 
     // Fetch the Session record from the DB
