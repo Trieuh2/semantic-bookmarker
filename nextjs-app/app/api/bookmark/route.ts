@@ -35,6 +35,13 @@ export async function GET(request: Request) {
       page_url
     );
 
+    if (!bookmarkRecord) {
+      return NextResponse.json(
+        { error: "Bookmark record not found" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(bookmarkRecord);
   } catch (error) {
     console.log(error, "Error fetching bookmark from server.");
@@ -94,6 +101,71 @@ export async function POST(request: Request) {
         note: note ?? "",
         excerpt: excerpt ?? "",
         userId: userId,
+      },
+    });
+
+    return NextResponse.json(newBookmark);
+  } catch (error) {
+    console.log(error, "Error encountered during Bookmark creation process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { title, page_url, note, excerpt, userId, sessionToken } = body;
+
+    const missingFields = [];
+    if (!title) missingFields.push("title");
+    if (!page_url) missingFields.push("page_url");
+    if (!userId) missingFields.push("userId");
+    if (!sessionToken) missingFields.push("sessionToken");
+
+    if (!userId || !sessionToken || !title || !page_url) {
+      return NextResponse.json(
+        {
+          error: "Missing required fields or unauthorized",
+          missing_fields: missingFields,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!getIsSessionValid(sessionToken)) {
+      return NextResponse.json(
+        { error: "Invalid or expired session" },
+        { status: 401 }
+      );
+    }
+
+    // Update the existing Bookmark
+    const existingBookmark = await prisma.bookmark.findFirst({
+      where: {
+        userId: userId,
+        page_url: page_url,
+      },
+    });
+
+    if (!existingBookmark) {
+      return NextResponse.json(
+        { error: "Bookmark record not found" },
+        { status: 404 }
+      );
+    }
+
+    const newBookmark = await prisma.bookmark.update({
+      where: {
+        id: existingBookmark.id,
+      },
+      data: {
+        title: title,
+        page_url: page_url,
+        note: note ?? "",
+        excerpt: excerpt ?? "",
       },
     });
 

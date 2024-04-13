@@ -3002,14 +3002,8 @@ const createOrUpdateBookmark = (title, page_url, note, excerpt, userId, sessionT
 
 const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!sessionToken) {
-            throw new Error("Session ID is required");
-        }
-        if (!userId) {
-            throw new Error("userId is required");
-        }
-        if (!page_url) {
-            throw new Error("url is required");
+        if (!sessionToken || !userId || !page_url) {
+            throw new Error("All parameters (sessionToken, userId, page_url) are required");
         }
         const base_url = "http://localhost:3000/api/bookmark";
         const params = {
@@ -3021,13 +3015,17 @@ const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, 
         const api_url = `${base_url}?${queryString}`;
         const response = yield fetch(api_url);
         if (!response.ok) {
+            if (response.status === 404) {
+                return null;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const bookmarkRecord = response.json();
         return bookmarkRecord;
     }
     catch (error) {
-        throw error;
+        console.error("Error fetching bookmark record:", error);
+        return null;
     }
 });
 
