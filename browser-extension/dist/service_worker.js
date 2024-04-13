@@ -1,2 +1,2 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-6b0d6682.js"
+              import "./assets/background-page-reloader-ee9adde2.js"

@@ -59,6 +59,8 @@ const App: React.FC = () => {
   }, [sessionRecord]);
 
   const handleSignOut = () => {
+    document.cookie =
+      "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
     localStorage.setItem("isAuthenticated", "false");
     setIsAuthenticated(false);
     setSessionToken(null);

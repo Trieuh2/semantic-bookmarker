@@ -2843,11 +2843,17 @@ const getSessionTokenFromCookie = () => __awaiter(void 0, void 0, void 0, functi
 const getServerSession = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!sessionToken) {
-            throw new Error("Session ID is required");
+            throw new Error("Session token is required!");
         }
         const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
         const response = yield fetch(url);
         if (!response.ok) {
+            if (response.status === 400) {
+                return null;
+            }
+            if (response.status === 404) {
+                return null;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const sessionRecord = response.json();
@@ -2855,7 +2861,7 @@ const getServerSession = (sessionToken) => __awaiter(void 0, void 0, void 0, fun
     }
     catch (error) {
         console.error("Failed to fetch server session:", error);
-        throw error;
+        return null;
     }
 });
 
@@ -3238,6 +3244,8 @@ const App = () => {
         }
     }, [sessionRecord]);
     const handleSignOut = () => {
+        document.cookie =
+            "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
         localStorage.setItem("isAuthenticated", "false");
         setIsAuthenticated(false);
         setSessionToken(null);

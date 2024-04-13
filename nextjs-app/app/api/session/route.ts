@@ -19,6 +19,14 @@ export async function GET(request: Request) {
     }
 
     const sessionRecord = await getSessionRecord(sessionToken);
+
+    if (!sessionRecord) {
+      return NextResponse.json(
+        { error: "Session record not found." },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(sessionRecord);
   } catch (error: unknown) {
     console.error("Error fetching session from server:", error);
