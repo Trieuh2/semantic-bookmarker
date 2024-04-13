@@ -7,16 +7,25 @@ export async function POST(request: Request) {
     const { sessionToken } = body;
 
     if (!sessionToken) {
-      return new NextResponse("Missing sessionToken", { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+          missing_fields: ["sessionToken"],
+        },
+        { status: 400 }
+      );
     }
 
     const result = await prisma.session.delete({
       where: { sessionToken },
     });
 
-    return NextResponse.json(result)
+    return NextResponse.json(result);
   } catch (error: any) {
-    console.log(error, "Error signing out.");
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log(error, "Error encountered during User sign-out process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

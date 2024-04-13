@@ -10,18 +10,23 @@ export async function GET(request: Request) {
     const userId = url.searchParams.get("userId");
     const page_url = url.searchParams.get("page_url");
 
-    if (!sessionToken) {
-      return new NextResponse("Missing sessionToken.", { status: 400 });
-    }
-    if (!userId) {
-      return new NextResponse("Missing userId.", { status: 400 });
-    }
-    if (!page_url) {
-      return new NextResponse("Missing page_url.", { status: 400 });
+    const missingFields = [];
+    if (!sessionToken) missingFields.push("sessionToken");
+    if (!userId) missingFields.push("userId");
+    if (!page_url) missingFields.push("page_url");
+
+    if (!sessionToken || !userId || !page_url) {
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+          missing_fields: missingFields,
+        },
+        { status: 400 }
+      );
     }
 
     if (!getIsSessionValid(sessionToken)) {
-      return new NextResponse("Invalid or expired session.", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bookmarkRecord = await getBookmarkRecord(
@@ -33,7 +38,7 @@ export async function GET(request: Request) {
     return NextResponse.json(bookmarkRecord);
   } catch (error) {
     console.log(error, "Error fetching bookmark from server.");
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
 
@@ -42,16 +47,27 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, page_url, note, excerpt, userId, sessionToken } = body;
 
-    if (!userId || !sessionToken) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    const missingFields = [];
+    if (!title) missingFields.push("title");
+    if (!page_url) missingFields.push("page_url");
+    if (!userId) missingFields.push("userId");
+    if (!sessionToken) missingFields.push("sessionToken");
+
+    if (!userId || !sessionToken || !title || !page_url) {
+      return NextResponse.json(
+        {
+          error: "Missing required fields or unauthorized",
+          missing_fields: missingFields,
+        },
+        { status: 400 }
+      );
     }
 
     if (!getIsSessionValid(sessionToken)) {
-      return new NextResponse("Invalid or expired session.", { status: 401 });
-    }
-
-    if (!title || !page_url) {
-      return new NextResponse("Missing information.", { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid or expired session" },
+        { status: 401 }
+      );
     }
 
     // Check if bookmark already exists for this url
@@ -63,8 +79,12 @@ export async function POST(request: Request) {
     });
 
     if (existingBookmark) {
-      // TODO: UPDATE EXISTING
-      return NextResponse.json(existingBookmark);
+      return NextResponse.json(
+        {
+          error: "A bookmark with the provided page URL already exists.",
+        },
+        { status: 409 }
+      );
     }
 
     const newBookmark = await prisma.bookmark.create({
@@ -79,7 +99,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newBookmark);
   } catch (error) {
-    console.log(error, "Error creating bookmark.");
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log(error, "Error encountered during Bookmark creation process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

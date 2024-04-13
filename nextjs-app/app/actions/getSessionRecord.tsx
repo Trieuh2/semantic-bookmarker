@@ -1,22 +1,29 @@
 import prisma from "@/app/libs/prismadb";
+import { SessionError } from "../types";
 
 const getSessionRecord = async (sessionToken: string) => {
-  try {
-    if (!sessionToken) {
-      return null;
-    }
+  if (!sessionToken) {
+    throw new SessionError("Session token is required", "MISSING_TOKEN");
+  }
 
-    // Fetch the Session record from the DB
+  try {
     const sessionRecord = await prisma.session.findUnique({
       where: {
         sessionToken: sessionToken,
       },
     });
 
+    if (!sessionRecord) {
+      throw new SessionError(
+        "No session found for the provided token",
+        "NOT_FOUND"
+      );
+    }
+
     return sessionRecord;
   } catch (error) {
-    console.log(error);
-    return null;
+    console.log("Error accessing the database:", error);
+    throw new SessionError("Database access error", "DB_ERROR");
   }
 };
 

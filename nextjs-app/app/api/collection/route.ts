@@ -8,19 +8,25 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name } = body;
 
-    if (!currentUser?.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!name) {
+      return NextResponse.json(
+        { error: "Missing required fields", missing_fields: ["name"] },
+        { status: 400 }
+      );
     }
 
-    if (!name) {
-      return new NextResponse("Missing information", { status: 400 });
+    if (!currentUser?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existingCollection = await prisma.collection.findUnique({
       where: { name },
     });
     if (existingCollection) {
-      return new NextResponse("Collection already exists", { status: 409 });
+      return NextResponse.json(
+        { error: "A Collection with the provided name already exists." },
+        { status: 409 }
+      );
     }
 
     const newCollection = await prisma.collection.create({
@@ -32,7 +38,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newCollection);
   } catch (error: any) {
-    console.log(error, "COLLECTION_CREATION_ERROR");
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log(error, "Error encountered during Collection creation process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

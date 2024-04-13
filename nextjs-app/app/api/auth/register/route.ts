@@ -6,13 +6,23 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
 
+    const missingFields = [];
+    if (!email) missingFields.push("email");
+    if (!password) missingFields.push("password");
+
     if (!email || !password) {
-      return new NextResponse("Missing information", { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields", missing_fields: missingFields },
+        { status: 400 }
+      );
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return new NextResponse("User already exists", { status: 409 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 409 }
+      );
     }
 
     const bcrypt = require("bcrypt");
@@ -26,7 +36,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(user);
   } catch (error: any) {
-    console.log(error, "REGISTRATION_ERROR");
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log(error, "Error encountered during User registration process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
