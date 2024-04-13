@@ -3033,12 +3033,12 @@ const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, 
 
 const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const url = "http://localhost:3000/api/auth/signout";
+        const url = "http://localhost:3000/api/session";
         const postData = {
             sessionToken: sessionToken,
         };
         const response = yield fetch(url, {
-            method: "POST",
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },

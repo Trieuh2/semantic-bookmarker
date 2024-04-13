@@ -1,11 +1,11 @@
 const signOut = async (sessionToken: string) => {
   try {
-    const url = "http://localhost:3000/api/auth/signout";
+    const url = "http://localhost:3000/api/session";
     const postData = {
       sessionToken: sessionToken,
     };
     const response = await fetch(url, {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
