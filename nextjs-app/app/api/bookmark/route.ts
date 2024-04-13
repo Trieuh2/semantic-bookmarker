@@ -37,12 +37,13 @@ export async function GET(request: Request) {
       page_url
     );
 
-    if (!bookmarkRecord) {
-      return NextResponse.json(
-        { error: "Bookmark record not found" },
-        { status: 404 }
-      );
-    }
+    // // Suppress 404 Error for fetching Bookmarks in production since it's an expected scenario
+    // if (!bookmarkRecord) {
+    //   return NextResponse.json(
+    //     { error: "Bookmark record not found" },
+    //     { status: 404 }
+    //   );
+    // }
 
     return NextResponse.json(bookmarkRecord);
   } catch (error) {
