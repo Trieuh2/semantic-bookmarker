@@ -1,4 +1,4 @@
-const getServerSession = async (sessionToken: string) => {
+const getSession = async (sessionToken: string) => {
   try {
     if (!sessionToken) {
       throw new Error("Session token is required!");
@@ -17,12 +17,12 @@ const getServerSession = async (sessionToken: string) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const sessionRecord = response.json();
-    return sessionRecord;
+    const data = response.json();
+    return data;
   } catch (error) {
     console.error("Failed to fetch server session:", error);
     return null;
   }
 };
 
-export default getServerSession;
+export default getSession;

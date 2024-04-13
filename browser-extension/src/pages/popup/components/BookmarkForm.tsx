@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import Footer from "./Footer";
 import TextArea from "./TextArea";
 import Input from "./Input";
-import createOrUpdateBookmark from "../../../actions/apiActions/createOrUpdateBookmark";
-import getBookmarkRecord from "../../../actions/apiActions/getBookmarkRecord";
+import getBookmark from "../../../actions/apiActions/getBookmark";
 import signOut from "../../../actions/apiActions/signOut";
+import createBookmark from "../../../actions/apiActions/createBookmark";
 
 interface BookmarkFormProps {
   sessionRecord: SessionRecord | null;
@@ -70,11 +70,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         const userId = sessionRecord?.userId ?? "";
         const page_url = currentTab?.url ?? "";
 
-        const response = await getBookmarkRecord(
-          sessionToken,
-          userId,
-          page_url
-        );
+        const response = await getBookmark(sessionToken, userId, page_url);
 
         if (response) {
           setBookmarkRecord(response);
@@ -89,7 +85,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [currentTab]);
 
-  // If this bookmark record has never been recorded, then record this bookmark
+  // If this Bookmark record does not exist in the DB, create this record.
   useEffect(() => {
     if (!bookmarkRecord && initialFetchAttempted && currentTab) {
       const createBookmarkRecord = async () => {
@@ -100,14 +96,16 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         const userId = sessionRecord?.userId ?? "";
         const sessionToken = sessionRecord?.sessionToken ?? "";
 
-        const bookmark = await createOrUpdateBookmark(
-          title,
-          page_url,
-          note,
-          excerpt,
-          userId,
-          sessionToken
-        );
+        const bookmarkCreateRequest = {
+          title: title,
+          page_url: page_url,
+          note: note,
+          excerpt: excerpt,
+          userId: userId,
+          sessionToken: sessionToken
+        }
+
+        const bookmark = await createBookmark(bookmarkCreateRequest);
 
         if (bookmark) {
           setBookmarkRecord(bookmark);

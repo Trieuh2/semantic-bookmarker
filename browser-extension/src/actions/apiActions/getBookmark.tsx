@@ -1,4 +1,4 @@
-const getBookmarkRecord = async (
+const getBookmark = async (
   sessionToken: string,
   userId: string,
   page_url: string
@@ -17,10 +17,10 @@ const getBookmarkRecord = async (
       page_url: page_url,
     };
     const queryString = new URLSearchParams(params).toString();
-    const api_url = `${base_url}?${queryString}`;
+    const url = `${base_url}?${queryString}`;
 
-    const response = await fetch(api_url);
-
+    const response = await fetch(url);
+    
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -28,12 +28,12 @@ const getBookmarkRecord = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const bookmarkRecord = response.json();
-    return bookmarkRecord;
+    const data = response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching bookmark record:", error);
     return null;
   }
 };
 
-export default getBookmarkRecord;
+export default getBookmark;

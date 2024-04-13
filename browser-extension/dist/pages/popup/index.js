@@ -2840,7 +2840,7 @@ const getSessionTokenFromCookie = () => __awaiter(void 0, void 0, void 0, functi
     }
 });
 
-const getServerSession = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
+const getSession = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!sessionToken) {
             throw new Error("Session token is required!");
@@ -2856,8 +2856,8 @@ const getServerSession = (sessionToken) => __awaiter(void 0, void 0, void 0, fun
             }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const sessionRecord = response.json();
-        return sessionRecord;
+        const data = response.json();
+        return data;
     }
     catch (error) {
         console.error("Failed to fetch server session:", error);
@@ -2972,41 +2972,7 @@ const Input = ({ id, type, required }) => {
         react.createElement("input", { id: id, type: type, className: inputClasses })));
 };
 
-const createOrUpdateBookmark = (title, page_url, note, excerpt, userId, sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        if (!sessionToken) {
-            throw new Error("Session ID is required");
-        }
-        const postData = {
-            title: title,
-            page_url: page_url,
-            note: note,
-            excerpt: excerpt,
-            userId: userId,
-            sessionToken: sessionToken,
-        };
-        const api_url = "http://localhost:3000/api/bookmark";
-        const response = yield fetch(api_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postData),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        // Parse the JSON response
-        const data = yield response.json();
-        return data;
-    }
-    catch (error) {
-        console.error("Failed to create or update bookmark:", error);
-        throw error;
-    }
-});
-
-const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, void 0, void 0, function* () {
+const getBookmark = (sessionToken, userId, page_url) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!sessionToken || !userId || !page_url) {
             throw new Error("All parameters (sessionToken, userId, page_url) are required");
@@ -3018,16 +2984,16 @@ const getBookmarkRecord = (sessionToken, userId, page_url) => __awaiter(void 0, 
             page_url: page_url,
         };
         const queryString = new URLSearchParams(params).toString();
-        const api_url = `${base_url}?${queryString}`;
-        const response = yield fetch(api_url);
+        const url = `${base_url}?${queryString}`;
+        const response = yield fetch(url);
         if (!response.ok) {
             if (response.status === 404) {
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const bookmarkRecord = response.json();
-        return bookmarkRecord;
+        const data = response.json();
+        return data;
     }
     catch (error) {
         console.error("Error fetching bookmark record:", error);
@@ -3057,6 +3023,40 @@ const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (error) {
         console.error("Failed to sign out of current session:", error);
+        throw error;
+    }
+});
+
+const createBookmark = (createRequest) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { title, page_url, note, excerpt, userId, sessionToken } = createRequest;
+        if (!title || !page_url || !userId || !sessionToken) {
+            throw Error("Missing required fields (title, page_url, userId, sessionToken).");
+        }
+        const postData = {
+            title: title,
+            page_url: page_url,
+            note: note !== null && note !== void 0 ? note : "",
+            excerpt: excerpt !== null && excerpt !== void 0 ? excerpt : "",
+            userId: userId,
+            sessionToken: sessionToken,
+        };
+        const url = "http://localhost:3000/api/bookmark";
+        const response = yield fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = yield response.json();
+        return data;
+    }
+    catch (error) {
+        console.error("Failed to create or update bookmark:", error);
         throw error;
     }
 });
@@ -3092,7 +3092,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const sessionToken = (_a = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _a !== void 0 ? _a : "";
                 const userId = (_b = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.userId) !== null && _b !== void 0 ? _b : "";
                 const page_url = (_c = currentTab === null || currentTab === void 0 ? void 0 : currentTab.url) !== null && _c !== void 0 ? _c : "";
-                const response = yield getBookmarkRecord(sessionToken, userId, page_url);
+                const response = yield getBookmark(sessionToken, userId, page_url);
                 if (response) {
                     setBookmarkRecord(response);
                     setTitle(response.title);
@@ -3104,7 +3104,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             fetchBookmarkRecord();
         }
     }, [currentTab]);
-    // If this bookmark record has never been recorded, then record this bookmark
+    // If this Bookmark record does not exist in the DB, create this record.
     react.useEffect(() => {
         if (!bookmarkRecord && initialFetchAttempted && currentTab) {
             const createBookmarkRecord = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -3115,7 +3115,15 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const excerpt = "";
                 const userId = (_c = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.userId) !== null && _c !== void 0 ? _c : "";
                 const sessionToken = (_d = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _d !== void 0 ? _d : "";
-                const bookmark = yield createOrUpdateBookmark(title, page_url, note, excerpt, userId, sessionToken);
+                const bookmarkCreateRequest = {
+                    title: title,
+                    page_url: page_url,
+                    note: note,
+                    excerpt: excerpt,
+                    userId: userId,
+                    sessionToken: sessionToken
+                };
+                const bookmark = yield createBookmark(bookmarkCreateRequest);
                 if (bookmark) {
                     setBookmarkRecord(bookmark);
                     setTitle(bookmark.title);
@@ -3224,7 +3232,7 @@ const App = () => {
     react.useEffect(() => {
         if (sessionToken) {
             const fetchServerSession = () => __awaiter(void 0, void 0, void 0, function* () {
-                const serverSession = yield getServerSession(sessionToken);
+                const serverSession = yield getSession(sessionToken);
                 if (serverSession) {
                     setSessionRecord(serverSession);
                 }
