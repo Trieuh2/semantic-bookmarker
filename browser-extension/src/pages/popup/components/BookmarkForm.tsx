@@ -202,6 +202,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         <button
           className="
             p-2
+            m-2
             hover:bg-zinc-700
             rounded-md
             transition-colors
@@ -218,6 +219,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         <button
           className="
             p-2
+            m-2
             text-lg
             font-bold
           text-white
