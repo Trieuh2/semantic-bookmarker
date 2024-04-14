@@ -62,7 +62,10 @@ const TextArea: React.FC<TextAreaProps> = ({
         className={textAreaClasses}
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
-        onBlur={onBlur}
+        onBlur={() => {
+          setIsFocused(false);
+          onBlur;
+        }}
         onFocus={() => setIsFocused(true)}
         rows={1}
         style={{
@@ -70,7 +73,7 @@ const TextArea: React.FC<TextAreaProps> = ({
         }}
       ></textarea>
       {/* Underline element */}
-      {useUnderline && (
+      {useUnderline && isFocused && (
         <div
           className={clsx(
             "absolute bottom-0 left-0 right-0 h-0.5 mx-2",

@@ -2942,10 +2942,12 @@ const TextArea = ({ value = "", useBackground, useUnderline, onTextChange, onBlu
     outline-none
     transition`, useBackground && "bg-zinc-900", !useUnderline && "focus:ring-2 focus:ring-orange-300 focus:bg-transparent");
     return (react.createElement("div", { className: "w-full flex text-white items-center justify-center relative bg-zinc-800" },
-        react.createElement("textarea", { ref: textareaRef, className: textAreaClasses, value: text, onChange: (e) => onTextChange(e.target.value), onBlur: onBlur, onFocus: () => setIsFocused(true), rows: 1, style: {
+        react.createElement("textarea", { ref: textareaRef, className: textAreaClasses, value: text, onChange: (e) => onTextChange(e.target.value), onBlur: () => {
+                setIsFocused(false);
+            }, onFocus: () => setIsFocused(true), rows: 1, style: {
                 overflowY: isFocused ? "auto" : "hidden",
             } }),
-        useUnderline && (react.createElement("div", { className: clsx("absolute bottom-0 left-0 right-0 h-0.5 mx-2", isFocused && "bg-orange-300") }))));
+        useUnderline && isFocused && (react.createElement("div", { className: clsx("absolute bottom-0 left-0 right-0 h-0.5 mx-2", isFocused && "bg-orange-300") }))));
 };
 
 const Input = ({ id, type, onChange, onKeyDown, value, }) => {
