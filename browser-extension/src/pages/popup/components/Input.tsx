@@ -39,7 +39,7 @@ const Input: React.FC<InputProps> = ({
   );
 
   return (
-    <div className="w-full h-full bg-zinc-800 mx-2">
+    <div className="w-full h-full bg-zinc-800">
       <input
         id={id}
         type={type}

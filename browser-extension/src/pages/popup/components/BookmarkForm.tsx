@@ -5,6 +5,7 @@ import Input from "./Input";
 import getBookmark from "../../../actions/apiActions/getBookmark";
 import signOut from "../../../actions/apiActions/signOut";
 import createBookmark from "../../../actions/apiActions/createBookmark";
+import TagButton from "./TagButton";
 
 interface BookmarkFormProps {
   sessionRecord: SessionRecord | null;
@@ -193,10 +194,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         items-start
         text-start
         bg-zinc-800
+        gap-2
       "
     >
       {/* Header icon and Logout Button */}
-      <div className="w-full p-2 flex justify-between bg-zinc-800">
+      <div className="w-full flex justify-between bg-zinc-800">
         <button
           className="
             p-2
@@ -230,7 +232,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       </div>
 
       {/* Title */}
-      <div className="w-full p-1 flex bg-zinc-800">
+      <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Title</div>
         <div className="w-full h-full font-bold text-sm bg-zinc-800">
           <TextArea
@@ -245,7 +247,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       </div>
 
       {/* Note */}
-      <div className="w-full p-1 flex bg-zinc-800">
+      <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Note</div>
         <TextArea
           value={note}
@@ -258,31 +260,51 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       </div>
 
       {/* Collection */}
-      <div className="w-full p-1 flex bg-zinc-800">
+      <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
         <TextArea useBackground onTextChange={() => {}} onBlur={() => {}} />
       </div>
 
       {/* Tags */}
-      <div className="w-full p-1 flex bg-zinc-800">
+      <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Tags</div>
-        <Input
-          id="tags"
-          value={tagField}
-          onChange={(event) => setTagField(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              setTagSet(new Set([...tagSet, tagField]))
-              setTagField("")
-              console.log(tagSet)
-              event.preventDefault();
-            }
-          }}
-        ></Input>
+        <div className="w-full flex flex-col mx-2">
+          <Input
+            id="tags"
+            value={tagField}
+            onChange={(event) => setTagField(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                const newTag = tagField.trim();
+                setTagSet(new Set([...tagSet, newTag]));
+                setTagField("");
+                event.preventDefault();
+              }
+            }}
+          />
+
+          {/* Tag buttons */}
+          {tagSet && tagSet.size > 0 && (
+            <div className="flex flex-wrap w-full gap-1 mt-2">
+              {Array.from(tagSet).map((tagName) => {
+                return (
+                  <TagButton
+                    name={tagName}
+                    onClick={(name) => {
+                      const updatedTagSet = new Set(tagSet);
+                      updatedTagSet.delete(name);
+                      setTagSet(updatedTagSet);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* URL */}
-      <div className="w-full p-1 flex bg-zinc-800">
+      <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">URL</div>
         <TextArea
           value={page_url}
