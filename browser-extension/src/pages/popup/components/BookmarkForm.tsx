@@ -42,6 +42,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   const [title, setTitle] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [page_url, setPageUrl] = useState<string>("");
+  const [tagSet, setTagSet] = useState<Set<string>>(new Set());
+  const [tagField, setTagField] = useState<string>("");
 
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
@@ -102,8 +104,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           note: note,
           excerpt: excerpt,
           userId: userId,
-          sessionToken: sessionToken
-        }
+          sessionToken: sessionToken,
+        };
 
         const bookmark = await createBookmark(bookmarkCreateRequest);
 
@@ -264,7 +266,19 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       {/* Tags */}
       <div className="w-full p-1 flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Tags</div>
-        <Input id="tags"></Input>
+        <Input
+          id="tags"
+          value={tagField}
+          onChange={(event) => setTagField(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              setTagSet(new Set([...tagSet, tagField]))
+              setTagField("")
+              console.log(tagSet)
+              event.preventDefault();
+            }
+          }}
+        ></Input>
       </div>
 
       {/* URL */}

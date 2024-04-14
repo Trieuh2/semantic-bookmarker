@@ -2948,7 +2948,7 @@ const TextArea = ({ value = "", useBackground, useUnderline, onTextChange, onBlu
         useUnderline && (react.createElement("div", { className: clsx("absolute bottom-0 left-0 right-0 h-0.5 mx-2", isFocused && "bg-orange-300") }))));
 };
 
-const Input = ({ id, type, required }) => {
+const Input = ({ id, type, onChange, onKeyDown, value, }) => {
     const inputClasses = clsx(`
     form-input
     block
@@ -2969,7 +2969,7 @@ const Input = ({ id, type, required }) => {
     focus:bg-transparent
     transition`);
     return (react.createElement("div", { className: "w-full h-full bg-zinc-800 mx-2" },
-        react.createElement("input", { id: id, type: type, className: inputClasses })));
+        react.createElement("input", { id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, value: value })));
 };
 
 const getBookmark = (sessionToken, userId, page_url) => __awaiter(void 0, void 0, void 0, function* () {
@@ -3067,6 +3067,8 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [title, setTitle] = react.useState("");
     const [note, setNote] = react.useState("");
     const [page_url, setPageUrl] = react.useState("");
+    const [tagSet, setTagSet] = react.useState(new Set());
+    const [tagField, setTagField] = react.useState("");
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
     // Parse the page for initial information
     react.useEffect(() => {
@@ -3121,7 +3123,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                     note: note,
                     excerpt: excerpt,
                     userId: userId,
-                    sessionToken: sessionToken
+                    sessionToken: sessionToken,
                 };
                 const bookmark = yield createBookmark(bookmarkCreateRequest);
                 if (bookmark) {
@@ -3199,7 +3201,14 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             react.createElement(TextArea, { useBackground: true, onTextChange: () => { }, onBlur: () => { } })),
         react.createElement("div", { className: "w-full p-1 flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Tags"),
-            react.createElement(Input, { id: "tags" })),
+            react.createElement(Input, { id: "tags", value: tagField, onChange: (event) => setTagField(event.currentTarget.value), onKeyDown: (event) => {
+                    if (event.key === "Enter") {
+                        setTagSet(new Set([...tagSet, tagField]));
+                        setTagField("");
+                        console.log(tagSet);
+                        event.preventDefault();
+                    }
+                } })),
         react.createElement("div", { className: "w-full p-1 flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "URL"),
             react.createElement(TextArea, { value: page_url, useBackground: true, onTextChange: (value) => {

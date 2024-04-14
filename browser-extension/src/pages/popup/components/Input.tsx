@@ -4,10 +4,18 @@ import clsx from "clsx";
 interface InputProps {
   id: string;
   type?: string;
-  required?: boolean;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  value?: string;
 }
 
-const Input: React.FC<InputProps> = ({ id, type, required }) => {
+const Input: React.FC<InputProps> = ({
+  id,
+  type,
+  onChange,
+  onKeyDown,
+  value,
+}) => {
   const inputClasses = clsx(
     `
     form-input
@@ -32,7 +40,14 @@ const Input: React.FC<InputProps> = ({ id, type, required }) => {
 
   return (
     <div className="w-full h-full bg-zinc-800 mx-2">
-      <input id={id} type={type} className={inputClasses}></input>
+      <input
+        id={id}
+        type={type}
+        className={inputClasses}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        value={value}
+      ></input>
     </div>
   );
 };
