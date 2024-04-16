@@ -25,6 +25,7 @@ interface ChromeTab {
 }
 
 interface BookmarkRecord {
+  id: string;
   title: string;
   page_url: string;
   note: string;
@@ -88,7 +89,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [currentTab]);
 
-  // If this Bookmark record does not exist in the DB, create this record.
+  // If this Bookmark record does not exist in the DB, this side effect will create the record.
   useEffect(() => {
     if (!bookmarkRecord && initialFetchAttempted && currentTab) {
       const createBookmarkRecord = async () => {
@@ -120,6 +121,47 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       createBookmarkRecord();
     }
   }, [initialFetchAttempted]);
+
+  // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
+  // Side effect to send a message to background service worker for updating the Bookmark record data
+  useEffect(() => {
+    // Helper methods to ensure updates are only made unnecessary DB calls
+    const haveRequiredFields = () => {
+      return (
+        title &&
+        page_url &&
+        bookmarkRecord?.id &&
+        sessionRecord?.sessionToken != ""
+      );
+    };
+
+    const performUpdate = () => {
+      if (haveRequiredFields()) {
+        const updatePayload = {
+          id: bookmarkRecord?.id,
+          sessionToken: sessionRecord?.sessionToken,
+          title: title,
+          page_url: page_url,
+          note: note,
+          excerpt: "",
+        };
+
+        try {
+          chrome.runtime.sendMessage({
+            action: "updateBookmark",
+            data: updatePayload,
+          });
+        } catch (error) {
+          console.error(
+            "Semantic Bookmarker: Error sending message to service worker",
+            error
+          );
+        }
+      }
+    };
+
+    performUpdate();
+  }, [title, note, page_url]);
 
   const initialTitle = useMemo(
     () => bookmarkRecord?.title ?? "",

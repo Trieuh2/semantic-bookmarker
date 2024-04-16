@@ -1,7 +1,4 @@
-function createCommonjsModule(fn) {
-  var module = { exports: {} };
-	return fn(module, module.exports), module.exports;
-}
+import { c as createCommonjsModule } from '../../commonjsHelpers-318dc0aa.js';
 
 /**
  * @license React
@@ -2776,42 +2773,12 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z = "/*\n! tailwindcss v3.4.3 | MIT License | https://tailwindcss.com\n*//*\n1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)\n2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)\n*/\n\n*,\n::before,\n::after {\n  box-sizing: border-box; /* 1 */\n  border-width: 0; /* 2 */\n  border-style: solid; /* 2 */\n  border-color: #e5e7eb; /* 2 */\n}\n\n::before,\n::after {\n  --tw-content: '';\n}\n\n/*\n1. Use a consistent sensible line-height in all browsers.\n2. Prevent adjustments of font size after orientation changes in iOS.\n3. Use a more readable tab size.\n4. Use the user's configured `sans` font-family by default.\n5. Use the user's configured `sans` font-feature-settings by default.\n6. Use the user's configured `sans` font-variation-settings by default.\n7. Disable tap highlights on iOS\n*/\n\nhtml,\n:host {\n  line-height: 1.5; /* 1 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n  -moz-tab-size: 4; /* 3 */\n  -o-tab-size: 4;\n     tab-size: 4; /* 3 */\n  font-family: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; /* 4 */\n  font-feature-settings: normal; /* 5 */\n  font-variation-settings: normal; /* 6 */\n  -webkit-tap-highlight-color: transparent; /* 7 */\n}\n\n/*\n1. Remove the margin in all browsers.\n2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.\n*/\n\nbody {\n  margin: 0; /* 1 */\n  line-height: inherit; /* 2 */\n}\n\n/*\n1. Add the correct height in Firefox.\n2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)\n3. Ensure horizontal rules are visible by default.\n*/\n\nhr {\n  height: 0; /* 1 */\n  color: inherit; /* 2 */\n  border-top-width: 1px; /* 3 */\n}\n\n/*\nAdd the correct text decoration in Chrome, Edge, and Safari.\n*/\n\nabbr:where([title]) {\n  -webkit-text-decoration: underline dotted;\n          text-decoration: underline dotted;\n}\n\n/*\nRemove the default font size and weight for headings.\n*/\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: inherit;\n  font-weight: inherit;\n}\n\n/*\nReset links to optimize for opt-in styling instead of opt-out.\n*/\n\na {\n  color: inherit;\n  text-decoration: inherit;\n}\n\n/*\nAdd the correct font weight in Edge and Safari.\n*/\n\nb,\nstrong {\n  font-weight: bolder;\n}\n\n/*\n1. Use the user's configured `mono` font-family by default.\n2. Use the user's configured `mono` font-feature-settings by default.\n3. Use the user's configured `mono` font-variation-settings by default.\n4. Correct the odd `em` font sizing in all browsers.\n*/\n\ncode,\nkbd,\nsamp,\npre {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; /* 1 */\n  font-feature-settings: normal; /* 2 */\n  font-variation-settings: normal; /* 3 */\n  font-size: 1em; /* 4 */\n}\n\n/*\nAdd the correct font size in all browsers.\n*/\n\nsmall {\n  font-size: 80%;\n}\n\n/*\nPrevent `sub` and `sup` elements from affecting the line height in all browsers.\n*/\n\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/*\n1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)\n2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)\n3. Remove gaps between table borders by default.\n*/\n\ntable {\n  text-indent: 0; /* 1 */\n  border-color: inherit; /* 2 */\n  border-collapse: collapse; /* 3 */\n}\n\n/*\n1. Change the font styles in all browsers.\n2. Remove the margin in Firefox and Safari.\n3. Remove default padding in all browsers.\n*/\n\nbutton,\ninput,\noptgroup,\nselect,\ntextarea {\n  font-family: inherit; /* 1 */\n  font-feature-settings: inherit; /* 1 */\n  font-variation-settings: inherit; /* 1 */\n  font-size: 100%; /* 1 */\n  font-weight: inherit; /* 1 */\n  line-height: inherit; /* 1 */\n  letter-spacing: inherit; /* 1 */\n  color: inherit; /* 1 */\n  margin: 0; /* 2 */\n  padding: 0; /* 3 */\n}\n\n/*\nRemove the inheritance of text transform in Edge and Firefox.\n*/\n\nbutton,\nselect {\n  text-transform: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Remove default button styles.\n*/\n\nbutton,\ninput:where([type='button']),\ninput:where([type='reset']),\ninput:where([type='submit']) {\n  -webkit-appearance: button; /* 1 */\n  background-color: transparent; /* 2 */\n  background-image: none; /* 2 */\n}\n\n/*\nUse the modern Firefox focus style for all focusable elements.\n*/\n\n:-moz-focusring {\n  outline: auto;\n}\n\n/*\nRemove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)\n*/\n\n:-moz-ui-invalid {\n  box-shadow: none;\n}\n\n/*\nAdd the correct vertical alignment in Chrome and Firefox.\n*/\n\nprogress {\n  vertical-align: baseline;\n}\n\n/*\nCorrect the cursor style of increment and decrement buttons in Safari.\n*/\n\n::-webkit-inner-spin-button,\n::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/*\n1. Correct the odd appearance in Chrome and Safari.\n2. Correct the outline style in Safari.\n*/\n\n[type='search'] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/*\nRemove the inner padding in Chrome and Safari on macOS.\n*/\n\n::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Change font properties to `inherit` in Safari.\n*/\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\n/*\nAdd the correct display in Chrome and Safari.\n*/\n\nsummary {\n  display: list-item;\n}\n\n/*\nRemoves the default spacing and border for appropriate elements.\n*/\n\nblockquote,\ndl,\ndd,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\nfigure,\np,\npre {\n  margin: 0;\n}\n\nfieldset {\n  margin: 0;\n  padding: 0;\n}\n\nlegend {\n  padding: 0;\n}\n\nol,\nul,\nmenu {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/*\nReset default styling for dialogs.\n*/\ndialog {\n  padding: 0;\n}\n\n/*\nPrevent resizing textareas horizontally by default.\n*/\n\ntextarea {\n  resize: vertical;\n}\n\n/*\n1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)\n2. Set the default placeholder color to the user's configured gray 400 color.\n*/\n\ninput::-moz-placeholder, textarea::-moz-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput::placeholder,\ntextarea::placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\n/*\nSet the default cursor for buttons.\n*/\n\nbutton,\n[role=\"button\"] {\n  cursor: pointer;\n}\n\n/*\nMake sure disabled buttons don't get the pointer cursor.\n*/\n:disabled {\n  cursor: default;\n}\n\n/*\n1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)\n2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)\n   This can trigger a poorly considered lint error in some tools but is included by design.\n*/\n\nimg,\nsvg,\nvideo,\ncanvas,\naudio,\niframe,\nembed,\nobject {\n  display: block; /* 1 */\n  vertical-align: middle; /* 2 */\n}\n\n/*\nConstrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)\n*/\n\nimg,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n/* Make elements with the HTML hidden attribute stay hidden by default */\n[hidden] {\n  display: none;\n}\n\n*, ::before, ::after {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-gradient-from-position:  ;\n  --tw-gradient-via-position:  ;\n  --tw-gradient-to-position:  ;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n  --tw-contain-size:  ;\n  --tw-contain-layout:  ;\n  --tw-contain-paint:  ;\n  --tw-contain-style:  ;\n}\n\n::backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-gradient-from-position:  ;\n  --tw-gradient-via-position:  ;\n  --tw-gradient-to-position:  ;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n  --tw-contain-size:  ;\n  --tw-contain-layout:  ;\n  --tw-contain-paint:  ;\n  --tw-contain-style:  ;\n}\r\n.absolute {\n  position: absolute;\n}\r\n.relative {\n  position: relative;\n}\r\n.bottom-0 {\n  bottom: 0px;\n}\r\n.left-0 {\n  left: 0px;\n}\r\n.right-0 {\n  right: 0px;\n}\r\n.m-2 {\n  margin: 0.5rem;\n}\r\n.m-1 {\n  margin: 0.25rem;\n}\r\n.m-3 {\n  margin: 0.75rem;\n}\r\n.mx-2 {\n  margin-left: 0.5rem;\n  margin-right: 0.5rem;\n}\r\n.mt-2 {\n  margin-top: 0.5rem;\n}\r\n.ml-0 {\n  margin-left: 0px;\n}\r\n.mr-0 {\n  margin-right: 0px;\n}\r\n.ml-1 {\n  margin-left: 0.25rem;\n}\r\n.box-border {\n  box-sizing: border-box;\n}\r\n.block {\n  display: block;\n}\r\n.inline-block {\n  display: inline-block;\n}\r\n.inline {\n  display: inline;\n}\r\n.flex {\n  display: flex;\n}\r\n.inline-flex {\n  display: inline-flex;\n}\r\n.hidden {\n  display: none;\n}\r\n.h-0 {\n  height: 0px;\n}\r\n.h-0\\.5 {\n  height: 0.125rem;\n}\r\n.h-8 {\n  height: 2rem;\n}\r\n.h-\\[200px\\] {\n  height: 200px;\n}\r\n.h-full {\n  height: 100%;\n}\r\n.w-8\\/12 {\n  width: 66.666667%;\n}\r\n.w-\\[350px\\] {\n  width: 350px;\n}\r\n.w-\\[400px\\] {\n  width: 400px;\n}\r\n.w-full {\n  width: 100%;\n}\r\n.min-w-20 {\n  min-width: 5rem;\n}\r\n.flex-1 {\n  flex: 1 1 0%;\n}\r\n.cursor-default {\n  cursor: default;\n}\r\n.resize-none {\n  resize: none;\n}\r\n.flex-col {\n  flex-direction: column;\n}\r\n.flex-wrap {\n  flex-wrap: wrap;\n}\r\n.items-start {\n  align-items: flex-start;\n}\r\n.items-center {\n  align-items: center;\n}\r\n.justify-start {\n  justify-content: flex-start;\n}\r\n.justify-end {\n  justify-content: flex-end;\n}\r\n.justify-center {\n  justify-content: center;\n}\r\n.justify-between {\n  justify-content: space-between;\n}\r\n.gap-1 {\n  gap: 0.25rem;\n}\r\n.gap-2 {\n  gap: 0.5rem;\n}\r\n.gap-x-1 {\n  -moz-column-gap: 0.25rem;\n       column-gap: 0.25rem;\n}\r\n.self-center {\n  align-self: center;\n}\r\n.justify-self-end {\n  justify-self: end;\n}\r\n.overflow-auto {\n  overflow: auto;\n}\r\n.text-ellipsis {\n  text-overflow: ellipsis;\n}\r\n.break-words {\n  overflow-wrap: break-word;\n}\r\n.rounded-md {\n  border-radius: 0.375rem;\n}\r\n.border {\n  border-width: 1px;\n}\r\n.border-transparent {\n  border-color: transparent;\n}\r\n.border-orange-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(253 186 116 / var(--tw-border-opacity));\n}\r\n.border-gray-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(209 213 219 / var(--tw-border-opacity));\n}\r\n.border-gray-400 {\n  --tw-border-opacity: 1;\n  border-color: rgb(156 163 175 / var(--tw-border-opacity));\n}\r\n.border-gray-500 {\n  --tw-border-opacity: 1;\n  border-color: rgb(107 114 128 / var(--tw-border-opacity));\n}\r\n.border-gray-600 {\n  --tw-border-opacity: 1;\n  border-color: rgb(75 85 99 / var(--tw-border-opacity));\n}\r\n.bg-orange-300 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(253 186 116 / var(--tw-bg-opacity));\n}\r\n.bg-transparent {\n  background-color: transparent;\n}\r\n.bg-zinc-800 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(39 39 42 / var(--tw-bg-opacity));\n}\r\n.bg-zinc-900 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(24 24 27 / var(--tw-bg-opacity));\n}\r\n.p-0 {\n  padding: 0px;\n}\r\n.p-0\\.5 {\n  padding: 0.125rem;\n}\r\n.p-2 {\n  padding: 0.5rem;\n}\r\n.p-1 {\n  padding: 0.25rem;\n}\r\n.px-2 {\n  padding-left: 0.5rem;\n  padding-right: 0.5rem;\n}\r\n.px-4 {\n  padding-left: 1rem;\n  padding-right: 1rem;\n}\r\n.py-1 {\n  padding-top: 0.25rem;\n  padding-bottom: 0.25rem;\n}\r\n.py-2 {\n  padding-top: 0.5rem;\n  padding-bottom: 0.5rem;\n}\r\n.py-0 {\n  padding-top: 0px;\n  padding-bottom: 0px;\n}\r\n.py-0\\.5 {\n  padding-top: 0.125rem;\n  padding-bottom: 0.125rem;\n}\r\n.px-1 {\n  padding-left: 0.25rem;\n  padding-right: 0.25rem;\n}\r\n.pl-0 {\n  padding-left: 0px;\n}\r\n.pr-0 {\n  padding-right: 0px;\n}\r\n.pr-0\\.5 {\n  padding-right: 0.125rem;\n}\r\n.text-left {\n  text-align: left;\n}\r\n.text-center {\n  text-align: center;\n}\r\n.text-right {\n  text-align: right;\n}\r\n.text-start {\n  text-align: start;\n}\r\n.text-end {\n  text-align: end;\n}\r\n.align-middle {\n  vertical-align: middle;\n}\r\n.font-mono {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n}\r\n.font-sans {\n  font-family: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n}\r\n.text-base {\n  font-size: 1rem;\n  line-height: 1.5rem;\n}\r\n.text-lg {\n  font-size: 1.125rem;\n  line-height: 1.75rem;\n}\r\n.text-sm {\n  font-size: 0.875rem;\n  line-height: 1.25rem;\n}\r\n.text-xl {\n  font-size: 1.25rem;\n  line-height: 1.75rem;\n}\r\n.text-xs {\n  font-size: 0.75rem;\n  line-height: 1rem;\n}\r\n.font-bold {\n  font-weight: 700;\n}\r\n.font-medium {\n  font-weight: 500;\n}\r\n.text-black {\n  --tw-text-opacity: 1;\n  color: rgb(0 0 0 / var(--tw-text-opacity));\n}\r\n.text-gray-400 {\n  --tw-text-opacity: 1;\n  color: rgb(156 163 175 / var(--tw-text-opacity));\n}\r\n.text-gray-600 {\n  --tw-text-opacity: 1;\n  color: rgb(75 85 99 / var(--tw-text-opacity));\n}\r\n.text-white {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\r\n.text-orange-300 {\n  --tw-text-opacity: 1;\n  color: rgb(253 186 116 / var(--tw-text-opacity));\n}\r\n.text-gray-500 {\n  --tw-text-opacity: 1;\n  color: rgb(107 114 128 / var(--tw-text-opacity));\n}\r\n.opacity-50 {\n  opacity: 0.5;\n}\r\n.shadow-sm {\n  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);\n  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.outline-none {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n.outline-0 {\n  outline-width: 0px;\n}\r\n.blur {\n  --tw-blur: blur(8px);\n  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);\n}\r\n.transition {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-colors {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.duration-150 {\n  transition-duration: 150ms;\n}\r\n.hover\\:border-red-500:hover {\n  --tw-border-opacity: 1;\n  border-color: rgb(239 68 68 / var(--tw-border-opacity));\n}\r\n.hover\\:bg-orange-200:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 215 170 / var(--tw-bg-opacity));\n}\r\n.hover\\:bg-zinc-700:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(63 63 70 / var(--tw-bg-opacity));\n}\r\n.hover\\:text-red-500:hover {\n  --tw-text-opacity: 1;\n  color: rgb(239 68 68 / var(--tw-text-opacity));\n}\r\n.focus\\:bg-transparent:focus {\n  background-color: transparent;\n}\r\n.focus\\:outline-none:focus {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n.focus\\:ring-2:focus {\n  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);\n  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);\n  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);\n}\r\n.focus\\:ring-orange-300:focus {\n  --tw-ring-opacity: 1;\n  --tw-ring-color: rgb(253 186 116 / var(--tw-ring-opacity));\n}\r\n.active\\:bg-orange-400:active {\n  --tw-bg-opacity: 1;\n  background-color: rgb(251 146 60 / var(--tw-bg-opacity));\n}";
+var css_248z = "/*\n! tailwindcss v3.4.3 | MIT License | https://tailwindcss.com\n*//*\n1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)\n2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)\n*/\n\n*,\n::before,\n::after {\n  box-sizing: border-box; /* 1 */\n  border-width: 0; /* 2 */\n  border-style: solid; /* 2 */\n  border-color: #e5e7eb; /* 2 */\n}\n\n::before,\n::after {\n  --tw-content: '';\n}\n\n/*\n1. Use a consistent sensible line-height in all browsers.\n2. Prevent adjustments of font size after orientation changes in iOS.\n3. Use a more readable tab size.\n4. Use the user's configured `sans` font-family by default.\n5. Use the user's configured `sans` font-feature-settings by default.\n6. Use the user's configured `sans` font-variation-settings by default.\n7. Disable tap highlights on iOS\n*/\n\nhtml,\n:host {\n  line-height: 1.5; /* 1 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n  -moz-tab-size: 4; /* 3 */\n  -o-tab-size: 4;\n     tab-size: 4; /* 3 */\n  font-family: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; /* 4 */\n  font-feature-settings: normal; /* 5 */\n  font-variation-settings: normal; /* 6 */\n  -webkit-tap-highlight-color: transparent; /* 7 */\n}\n\n/*\n1. Remove the margin in all browsers.\n2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.\n*/\n\nbody {\n  margin: 0; /* 1 */\n  line-height: inherit; /* 2 */\n}\n\n/*\n1. Add the correct height in Firefox.\n2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)\n3. Ensure horizontal rules are visible by default.\n*/\n\nhr {\n  height: 0; /* 1 */\n  color: inherit; /* 2 */\n  border-top-width: 1px; /* 3 */\n}\n\n/*\nAdd the correct text decoration in Chrome, Edge, and Safari.\n*/\n\nabbr:where([title]) {\n  -webkit-text-decoration: underline dotted;\n          text-decoration: underline dotted;\n}\n\n/*\nRemove the default font size and weight for headings.\n*/\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: inherit;\n  font-weight: inherit;\n}\n\n/*\nReset links to optimize for opt-in styling instead of opt-out.\n*/\n\na {\n  color: inherit;\n  text-decoration: inherit;\n}\n\n/*\nAdd the correct font weight in Edge and Safari.\n*/\n\nb,\nstrong {\n  font-weight: bolder;\n}\n\n/*\n1. Use the user's configured `mono` font-family by default.\n2. Use the user's configured `mono` font-feature-settings by default.\n3. Use the user's configured `mono` font-variation-settings by default.\n4. Correct the odd `em` font sizing in all browsers.\n*/\n\ncode,\nkbd,\nsamp,\npre {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; /* 1 */\n  font-feature-settings: normal; /* 2 */\n  font-variation-settings: normal; /* 3 */\n  font-size: 1em; /* 4 */\n}\n\n/*\nAdd the correct font size in all browsers.\n*/\n\nsmall {\n  font-size: 80%;\n}\n\n/*\nPrevent `sub` and `sup` elements from affecting the line height in all browsers.\n*/\n\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/*\n1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)\n2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)\n3. Remove gaps between table borders by default.\n*/\n\ntable {\n  text-indent: 0; /* 1 */\n  border-color: inherit; /* 2 */\n  border-collapse: collapse; /* 3 */\n}\n\n/*\n1. Change the font styles in all browsers.\n2. Remove the margin in Firefox and Safari.\n3. Remove default padding in all browsers.\n*/\n\nbutton,\ninput,\noptgroup,\nselect,\ntextarea {\n  font-family: inherit; /* 1 */\n  font-feature-settings: inherit; /* 1 */\n  font-variation-settings: inherit; /* 1 */\n  font-size: 100%; /* 1 */\n  font-weight: inherit; /* 1 */\n  line-height: inherit; /* 1 */\n  letter-spacing: inherit; /* 1 */\n  color: inherit; /* 1 */\n  margin: 0; /* 2 */\n  padding: 0; /* 3 */\n}\n\n/*\nRemove the inheritance of text transform in Edge and Firefox.\n*/\n\nbutton,\nselect {\n  text-transform: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Remove default button styles.\n*/\n\nbutton,\ninput:where([type='button']),\ninput:where([type='reset']),\ninput:where([type='submit']) {\n  -webkit-appearance: button; /* 1 */\n  background-color: transparent; /* 2 */\n  background-image: none; /* 2 */\n}\n\n/*\nUse the modern Firefox focus style for all focusable elements.\n*/\n\n:-moz-focusring {\n  outline: auto;\n}\n\n/*\nRemove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)\n*/\n\n:-moz-ui-invalid {\n  box-shadow: none;\n}\n\n/*\nAdd the correct vertical alignment in Chrome and Firefox.\n*/\n\nprogress {\n  vertical-align: baseline;\n}\n\n/*\nCorrect the cursor style of increment and decrement buttons in Safari.\n*/\n\n::-webkit-inner-spin-button,\n::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/*\n1. Correct the odd appearance in Chrome and Safari.\n2. Correct the outline style in Safari.\n*/\n\n[type='search'] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/*\nRemove the inner padding in Chrome and Safari on macOS.\n*/\n\n::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Change font properties to `inherit` in Safari.\n*/\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\n/*\nAdd the correct display in Chrome and Safari.\n*/\n\nsummary {\n  display: list-item;\n}\n\n/*\nRemoves the default spacing and border for appropriate elements.\n*/\n\nblockquote,\ndl,\ndd,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\nfigure,\np,\npre {\n  margin: 0;\n}\n\nfieldset {\n  margin: 0;\n  padding: 0;\n}\n\nlegend {\n  padding: 0;\n}\n\nol,\nul,\nmenu {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/*\nReset default styling for dialogs.\n*/\ndialog {\n  padding: 0;\n}\n\n/*\nPrevent resizing textareas horizontally by default.\n*/\n\ntextarea {\n  resize: vertical;\n}\n\n/*\n1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)\n2. Set the default placeholder color to the user's configured gray 400 color.\n*/\n\ninput::-moz-placeholder, textarea::-moz-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput::placeholder,\ntextarea::placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\n/*\nSet the default cursor for buttons.\n*/\n\nbutton,\n[role=\"button\"] {\n  cursor: pointer;\n}\n\n/*\nMake sure disabled buttons don't get the pointer cursor.\n*/\n:disabled {\n  cursor: default;\n}\n\n/*\n1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)\n2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)\n   This can trigger a poorly considered lint error in some tools but is included by design.\n*/\n\nimg,\nsvg,\nvideo,\ncanvas,\naudio,\niframe,\nembed,\nobject {\n  display: block; /* 1 */\n  vertical-align: middle; /* 2 */\n}\n\n/*\nConstrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)\n*/\n\nimg,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n/* Make elements with the HTML hidden attribute stay hidden by default */\n[hidden] {\n  display: none;\n}\n\n*, ::before, ::after {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-gradient-from-position:  ;\n  --tw-gradient-via-position:  ;\n  --tw-gradient-to-position:  ;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n  --tw-contain-size:  ;\n  --tw-contain-layout:  ;\n  --tw-contain-paint:  ;\n  --tw-contain-style:  ;\n}\n\n::backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-gradient-from-position:  ;\n  --tw-gradient-via-position:  ;\n  --tw-gradient-to-position:  ;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n  --tw-contain-size:  ;\n  --tw-contain-layout:  ;\n  --tw-contain-paint:  ;\n  --tw-contain-style:  ;\n}\r\n.absolute {\n  position: absolute;\n}\r\n.relative {\n  position: relative;\n}\r\n.bottom-0 {\n  bottom: 0px;\n}\r\n.left-0 {\n  left: 0px;\n}\r\n.right-0 {\n  right: 0px;\n}\r\n.m-2 {\n  margin: 0.5rem;\n}\r\n.mx-2 {\n  margin-left: 0.5rem;\n  margin-right: 0.5rem;\n}\r\n.mt-2 {\n  margin-top: 0.5rem;\n}\r\n.box-border {\n  box-sizing: border-box;\n}\r\n.block {\n  display: block;\n}\r\n.flex {\n  display: flex;\n}\r\n.inline-flex {\n  display: inline-flex;\n}\r\n.hidden {\n  display: none;\n}\r\n.h-0 {\n  height: 0px;\n}\r\n.h-0\\.5 {\n  height: 0.125rem;\n}\r\n.h-8 {\n  height: 2rem;\n}\r\n.h-\\[200px\\] {\n  height: 200px;\n}\r\n.h-full {\n  height: 100%;\n}\r\n.w-8\\/12 {\n  width: 66.666667%;\n}\r\n.w-\\[350px\\] {\n  width: 350px;\n}\r\n.w-\\[400px\\] {\n  width: 400px;\n}\r\n.w-full {\n  width: 100%;\n}\r\n.min-w-20 {\n  min-width: 5rem;\n}\r\n.flex-1 {\n  flex: 1 1 0%;\n}\r\n.cursor-default {\n  cursor: default;\n}\r\n.resize-none {\n  resize: none;\n}\r\n.flex-col {\n  flex-direction: column;\n}\r\n.flex-wrap {\n  flex-wrap: wrap;\n}\r\n.items-start {\n  align-items: flex-start;\n}\r\n.items-center {\n  align-items: center;\n}\r\n.justify-end {\n  justify-content: flex-end;\n}\r\n.justify-center {\n  justify-content: center;\n}\r\n.justify-between {\n  justify-content: space-between;\n}\r\n.gap-1 {\n  gap: 0.25rem;\n}\r\n.gap-2 {\n  gap: 0.5rem;\n}\r\n.overflow-auto {\n  overflow: auto;\n}\r\n.text-ellipsis {\n  text-overflow: ellipsis;\n}\r\n.break-words {\n  overflow-wrap: break-word;\n}\r\n.rounded-md {\n  border-radius: 0.375rem;\n}\r\n.border {\n  border-width: 1px;\n}\r\n.border-orange-300 {\n  --tw-border-opacity: 1;\n  border-color: rgb(253 186 116 / var(--tw-border-opacity));\n}\r\n.border-transparent {\n  border-color: transparent;\n}\r\n.bg-orange-300 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(253 186 116 / var(--tw-bg-opacity));\n}\r\n.bg-transparent {\n  background-color: transparent;\n}\r\n.bg-zinc-800 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(39 39 42 / var(--tw-bg-opacity));\n}\r\n.bg-zinc-900 {\n  --tw-bg-opacity: 1;\n  background-color: rgb(24 24 27 / var(--tw-bg-opacity));\n}\r\n.p-2 {\n  padding: 0.5rem;\n}\r\n.px-1 {\n  padding-left: 0.25rem;\n  padding-right: 0.25rem;\n}\r\n.px-2 {\n  padding-left: 0.5rem;\n  padding-right: 0.5rem;\n}\r\n.px-4 {\n  padding-left: 1rem;\n  padding-right: 1rem;\n}\r\n.py-0 {\n  padding-top: 0px;\n  padding-bottom: 0px;\n}\r\n.py-0\\.5 {\n  padding-top: 0.125rem;\n  padding-bottom: 0.125rem;\n}\r\n.py-1 {\n  padding-top: 0.25rem;\n  padding-bottom: 0.25rem;\n}\r\n.py-2 {\n  padding-top: 0.5rem;\n  padding-bottom: 0.5rem;\n}\r\n.text-left {\n  text-align: left;\n}\r\n.text-center {\n  text-align: center;\n}\r\n.text-right {\n  text-align: right;\n}\r\n.text-start {\n  text-align: start;\n}\r\n.text-end {\n  text-align: end;\n}\r\n.font-mono {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n}\r\n.font-sans {\n  font-family: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n}\r\n.text-base {\n  font-size: 1rem;\n  line-height: 1.5rem;\n}\r\n.text-lg {\n  font-size: 1.125rem;\n  line-height: 1.75rem;\n}\r\n.text-sm {\n  font-size: 0.875rem;\n  line-height: 1.25rem;\n}\r\n.text-xl {\n  font-size: 1.25rem;\n  line-height: 1.75rem;\n}\r\n.font-bold {\n  font-weight: 700;\n}\r\n.font-medium {\n  font-weight: 500;\n}\r\n.text-black {\n  --tw-text-opacity: 1;\n  color: rgb(0 0 0 / var(--tw-text-opacity));\n}\r\n.text-gray-400 {\n  --tw-text-opacity: 1;\n  color: rgb(156 163 175 / var(--tw-text-opacity));\n}\r\n.text-gray-600 {\n  --tw-text-opacity: 1;\n  color: rgb(75 85 99 / var(--tw-text-opacity));\n}\r\n.text-orange-300 {\n  --tw-text-opacity: 1;\n  color: rgb(253 186 116 / var(--tw-text-opacity));\n}\r\n.text-white {\n  --tw-text-opacity: 1;\n  color: rgb(255 255 255 / var(--tw-text-opacity));\n}\r\n.opacity-50 {\n  opacity: 0.5;\n}\r\n.shadow-sm {\n  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);\n  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);\n  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);\n}\r\n.outline-none {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n.outline-0 {\n  outline-width: 0px;\n}\r\n.transition {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.transition-colors {\n  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;\n  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n  transition-duration: 150ms;\n}\r\n.duration-150 {\n  transition-duration: 150ms;\n}\r\n.hover\\:border-red-500:hover {\n  --tw-border-opacity: 1;\n  border-color: rgb(239 68 68 / var(--tw-border-opacity));\n}\r\n.hover\\:bg-orange-200:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(254 215 170 / var(--tw-bg-opacity));\n}\r\n.hover\\:bg-zinc-700:hover {\n  --tw-bg-opacity: 1;\n  background-color: rgb(63 63 70 / var(--tw-bg-opacity));\n}\r\n.hover\\:text-red-500:hover {\n  --tw-text-opacity: 1;\n  color: rgb(239 68 68 / var(--tw-text-opacity));\n}\r\n.focus\\:bg-transparent:focus {\n  background-color: transparent;\n}\r\n.focus\\:outline-none:focus {\n  outline: 2px solid transparent;\n  outline-offset: 2px;\n}\r\n.focus\\:ring-2:focus {\n  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);\n  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);\n  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);\n}\r\n.focus\\:ring-orange-300:focus {\n  --tw-ring-opacity: 1;\n  --tw-ring-color: rgb(253 186 116 / var(--tw-ring-opacity));\n}\r\n.active\\:bg-orange-400:active {\n  --tw-bg-opacity: 1;\n  background-color: rgb(251 146 60 / var(--tw-bg-opacity));\n}";
 styleInject(css_248z);
 
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-
-function __awaiter(thisArg, _arguments, P, generator) {
-  function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-  return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-      function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-      function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-}
-
-typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-  var e = new Error(message);
-  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-
-const getCookie = () => __awaiter(void 0, void 0, void 0, function* () {
+const getCookie = async () => {
     try {
-        const cookie = yield chrome.cookies.get({
+        const cookie = await chrome.cookies.get({
             url: "http://localhost:3000",
             name: "next-auth.session-token",
         });
@@ -2821,13 +2788,13 @@ const getCookie = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(error);
         return null;
     }
-});
+};
 
 // Retrieves the session token value from the cookie stored in the local browser
-const getSessionTokenFromCookie = () => __awaiter(void 0, void 0, void 0, function* () {
+const getSessionTokenFromCookie = async () => {
     try {
-        const cookie = yield getCookie();
-        if (cookie && (cookie === null || cookie === void 0 ? void 0 : cookie.value)) {
+        const cookie = await getCookie();
+        if (cookie && cookie?.value) {
             return cookie.value;
         }
         else {
@@ -2838,15 +2805,15 @@ const getSessionTokenFromCookie = () => __awaiter(void 0, void 0, void 0, functi
         console.log(error);
         return null;
     }
-});
+};
 
-const getSession = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
+const getSession = async (sessionToken) => {
     try {
         if (!sessionToken) {
             throw new Error("Session token is required!");
         }
         const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
-        const response = yield fetch(url);
+        const response = await fetch(url);
         if (!response.ok) {
             if (response.status === 400) {
                 return null;
@@ -2863,7 +2830,7 @@ const getSession = (sessionToken) => __awaiter(void 0, void 0, void 0, function*
         console.error("Failed to fetch server session:", error);
         return null;
     }
-});
+};
 
 function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e)){var o=e.length;for(t=0;t<o;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);}else for(f in e)e[f]&&(n&&(n+=" "),n+=f);return n}function clsx(){for(var e,t,f=0,n="",o=arguments.length;f<o;f++)(e=arguments[f])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
 
@@ -2944,6 +2911,7 @@ const TextArea = ({ value = "", useBackground, useUnderline, onTextChange, onBlu
     return (react.createElement("div", { className: "w-full flex text-white items-center justify-center relative bg-zinc-800" },
         react.createElement("textarea", { ref: textareaRef, className: textAreaClasses, value: text, onChange: (e) => onTextChange(e.target.value), onBlur: () => {
                 setIsFocused(false);
+                onBlur();
             }, onFocus: () => setIsFocused(true), rows: 1, style: {
                 overflowY: isFocused ? "auto" : "hidden",
             } }),
@@ -2974,7 +2942,7 @@ const Input = ({ id, type, onChange, onKeyDown, value, }) => {
         react.createElement("input", { id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, value: value })));
 };
 
-const getBookmark = (sessionToken, userId, page_url) => __awaiter(void 0, void 0, void 0, function* () {
+const getBookmark = async (sessionToken, userId, page_url) => {
     try {
         if (!sessionToken || !userId || !page_url) {
             throw new Error("All parameters (sessionToken, userId, page_url) are required");
@@ -2987,7 +2955,7 @@ const getBookmark = (sessionToken, userId, page_url) => __awaiter(void 0, void 0
         };
         const queryString = new URLSearchParams(params).toString();
         const url = `${base_url}?${queryString}`;
-        const response = yield fetch(url);
+        const response = await fetch(url);
         if (!response.ok) {
             if (response.status === 404) {
                 return null;
@@ -3001,15 +2969,15 @@ const getBookmark = (sessionToken, userId, page_url) => __awaiter(void 0, void 0
         console.error("Error fetching bookmark record:", error);
         return null;
     }
-});
+};
 
-const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* () {
+const signOut = async (sessionToken) => {
     try {
         const url = "http://localhost:3000/api/session";
         const postData = {
             sessionToken: sessionToken,
         };
-        const response = yield fetch(url, {
+        const response = await fetch(url, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -3020,16 +2988,16 @@ const signOut = (sessionToken) => __awaiter(void 0, void 0, void 0, function* ()
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         // Parse the JSON response
-        const data = yield response.json();
+        const data = await response.json();
         return data;
     }
     catch (error) {
         console.error("Failed to sign out of current session:", error);
         throw error;
     }
-});
+};
 
-const createBookmark = (createRequest) => __awaiter(void 0, void 0, void 0, function* () {
+const createBookmark = async (createRequest) => {
     try {
         const { title, page_url, note, excerpt, userId, sessionToken } = createRequest;
         if (!title || !page_url || !userId || !sessionToken) {
@@ -3038,13 +3006,13 @@ const createBookmark = (createRequest) => __awaiter(void 0, void 0, void 0, func
         const postData = {
             title: title,
             page_url: page_url,
-            note: note !== null && note !== void 0 ? note : "",
-            excerpt: excerpt !== null && excerpt !== void 0 ? excerpt : "",
+            note: note ?? "",
+            excerpt: excerpt ?? "",
             userId: userId,
             sessionToken: sessionToken,
         };
         const url = "http://localhost:3000/api/bookmark";
-        const response = yield fetch(url, {
+        const response = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -3054,14 +3022,14 @@ const createBookmark = (createRequest) => __awaiter(void 0, void 0, void 0, func
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data = yield response.json();
+        const data = await response.json();
         return data;
     }
     catch (error) {
         console.error("Failed to create or update bookmark:", error);
         throw error;
     }
-});
+};
 
 var DefaultContext = {
   color: undefined,
@@ -3171,28 +3139,27 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     // Parse the page for initial information
     react.useEffect(() => {
         if (sessionRecord) {
-            const fetchCurrentTab = () => __awaiter(void 0, void 0, void 0, function* () {
+            const fetchCurrentTab = async () => {
                 let queryOptions = { active: true, lastFocusedWindow: true };
                 try {
-                    const tabs = yield chrome.tabs.query(queryOptions);
+                    const tabs = await chrome.tabs.query(queryOptions);
                     setCurrentTab(tabs[0]);
                 }
                 catch (error) {
                     console.log(error);
                 }
-            });
+            };
             fetchCurrentTab();
         }
     }, [sessionRecord]);
     // Fetch bookmark from DB on popup
     react.useEffect(() => {
         if (!bookmarkRecord && !initialFetchAttempted && currentTab) {
-            const fetchBookmarkRecord = () => __awaiter(void 0, void 0, void 0, function* () {
-                var _a, _b, _c;
-                const sessionToken = (_a = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _a !== void 0 ? _a : "";
-                const userId = (_b = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.userId) !== null && _b !== void 0 ? _b : "";
-                const page_url = (_c = currentTab === null || currentTab === void 0 ? void 0 : currentTab.url) !== null && _c !== void 0 ? _c : "";
-                const response = yield getBookmark(sessionToken, userId, page_url);
+            const fetchBookmarkRecord = async () => {
+                const sessionToken = sessionRecord?.sessionToken ?? "";
+                const userId = sessionRecord?.userId ?? "";
+                const page_url = currentTab?.url ?? "";
+                const response = await getBookmark(sessionToken, userId, page_url);
                 if (response) {
                     setBookmarkRecord(response);
                     setTitle(response.title);
@@ -3200,21 +3167,20 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                     setPageUrl(response.page_url);
                 }
                 setInitialFetchAttempted(true);
-            });
+            };
             fetchBookmarkRecord();
         }
     }, [currentTab]);
-    // If this Bookmark record does not exist in the DB, create this record.
+    // If this Bookmark record does not exist in the DB, this side effect will create the record.
     react.useEffect(() => {
         if (!bookmarkRecord && initialFetchAttempted && currentTab) {
-            const createBookmarkRecord = () => __awaiter(void 0, void 0, void 0, function* () {
-                var _a, _b, _c, _d;
-                const title = (_a = currentTab === null || currentTab === void 0 ? void 0 : currentTab.title) !== null && _a !== void 0 ? _a : "";
-                const page_url = (_b = currentTab === null || currentTab === void 0 ? void 0 : currentTab.url) !== null && _b !== void 0 ? _b : "";
+            const createBookmarkRecord = async () => {
+                const title = currentTab?.title ?? "";
+                const page_url = currentTab?.url ?? "";
                 const note = "";
                 const excerpt = "";
-                const userId = (_c = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.userId) !== null && _c !== void 0 ? _c : "";
-                const sessionToken = (_d = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _d !== void 0 ? _d : "";
+                const userId = sessionRecord?.userId ?? "";
+                const sessionToken = sessionRecord?.sessionToken ?? "";
                 const bookmarkCreateRequest = {
                     title: title,
                     page_url: page_url,
@@ -3223,30 +3189,63 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                     userId: userId,
                     sessionToken: sessionToken,
                 };
-                const bookmark = yield createBookmark(bookmarkCreateRequest);
+                const bookmark = await createBookmark(bookmarkCreateRequest);
                 if (bookmark) {
                     setBookmarkRecord(bookmark);
                     setTitle(bookmark.title);
                     setNote(bookmark.note);
                     setPageUrl(bookmark.page_url);
                 }
-            });
+            };
             createBookmarkRecord();
         }
     }, [initialFetchAttempted]);
-    const initialTitle = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.title) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
+    // Side effect to send a message to background service worker for updating the Bookmark record data
+    react.useEffect(() => {
+        // Helper methods to ensure updates are only made unnecessary DB calls
+        const haveRequiredFields = () => {
+            return (title &&
+                page_url &&
+                bookmarkRecord?.id &&
+                sessionRecord?.sessionToken != "");
+        };
+        const performUpdate = () => {
+            if (haveRequiredFields()) {
+                const updatePayload = {
+                    id: bookmarkRecord?.id,
+                    sessionToken: sessionRecord?.sessionToken,
+                    title: title,
+                    page_url: page_url,
+                    note: note,
+                    excerpt: "",
+                };
+                try {
+                    chrome.runtime.sendMessage({
+                        action: "updateBookmark",
+                        data: updatePayload,
+                    });
+                }
+                catch (error) {
+                    console.error("Semantic Bookmarker: Error sending message to service worker", error);
+                }
+            }
+        };
+        performUpdate();
+    }, [title, note, page_url]);
+    const initialTitle = react.useMemo(() => bookmarkRecord?.title ?? "", [bookmarkRecord]);
     const handleResetTitle = () => {
         if (!title) {
             setTitle(initialTitle);
         }
     };
-    const initialNote = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.note) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    const initialNote = react.useMemo(() => bookmarkRecord?.note ?? "", [bookmarkRecord]);
     const handleResetNote = () => {
         if (!note) {
             setNote(initialNote);
         }
     };
-    const initialPageUrl = react.useMemo(() => { var _a; return (_a = bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.page_url) !== null && _a !== void 0 ? _a : ""; }, [bookmarkRecord]);
+    const initialPageUrl = react.useMemo(() => bookmarkRecord?.page_url ?? "", [bookmarkRecord]);
     const handleResetPageUrl = () => {
         if (!page_url) {
             setPageUrl(initialPageUrl);
@@ -3258,12 +3257,11 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         });
     };
     const handleSignOut = () => {
-        const performSignOut = () => __awaiter(void 0, void 0, void 0, function* () {
-            var _a;
-            const sessionToken = (_a = sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.sessionToken) !== null && _a !== void 0 ? _a : "";
-            yield signOut(sessionToken);
+        const performSignOut = async () => {
+            const sessionToken = sessionRecord?.sessionToken ?? "";
+            await signOut(sessionToken);
             parentOnSignOut();
-        });
+        };
         performSignOut();
     };
     const formatDate = (date) => {
@@ -3320,10 +3318,10 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             react.createElement(TextArea, { value: page_url, useBackground: true, onTextChange: (value) => {
                     setPageUrl(value);
                 }, onBlur: handleResetPageUrl })),
-        (bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.createdAt) && (react.createElement("div", { className: "w-full py-2 px-4 flex bg-zinc-800" },
+        bookmarkRecord?.createdAt && (react.createElement("div", { className: "w-full py-2 px-4 flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 bg-zinc-800" }),
             "Saved ",
-            formatDate(bookmarkRecord === null || bookmarkRecord === void 0 ? void 0 : bookmarkRecord.createdAt))),
+            formatDate(bookmarkRecord?.createdAt))),
         react.createElement(Footer, null)));
 };
 
@@ -3333,21 +3331,21 @@ const App = () => {
     const [isAuthenticated, setIsAuthenticated] = react.useState(localStorage.getItem("isAuthenticated") === "true");
     // Fetch the local session token from the local cookie data
     react.useEffect(() => {
-        const fetchSessionToken = () => __awaiter(void 0, void 0, void 0, function* () {
-            const sessionToken = yield getSessionTokenFromCookie();
+        const fetchSessionToken = async () => {
+            const sessionToken = await getSessionTokenFromCookie();
             if (!sessionToken) {
                 setIsAuthenticated(false);
                 localStorage.setItem("isAuthenticated", "false");
             }
             setSessionToken(sessionToken);
-        });
+        };
         fetchSessionToken();
     }, [sessionToken]);
     // Use the local session token to fetch the session from the server
     react.useEffect(() => {
         if (sessionToken) {
-            const fetchServerSession = () => __awaiter(void 0, void 0, void 0, function* () {
-                const serverSession = yield getSession(sessionToken);
+            const fetchServerSession = async () => {
+                const serverSession = await getSession(sessionToken);
                 if (serverSession) {
                     setSessionRecord(serverSession);
                 }
@@ -3355,13 +3353,13 @@ const App = () => {
                     setIsAuthenticated(false);
                     localStorage.setItem("isAuthenticated", "false");
                 }
-            });
+            };
             fetchServerSession();
         }
     }, [sessionToken]);
     react.useEffect(() => {
         if (sessionRecord) {
-            const isSessionExpired = (sessionRecord === null || sessionRecord === void 0 ? void 0 : sessionRecord.expires) < Date.now();
+            const isSessionExpired = sessionRecord?.expires < Date.now();
             setIsAuthenticated(!isSessionExpired);
             localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
         }
@@ -33881,3 +33879,4 @@ var client = createCommonjsModule(function (module, exports) {
 const root = client.createRoot(document.getElementById("root"));
 root.render(react.createElement(react.StrictMode, null,
     react.createElement(App, null)));
+//# sourceMappingURL=index.js.map

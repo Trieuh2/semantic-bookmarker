@@ -64,7 +64,7 @@ const TextArea: React.FC<TextAreaProps> = ({
         onChange={(e) => onTextChange(e.target.value)}
         onBlur={() => {
           setIsFocused(false);
-          onBlur;
+          onBlur();
         }}
         onFocus={() => setIsFocused(true)}
         rows={1}

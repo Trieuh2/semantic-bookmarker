@@ -20,7 +20,8 @@ export default {
   output: {
     dir: "dist",
     format: "esm",
-    chunkFileNames: path.join("chunks", "[name]-[hash].js"),
+    sourcemap: true,
+    chunkFileNames: "[name]-[hash].js",
   },
   plugins: [
     replace({
