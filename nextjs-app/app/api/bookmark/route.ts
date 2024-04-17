@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getBookmarkRecord from "@/app/actions/getBookmarkRecord";
 import getIsSessionValid from "@/app/actions/getIsSessionValid";
+import getUserIdFromSessionToken from "@/app/actions/getUserIdFromSessionToken";
 
 export async function GET(request: Request) {
   try {
@@ -73,7 +74,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isSessionValid = await getIsSessionValid(sessionToken)
+    const isSessionValid = await getIsSessionValid(sessionToken);
 
     if (!isSessionValid) {
       return NextResponse.json(
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, sessionToken, ...potentialUpdates } = body;
+    const { id, sessionToken, tags, ...potentialUpdates } = body;
 
     if (!id || !sessionToken) {
       const missingFields = [];
@@ -161,16 +162,6 @@ export async function PATCH(request: Request) {
         {}
       );
 
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        {
-          error: "Bad Request",
-          message: "No valid fields provided for updating Bookmark record.",
-        },
-        { status: 400 }
-      );
-    }
-
     // Validate session token
     if (!getIsSessionValid(sessionToken)) {
       return NextResponse.json(
@@ -178,6 +169,26 @@ export async function PATCH(request: Request) {
         { status: 401 }
       );
     }
+
+    // Create or fetch tags
+    const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
+    if (userIdFetchResponse.status !== 200) {
+      return NextResponse.json(
+        { error: userIdFetchResponse.error },
+        { status: userIdFetchResponse.status }
+      );
+    }
+    const userId = userIdFetchResponse.data;
+
+    const processedTags = await ensureTagsExist(userId ?? "", tags);
+    if (processedTags.status !== 200) {
+      return NextResponse.json(
+        { error: processedTags.error },
+        { status: processedTags.status }
+      );
+    }
+
+    // TODO: create TagToBookmark associations
 
     const updatedBookmark = await prisma.bookmark.update({
       where: { id },
@@ -193,3 +204,51 @@ export async function PATCH(request: Request) {
     );
   }
 }
+
+const ensureTagsExist = async (userId: string, tagNames: string[]) => {
+  if (!userId || !tagNames) {
+    return { status: 400, error: "Missing userId or tagNames" };
+  }
+
+  const resultingTags = [];
+  const missingTags = [];
+
+  // Find existing and missing tags
+  for (const tagName of tagNames) {
+    try {
+      const tagRecord = await prisma.tag.findUnique({
+        where: {
+          name: tagName,
+          userId,
+        },
+      });
+
+      if (!tagRecord) {
+        missingTags.push(tagName);
+      } else {
+        resultingTags.push(tagRecord);
+      }
+    } catch (error) {
+      console.log("Error encountered while fetching Tags");
+      return { status: 500, error: "Internal Server Error" };
+    }
+  }
+
+  // Create the missing tags
+  for (const tagName of missingTags) {
+    try {
+      const newTagRecord = await prisma.tag.create({
+        data: {
+          userId,
+          name: tagName,
+        },
+      });
+      resultingTags.push(newTagRecord);
+    } catch (error) {
+      console.log("Error encountered during Tag creation process.");
+      ({ status: 500, error: "Internal Server Error" });
+    }
+  }
+
+  return { status: 200, data: resultingTags ?? [] };
+};
