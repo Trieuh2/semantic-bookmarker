@@ -355,9 +355,10 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           {/* Tag buttons */}
           {tagSet && tagSet.size > 0 && (
             <div className="flex flex-wrap w-full gap-1 mt-2">
-              {Array.from(tagSet).map((tagName) => {
+              {Array.from(tagSet).map((tagName, index) => {
                 return (
                   <TagButton
+                    key={index}
                     name={tagName}
                     onClick={(name) => {
                       const updatedTagSet = new Set(tagSet);

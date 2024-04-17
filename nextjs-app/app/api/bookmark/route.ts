@@ -39,14 +39,6 @@ export async function GET(request: Request) {
       page_url
     );
 
-    // // Suppress 404 Error for fetching Bookmarks in production since it's an expected scenario
-    // if (!bookmarkRecord) {
-    //   return NextResponse.json(
-    //     { error: "Bookmark record not found" },
-    //     { status: 404 }
-    //   );
-    // }
-
     return NextResponse.json(bookmarkRecord);
   } catch (error) {
     console.log(error, "Error fetching bookmark from server.");
@@ -209,7 +201,6 @@ const updateTagsAndTagToBookmarks = async (
   id: string
 ) => {
   try {
-    // TODO: Handle Tag records to delete
     // Create or fetch tags
     const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
     if (userIdFetchResponse.status !== 200) {
@@ -220,7 +211,7 @@ const updateTagsAndTagToBookmarks = async (
     }
     const userId = userIdFetchResponse.data;
 
-    const processTagResponse = await ensureTagsExist(userId ?? "", tagNames);
+    const processTagResponse = await updateTags(userId ?? "", tagNames);
     if (processTagResponse.status !== 200) {
       return {
         status: processTagResponse.status,
@@ -228,10 +219,9 @@ const updateTagsAndTagToBookmarks = async (
       };
     }
 
-    // TODO: Handle TagToBookmark records to delete
     // Create TagToBookmark records
     const processedTags = processTagResponse.data;
-    const tagToBookmarkResponse = await ensureTagToBookmarksExist(
+    const tagToBookmarkResponse = await updateTagToBookmarks(
       userId ?? "",
       id,
       processedTags ?? []
@@ -250,7 +240,7 @@ const updateTagsAndTagToBookmarks = async (
   }
 };
 
-const ensureTagsExist = async (userId: string, tagNames: string[]) => {
+const updateTags = async (userId: string, tagNames: string[]) => {
   if (!userId || !tagNames) {
     return { status: 400, error: "Missing userId or tagNames" };
   }
@@ -298,7 +288,7 @@ const ensureTagsExist = async (userId: string, tagNames: string[]) => {
   return { status: 200, data: resultingTags ?? [] };
 };
 
-const ensureTagToBookmarksExist = async (
+const updateTagToBookmarks = async (
   userId: string,
   id: string,
   tags: Tag[]
@@ -327,25 +317,27 @@ const ensureTagToBookmarksExist = async (
   }
 
   try {
-    const tagIds = tags.map((tag) => tag.id);
-    const resultingTagToBookmarks = await prisma.tagToBookmark.findMany({
+    const inputTagIds = tags.map((tag) => tag.id);
+    const existingTagToBookmarks = await prisma.tagToBookmark.findMany({
       where: {
         userId,
         page_url: bookmark?.page_url,
       },
     });
-    const associatedTagIds = resultingTagToBookmarks.map(
+
+    const existingTagToBookmark_TagIds = existingTagToBookmarks.map(
       (record) => record.tagId
     );
-    const tagIdsToProcess = tagIds.filter(
-      (value) => !associatedTagIds.includes(value)
+
+    // Create new TagToBookmark records
+    const tagIdsForCreation = inputTagIds.filter(
+      (tagId) => !existingTagToBookmark_TagIds.includes(tagId)
     );
-    const tagsToProcess = tags.filter((tag) =>
-      tagIdsToProcess.includes(tag.id)
+    const tagsUsedForCreation = tags.filter((tag) =>
+      tagIdsForCreation.includes(tag.id)
     );
 
-    // Create missing TagToBookmark associations
-    for (const tagRecord of tagsToProcess) {
+    for (const tagRecord of tagsUsedForCreation) {
       const newTagToBookmark = await prisma.tagToBookmark.create({
         data: {
           tagId: tagRecord.id,
@@ -356,10 +348,27 @@ const ensureTagToBookmarksExist = async (
         },
       });
 
-      resultingTagToBookmarks.push(newTagToBookmark);
+      existingTagToBookmarks.push(newTagToBookmark);
     }
 
-    return { status: 200, data: resultingTagToBookmarks };
+    // Delete old TagToBookmark records
+    const tagIdsForDeletion = existingTagToBookmark_TagIds.filter(
+      (tagId) => !inputTagIds.includes(tagId)
+    );
+    try {
+      await prisma.tagToBookmark.deleteMany({
+        where: {
+          userId,
+          tagId: {
+            in: tagIdsForDeletion,
+          },
+        },
+      });
+    } catch (error) {
+      return { status: 500, error: "Internal Server Error." };
+    }
+
+    return { status: 200, data: existingTagToBookmarks };
   } catch (error) {
     return {
       status: 500,

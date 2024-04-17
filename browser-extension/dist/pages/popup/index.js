@@ -3317,8 +3317,8 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                             event.preventDefault();
                         }
                     } }),
-                tagSet && tagSet.size > 0 && (react.createElement("div", { className: "flex flex-wrap w-full gap-1 mt-2" }, Array.from(tagSet).map((tagName) => {
-                    return (react.createElement(TagButton, { name: tagName, onClick: (name) => {
+                tagSet && tagSet.size > 0 && (react.createElement("div", { className: "flex flex-wrap w-full gap-1 mt-2" }, Array.from(tagSet).map((tagName, index) => {
+                    return (react.createElement(TagButton, { key: index, name: tagName, onClick: (name) => {
                             const updatedTagSet = new Set(tagSet);
                             updatedTagSet.delete(name);
                             setTagSet(updatedTagSet);
