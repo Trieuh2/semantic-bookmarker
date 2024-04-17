@@ -31,6 +31,16 @@ interface BookmarkRecord {
   note: string;
   excerpt: string;
   createdAt: string | null;
+  tagToBookmarks: TagToBookmarkRecord[];
+}
+
+interface TagToBookmarkRecord {
+  id: string;
+  createdAt: string;
+  tagId: string;
+  tag_name: string;
+  bookmarkId: string;
+  page_url: string;
 }
 
 interface BookmarkTextAreas {
@@ -94,6 +104,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
             note: response.note,
             page_url: response.page_url,
           });
+
+          const initialTags = response.tagToBookmarks.map(
+            (record: TagToBookmarkRecord) => record.tag_name
+          );
+          setTagSet(new Set(initialTags));
         }
 
         setInitialFetchAttempted(true);
@@ -137,7 +152,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [initialFetchAttempted]);
 
-  // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
+  // TODO: Handle updates to 'excerpt' and 'collection' fields
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
     const haveRequiredFields = () => {
@@ -157,6 +172,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           title: textAreaValues.title,
           page_url: textAreaValues.page_url,
           note: textAreaValues.note,
+          tags: Array.from(tagSet),
           excerpt: "",
         };
 
@@ -175,7 +191,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     };
 
     performUpdate();
-  }, [textAreaValues]);
+  }, [textAreaValues, tagSet]);
 
   // Store initial values
   useEffect(() => {

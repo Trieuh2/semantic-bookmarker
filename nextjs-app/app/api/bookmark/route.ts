@@ -3,6 +3,7 @@ import prisma from "@/app/libs/prismadb";
 import getBookmarkRecord from "@/app/actions/getBookmarkRecord";
 import getIsSessionValid from "@/app/actions/getIsSessionValid";
 import getUserIdFromSessionToken from "@/app/actions/getUserIdFromSessionToken";
+import { Tag } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -125,6 +126,15 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { id, sessionToken, tags, ...potentialUpdates } = body;
 
+    // Validate session
+    if (!(await getIsSessionValid(sessionToken))) {
+      return NextResponse.json(
+        { error: "Invalid or expired session" },
+        { status: 401 }
+      );
+    }
+
+    // Validate parameters
     if (!id || !sessionToken) {
       const missingFields = [];
       if (!id) missingFields.push("id");
@@ -139,8 +149,8 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Check if the request body is empty
-    if (Object.keys(body).length === 0) {
+    // Handle missing fields case
+    if (Object.keys(body).length === 2) {
       return NextResponse.json(
         {
           error: "Bad Request",
@@ -162,33 +172,21 @@ export async function PATCH(request: Request) {
         {}
       );
 
-    // Validate session token
-    if (!getIsSessionValid(sessionToken)) {
-      return NextResponse.json(
-        { error: "Invalid or expired session" },
-        { status: 401 }
+    // Handle Tags and TagToBookmark updates
+    if (tags) {
+      const tagsUpdate = await updateTagsAndTagToBookmarks(
+        sessionToken,
+        tags,
+        id
       );
-    }
 
-    // Create or fetch tags
-    const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
-    if (userIdFetchResponse.status !== 200) {
-      return NextResponse.json(
-        { error: userIdFetchResponse.error },
-        { status: userIdFetchResponse.status }
-      );
+      if (tagsUpdate.status !== 200) {
+        return NextResponse.json({
+          status: tagsUpdate.status,
+          error: tagsUpdate.error,
+        });
+      }
     }
-    const userId = userIdFetchResponse.data;
-
-    const processedTags = await ensureTagsExist(userId ?? "", tags);
-    if (processedTags.status !== 200) {
-      return NextResponse.json(
-        { error: processedTags.error },
-        { status: processedTags.status }
-      );
-    }
-
-    // TODO: create TagToBookmark associations
 
     const updatedBookmark = await prisma.bookmark.update({
       where: { id },
@@ -205,18 +203,65 @@ export async function PATCH(request: Request) {
   }
 }
 
+const updateTagsAndTagToBookmarks = async (
+  sessionToken: string,
+  tagNames: string[],
+  id: string
+) => {
+  try {
+    // TODO: Handle Tag records to delete
+    // Create or fetch tags
+    const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
+    if (userIdFetchResponse.status !== 200) {
+      return {
+        status: userIdFetchResponse.status,
+        error: userIdFetchResponse.error,
+      };
+    }
+    const userId = userIdFetchResponse.data;
+
+    const processTagResponse = await ensureTagsExist(userId ?? "", tagNames);
+    if (processTagResponse.status !== 200) {
+      return {
+        status: processTagResponse.status,
+        error: processTagResponse.error,
+      };
+    }
+
+    // TODO: Handle TagToBookmark records to delete
+    // Create TagToBookmark records
+    const processedTags = processTagResponse.data;
+    const tagToBookmarkResponse = await ensureTagToBookmarksExist(
+      userId ?? "",
+      id,
+      processedTags ?? []
+    );
+
+    if (tagToBookmarkResponse.status !== 200) {
+      return {
+        status: tagToBookmarkResponse.status,
+        error: tagToBookmarkResponse.error,
+      };
+    }
+
+    return { status: 200, data: tagToBookmarkResponse.data };
+  } catch (error) {
+    return { status: 500, error: "Internal Server Error" };
+  }
+};
+
 const ensureTagsExist = async (userId: string, tagNames: string[]) => {
   if (!userId || !tagNames) {
     return { status: 400, error: "Missing userId or tagNames" };
   }
 
   const resultingTags = [];
-  const missingTags = [];
+  const tagsToCreate = [];
 
   // Find existing and missing tags
   for (const tagName of tagNames) {
     try {
-      const tagRecord = await prisma.tag.findUnique({
+      const tagRecord = await prisma.tag.findFirst({
         where: {
           name: tagName,
           userId,
@@ -224,7 +269,7 @@ const ensureTagsExist = async (userId: string, tagNames: string[]) => {
       });
 
       if (!tagRecord) {
-        missingTags.push(tagName);
+        tagsToCreate.push(tagName);
       } else {
         resultingTags.push(tagRecord);
       }
@@ -235,7 +280,7 @@ const ensureTagsExist = async (userId: string, tagNames: string[]) => {
   }
 
   // Create the missing tags
-  for (const tagName of missingTags) {
+  for (const tagName of tagsToCreate) {
     try {
       const newTagRecord = await prisma.tag.create({
         data: {
@@ -251,4 +296,74 @@ const ensureTagsExist = async (userId: string, tagNames: string[]) => {
   }
 
   return { status: 200, data: resultingTags ?? [] };
+};
+
+const ensureTagToBookmarksExist = async (
+  userId: string,
+  id: string,
+  tags: Tag[]
+) => {
+  if (!userId || !id || !tags) {
+    return {
+      status: 400,
+      error:
+        "Error creating TagToBookmark record. Missing userId, id, or tags parameters.",
+    };
+  }
+
+  // Fetch bookmark
+  const bookmark = await prisma.bookmark.findFirst({
+    where: {
+      userId,
+      id,
+    },
+  });
+
+  if (!bookmark) {
+    return {
+      status: 404,
+      error: "Error creating TagToBookmark record. Bookmark not found.",
+    };
+  }
+
+  try {
+    const tagIds = tags.map((tag) => tag.id);
+    const resultingTagToBookmarks = await prisma.tagToBookmark.findMany({
+      where: {
+        userId,
+        page_url: bookmark?.page_url,
+      },
+    });
+    const associatedTagIds = resultingTagToBookmarks.map(
+      (record) => record.tagId
+    );
+    const tagIdsToProcess = tagIds.filter(
+      (value) => !associatedTagIds.includes(value)
+    );
+    const tagsToProcess = tags.filter((tag) =>
+      tagIdsToProcess.includes(tag.id)
+    );
+
+    // Create missing TagToBookmark associations
+    for (const tagRecord of tagsToProcess) {
+      const newTagToBookmark = await prisma.tagToBookmark.create({
+        data: {
+          tagId: tagRecord.id,
+          tag_name: tagRecord.name,
+          bookmarkId: id,
+          page_url: bookmark.page_url,
+          userId,
+        },
+      });
+
+      resultingTagToBookmarks.push(newTagToBookmark);
+    }
+
+    return { status: 200, data: resultingTagToBookmarks };
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Internal Server Error",
+    };
+  }
 };

@@ -25,6 +25,9 @@ const getBookmarkRecord = async (
         userId,
         page_url,
       },
+      include: {
+        tagToBookmarks: true,
+      },
     });
 
     return bookmarkRecord;

@@ -3170,6 +3170,8 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                         note: response.note,
                         page_url: response.page_url,
                     });
+                    const initialTags = response.tagToBookmarks.map((record) => record.tag_name);
+                    setTagSet(new Set(initialTags));
                 }
                 setInitialFetchAttempted(true);
             };
@@ -3207,7 +3209,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             createBookmarkRecord();
         }
     }, [initialFetchAttempted]);
-    // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
+    // TODO: Handle updates to 'excerpt' and 'collection' fields
     // Side effect to send a message to background service worker for updating the Bookmark record data
     react.useEffect(() => {
         const haveRequiredFields = () => {
@@ -3224,6 +3226,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                     title: textAreaValues.title,
                     page_url: textAreaValues.page_url,
                     note: textAreaValues.note,
+                    tags: Array.from(tagSet),
                     excerpt: "",
                 };
                 try {
@@ -3238,7 +3241,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             }
         };
         performUpdate();
-    }, [textAreaValues]);
+    }, [textAreaValues, tagSet]);
     // Store initial values
     react.useEffect(() => {
         if (!initialValues && bookmarkRecord) {
