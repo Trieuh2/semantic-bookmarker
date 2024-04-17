@@ -3217,7 +3217,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 sessionRecord?.sessionToken != "");
         };
         const performUpdate = () => {
-            if (haveRequiredFields()) {
+            if (haveRequiredFields() && initialValues) {
                 const updatePayload = {
                     id: bookmarkRecord?.id,
                     sessionToken: sessionRecord?.sessionToken,
@@ -3278,7 +3278,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         const day = dateObj.getDate();
         const year = dateObj.getFullYear();
         let hour = dateObj.getHours();
-        const mins = ("0" + dateObj.getMinutes()).slice(-2); // Ensure two digit mins]
+        const mins = ("0" + dateObj.getMinutes()).slice(-2); // Ensure two digit mins
         const ampm = hour >= 12 ? "PM" : "AM";
         hour = hour % 12;
         hour = hour ? hour : 12; // Convert 0 to 12 for 12 AM

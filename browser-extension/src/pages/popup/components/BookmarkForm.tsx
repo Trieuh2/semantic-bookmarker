@@ -44,15 +44,17 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   parentOnSignOut,
 }) => {
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
-  const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(null);
-  const [initialValues, setInitialValues] = useState<BookmarkRecord | null>(null);
-  const [textAreaValues, setTextAreaValues] = useState<BookmarkTextAreas>(
-    {
-      title: "",
-      note: "",
-      page_url: "",
-    }
+  const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(
+    null
   );
+  const [initialValues, setInitialValues] = useState<BookmarkRecord | null>(
+    null
+  );
+  const [textAreaValues, setTextAreaValues] = useState<BookmarkTextAreas>({
+    title: "",
+    note: "",
+    page_url: "",
+  });
   const [tagSet, setTagSet] = useState<Set<string>>(new Set());
   const [tagField, setTagField] = useState<string>("");
 
@@ -148,7 +150,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     };
 
     const performUpdate = () => {
-      if (haveRequiredFields()) {
+      if (haveRequiredFields() && initialValues) {
         const updatePayload = {
           id: bookmarkRecord?.id,
           sessionToken: sessionRecord?.sessionToken,
@@ -225,7 +227,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     const year = dateObj.getFullYear();
 
     let hour = dateObj.getHours();
-    const mins = ("0" + dateObj.getMinutes()).slice(-2); // Ensure two digit mins]
+    const mins = ("0" + dateObj.getMinutes()).slice(-2); // Ensure two digit mins
 
     const ampm = hour >= 12 ? "PM" : "AM";
     hour = hour % 12;
