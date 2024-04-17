@@ -6,8 +6,8 @@
   /* ------------------ PLACEHOLDERS ----------------- */
 
   const timestampPathPlaceholder = 'timestamp.json';
-  const loadMessagePlaceholder = '"DEVELOPMENT build with simple auto-reloader\n[2024-04-16 16:33:55] waiting for changes..."';
-  const ctScriptPathPlaceholder = '"assets/content-script-reloader-4edfcb77.js"';
+  const loadMessagePlaceholder = '"DEVELOPMENT build with simple auto-reloader\n[2024-04-16 17:37:07] waiting for changes..."';
+  const ctScriptPathPlaceholder = '"assets/content-script-reloader-1bc9b7a2.js"';
   const unregisterServiceWorkersPlaceholder =
     'true';
   const executeScriptPlaceholder = 'true';

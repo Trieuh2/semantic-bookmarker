@@ -3130,9 +3130,12 @@ const TagButton = ({ name, onClick, }) => {
 const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
-    const [title, setTitle] = react.useState("");
-    const [note, setNote] = react.useState("");
-    const [page_url, setPageUrl] = react.useState("");
+    const [initialValues, setInitialValues] = react.useState(null);
+    const [textAreaValues, setTextAreaValues] = react.useState({
+        title: "",
+        note: "",
+        page_url: "",
+    });
     const [tagSet, setTagSet] = react.useState(new Set());
     const [tagField, setTagField] = react.useState("");
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
@@ -3162,9 +3165,11 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const response = await getBookmark(sessionToken, userId, page_url);
                 if (response) {
                     setBookmarkRecord(response);
-                    setTitle(response.title);
-                    setNote(response.note);
-                    setPageUrl(response.page_url);
+                    setTextAreaValues({
+                        title: response.title,
+                        note: response.note,
+                        page_url: response.page_url,
+                    });
                 }
                 setInitialFetchAttempted(true);
             };
@@ -3189,12 +3194,14 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                     userId: userId,
                     sessionToken: sessionToken,
                 };
-                const bookmark = await createBookmark(bookmarkCreateRequest);
-                if (bookmark) {
-                    setBookmarkRecord(bookmark);
-                    setTitle(bookmark.title);
-                    setNote(bookmark.note);
-                    setPageUrl(bookmark.page_url);
+                const response = await createBookmark(bookmarkCreateRequest);
+                if (response) {
+                    setBookmarkRecord(response);
+                    setTextAreaValues({
+                        title: response.title,
+                        note: response.note,
+                        page_url: response.page_url,
+                    });
                 }
             };
             createBookmarkRecord();
@@ -3203,10 +3210,9 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
     // Side effect to send a message to background service worker for updating the Bookmark record data
     react.useEffect(() => {
-        // Helper methods to ensure updates are only made unnecessary DB calls
         const haveRequiredFields = () => {
-            return (title &&
-                page_url &&
+            return (textAreaValues.title &&
+                textAreaValues.page_url &&
                 bookmarkRecord?.id &&
                 sessionRecord?.sessionToken != "");
         };
@@ -3215,9 +3221,9 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 const updatePayload = {
                     id: bookmarkRecord?.id,
                     sessionToken: sessionRecord?.sessionToken,
-                    title: title,
-                    page_url: page_url,
-                    note: note,
+                    title: textAreaValues.title,
+                    page_url: textAreaValues.page_url,
+                    note: textAreaValues.note,
                     excerpt: "",
                 };
                 try {
@@ -3232,23 +3238,25 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             }
         };
         performUpdate();
-    }, [title, note, page_url]);
-    const initialTitle = react.useMemo(() => bookmarkRecord?.title ?? "", [bookmarkRecord]);
-    const handleResetTitle = () => {
-        if (!title) {
-            setTitle(initialTitle);
+    }, [textAreaValues]);
+    // Store initial values
+    react.useEffect(() => {
+        if (!initialValues && bookmarkRecord) {
+            setInitialValues(bookmarkRecord);
         }
+    }, [bookmarkRecord, initialValues]);
+    // Handlers for input changes
+    const handleTextAreaOnChange = (field, value) => {
+        setTextAreaValues((prev) => ({ ...prev, [field]: value }));
     };
-    const initialNote = react.useMemo(() => bookmarkRecord?.note ?? "", [bookmarkRecord]);
-    const handleResetNote = () => {
-        if (!note) {
-            setNote(initialNote);
-        }
-    };
-    const initialPageUrl = react.useMemo(() => bookmarkRecord?.page_url ?? "", [bookmarkRecord]);
-    const handleResetPageUrl = () => {
-        if (!page_url) {
-            setPageUrl(initialPageUrl);
+    const handleTextAreaOnBlur = (field) => {
+        if ((field === "title" || field === "page_url") && // required fields
+            !textAreaValues[field] &&
+            initialValues) {
+            setTextAreaValues((prev) => ({
+                ...prev,
+                [field]: initialValues[field],
+            }));
         }
     };
     const handleRedirectToWebsite = () => {
@@ -3284,14 +3292,14 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         react.createElement("div", { className: "w-full flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Title"),
             react.createElement("div", { className: "w-full h-full font-bold text-sm bg-zinc-800" },
-                react.createElement(TextArea, { value: title, useUnderline: true, onTextChange: (value) => {
-                        setTitle(value);
-                    }, onBlur: handleResetTitle }))),
+                react.createElement(TextArea, { value: textAreaValues.title, useUnderline: true, onTextChange: (value) => {
+                        handleTextAreaOnChange("title", value);
+                    }, onBlur: () => handleTextAreaOnBlur("title") }))),
         react.createElement("div", { className: "w-full flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Note"),
-            react.createElement(TextArea, { value: note, useBackground: true, onTextChange: (value) => {
-                    setNote(value);
-                }, onBlur: handleResetNote })),
+            react.createElement(TextArea, { value: textAreaValues.note, useBackground: true, onTextChange: (value) => {
+                    handleTextAreaOnChange("note", value);
+                }, onBlur: () => handleTextAreaOnBlur("note") })),
         react.createElement("div", { className: "w-full flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Collection"),
             react.createElement(TextArea, { useBackground: true, onTextChange: () => { }, onBlur: () => { } })),
@@ -3315,9 +3323,9 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
                 }))))),
         react.createElement("div", { className: "w-full flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "URL"),
-            react.createElement(TextArea, { value: page_url, useBackground: true, onTextChange: (value) => {
-                    setPageUrl(value);
-                }, onBlur: handleResetPageUrl })),
+            react.createElement(TextArea, { value: textAreaValues.page_url, useBackground: true, onTextChange: (value) => {
+                    handleTextAreaOnChange("page_url", value);
+                }, onBlur: () => handleTextAreaOnBlur("page_url") })),
         bookmarkRecord?.createdAt && (react.createElement("div", { className: "w-full py-2 px-4 flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 bg-zinc-800" }),
             "Saved ",

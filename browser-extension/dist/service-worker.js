@@ -1,5 +1,5 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-799dd8d6.js"
+              import "./assets/background-page-reloader-030ac7d9.js"
               import { c as createCommonjsModule, a as commonjsGlobal } from './commonjsHelpers-318dc0aa.js';
 
 /**

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "./Footer";
 import TextArea from "./TextArea";
 import Input from "./Input";
@@ -33,17 +33,26 @@ interface BookmarkRecord {
   createdAt: string | null;
 }
 
+interface BookmarkTextAreas {
+  title: string;
+  page_url: string;
+  note: string;
+}
+
 const BookmarkForm: React.FC<BookmarkFormProps> = ({
   sessionRecord,
   parentOnSignOut,
 }) => {
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
-  const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(
-    null
+  const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(null);
+  const [initialValues, setInitialValues] = useState<BookmarkRecord | null>(null);
+  const [textAreaValues, setTextAreaValues] = useState<BookmarkTextAreas>(
+    {
+      title: "",
+      note: "",
+      page_url: "",
+    }
   );
-  const [title, setTitle] = useState<string>("");
-  const [note, setNote] = useState<string>("");
-  const [page_url, setPageUrl] = useState<string>("");
   const [tagSet, setTagSet] = useState<Set<string>>(new Set());
   const [tagField, setTagField] = useState<string>("");
 
@@ -78,9 +87,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
 
         if (response) {
           setBookmarkRecord(response);
-          setTitle(response.title);
-          setNote(response.note);
-          setPageUrl(response.page_url);
+          setTextAreaValues({
+            title: response.title,
+            note: response.note,
+            page_url: response.page_url,
+          });
         }
 
         setInitialFetchAttempted(true);
@@ -109,13 +120,15 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           sessionToken: sessionToken,
         };
 
-        const bookmark = await createBookmark(bookmarkCreateRequest);
+        const response = await createBookmark(bookmarkCreateRequest);
 
-        if (bookmark) {
-          setBookmarkRecord(bookmark);
-          setTitle(bookmark.title);
-          setNote(bookmark.note);
-          setPageUrl(bookmark.page_url);
+        if (response) {
+          setBookmarkRecord(response);
+          setTextAreaValues({
+            title: response.title,
+            note: response.note,
+            page_url: response.page_url,
+          });
         }
       };
       createBookmarkRecord();
@@ -125,11 +138,10 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   // TODO: Handle updates to 'excerpt', 'tags', and 'collection' fields
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
-    // Helper methods to ensure updates are only made unnecessary DB calls
     const haveRequiredFields = () => {
       return (
-        title &&
-        page_url &&
+        textAreaValues.title &&
+        textAreaValues.page_url &&
         bookmarkRecord?.id &&
         sessionRecord?.sessionToken != ""
       );
@@ -140,9 +152,9 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         const updatePayload = {
           id: bookmarkRecord?.id,
           sessionToken: sessionRecord?.sessionToken,
-          title: title,
-          page_url: page_url,
-          note: note,
+          title: textAreaValues.title,
+          page_url: textAreaValues.page_url,
+          note: textAreaValues.note,
           excerpt: "",
         };
 
@@ -161,38 +173,33 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     };
 
     performUpdate();
-  }, [title, note, page_url]);
+  }, [textAreaValues]);
 
-  const initialTitle = useMemo(
-    () => bookmarkRecord?.title ?? "",
-    [bookmarkRecord]
-  );
-
-  const handleResetTitle = () => {
-    if (!title) {
-      setTitle(initialTitle);
+  // Store initial values
+  useEffect(() => {
+    if (!initialValues && bookmarkRecord) {
+      setInitialValues(bookmarkRecord);
     }
+  }, [bookmarkRecord, initialValues]);
+
+  // Handlers for input changes
+  const handleTextAreaOnChange = (
+    field: keyof BookmarkTextAreas,
+    value: string
+  ) => {
+    setTextAreaValues((prev) => ({ ...prev, [field]: value }));
   };
 
-  const initialNote = useMemo(
-    () => bookmarkRecord?.note ?? "",
-    [bookmarkRecord]
-  );
-
-  const handleResetNote = () => {
-    if (!note) {
-      setNote(initialNote);
-    }
-  };
-
-  const initialPageUrl = useMemo(
-    () => bookmarkRecord?.page_url ?? "",
-    [bookmarkRecord]
-  );
-
-  const handleResetPageUrl = () => {
-    if (!page_url) {
-      setPageUrl(initialPageUrl);
+  const handleTextAreaOnBlur = (field: keyof BookmarkTextAreas) => {
+    if (
+      (field === "title" || field === "page_url") && // required fields
+      !textAreaValues[field] &&
+      initialValues
+    ) {
+      setTextAreaValues((prev) => ({
+        ...prev,
+        [field]: initialValues[field],
+      }));
     }
   };
 
@@ -280,12 +287,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         <div className="min-w-20 p-2 text-end bg-zinc-800">Title</div>
         <div className="w-full h-full font-bold text-sm bg-zinc-800">
           <TextArea
-            value={title}
+            value={textAreaValues.title}
             useUnderline
             onTextChange={(value) => {
-              setTitle(value);
+              handleTextAreaOnChange("title", value);
             }}
-            onBlur={handleResetTitle}
+            onBlur={() => handleTextAreaOnBlur("title")}
           />
         </div>
       </div>
@@ -294,12 +301,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Note</div>
         <TextArea
-          value={note}
+          value={textAreaValues.note}
           useBackground
           onTextChange={(value) => {
-            setNote(value);
+            handleTextAreaOnChange("note", value);
           }}
-          onBlur={handleResetNote}
+          onBlur={() => handleTextAreaOnBlur("note")}
         />
       </div>
 
@@ -351,12 +358,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">URL</div>
         <TextArea
-          value={page_url}
+          value={textAreaValues.page_url}
           useBackground
           onTextChange={(value) => {
-            setPageUrl(value);
+            handleTextAreaOnChange("page_url", value);
           }}
-          onBlur={handleResetPageUrl}
+          onBlur={() => handleTextAreaOnBlur("page_url")}
         />
       </div>
 

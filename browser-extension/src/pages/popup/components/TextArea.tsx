@@ -1,13 +1,13 @@
 import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 
-type TextAreaProps = {
+interface TextAreaProps {
   value?: string;
   useBackground?: boolean;
   useUnderline?: boolean;
   onTextChange: (value: string) => void;
   onBlur: () => void;
-};
+}
 
 const TextArea: React.FC<TextAreaProps> = ({
   value = "",
