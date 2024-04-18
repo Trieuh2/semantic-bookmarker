@@ -71,16 +71,26 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
 
-  // Parse the page for initial information
+  // Parse the page to preload popup fields and gather information for DB queries
   useEffect(() => {
     if (sessionRecord) {
       const fetchCurrentTab = async () => {
         let queryOptions = { active: true, lastFocusedWindow: true };
         try {
-          const tabs = await chrome.tabs.query(queryOptions);
-          setCurrentTab(tabs[0]);
+          const activeTab = (await chrome.tabs.query(queryOptions))[0];
+          setCurrentTab(activeTab);
+          setTextAreaValues({
+            title: activeTab?.title ?? "",
+            page_url: activeTab?.url ?? "",
+            note: "",
+          });
+          console.log(activeTab?.title);
+          console.log(activeTab?.url);
         } catch (error) {
-          console.log(error);
+          console.log(
+            "Semantic Bookmarker: Error parsing page information.",
+            error
+          );
         }
       };
       fetchCurrentTab();
@@ -387,12 +397,16 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       </div>
 
       {/* Created At */}
-      {bookmarkRecord?.createdAt && (
-        <div className="w-full py-2 px-4 flex bg-zinc-800">
-          <div className="min-w-20 bg-zinc-800" />
-          Saved {formatDate(bookmarkRecord?.createdAt)}
+      <div className="w-full py-2 px-4 flex bg-zinc-800">
+        <div className="min-w-20 h-full flex-none bg-zinc-800" />
+        <div className="w-full h-full flex-none bg-zinc-800">
+          {bookmarkRecord ? (
+            "Saved " + formatDate(bookmarkRecord?.createdAt ?? "")
+          ) : (
+            <>&nbsp;</>
+          )}
         </div>
-      )}
+      </div>
       <Footer />
     </div>
   );
