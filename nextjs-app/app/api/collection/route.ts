@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getIsSessionValid from "@/app/actions/getIsSessionValid";
+import getUserIdFromUserSession from "@/app/actions/getUserIdFromUserSession";
 
 export async function POST(request: Request) {
   try {
-    const currentUser = await getCurrentUser();
+    // Use NextAuth or sessionToken
     const body = await request.json();
-    const { name } = body;
+    const { name, sessionToken } = body;
 
+    // Get userId from request body or current user session
+    let { userId } = body;
+    if (!userId) {
+      userId = await getUserIdFromUserSession();
+    }
+    if (!userId || !(await getIsSessionValid(sessionToken))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Validate request parameters
     if (!name) {
       return NextResponse.json(
         { error: "Missing required fields", missing_fields: ["name"] },
@@ -15,13 +26,13 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!currentUser?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const existingCollection = await prisma.collection.findUnique({
-      where: { name },
+    const existingCollection = await prisma.collection.findFirst({
+      where: {
+        userId,
+        name,
+      },
     });
+
     if (existingCollection) {
       return NextResponse.json(
         { error: "A Collection with the provided name already exists." },
@@ -31,8 +42,8 @@ export async function POST(request: Request) {
 
     const newCollection = await prisma.collection.create({
       data: {
-        userId: currentUser.id,
-        name: name,
+        userId,
+        name,
       },
     });
 

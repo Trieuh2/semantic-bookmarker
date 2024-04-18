@@ -1,6 +1,10 @@
 import getSessionRecord from "./getSessionRecord";
 
 const getIsSessionValid = async (sessionToken: string): Promise<boolean> => {
+  if (!sessionToken) {
+    return false;
+  }
+
   const nowTimestamp = Date.now();
   const nowDate = new Date(nowTimestamp);
 
