@@ -3,14 +3,22 @@ interface BookmarkCreateRequest {
   page_url: string;
   note?: string;
   excerpt?: string;
+  collection_name: string;
   userId: string;
   sessionToken: string;
 }
 
 const createBookmark = async (createRequest: BookmarkCreateRequest) => {
   try {
-    const { title, page_url, note, excerpt, userId, sessionToken } =
-      createRequest;
+    const {
+      title,
+      page_url,
+      note,
+      excerpt,
+      collection_name,
+      userId,
+      sessionToken,
+    } = createRequest;
 
     if (!title || !page_url || !userId || !sessionToken) {
       throw Error(
@@ -23,6 +31,7 @@ const createBookmark = async (createRequest: BookmarkCreateRequest) => {
       page_url: page_url,
       note: note ?? "",
       excerpt: excerpt ?? "",
+      collection_name: collection_name ?? "Unsorted",
       userId: userId,
       sessionToken: sessionToken,
     };

@@ -6,6 +6,8 @@ import getBookmark from "../../../actions/apiActions/getBookmark";
 import signOut from "../../../actions/apiActions/signOut";
 import createBookmark from "../../../actions/apiActions/createBookmark";
 import TagButton from "./TagButton";
+import getCollections from "../../../actions/apiActions/getCollections";
+import CollectionMenu from "./CollectionMenu";
 
 interface BookmarkFormProps {
   sessionRecord: SessionRecord | null;
@@ -30,6 +32,7 @@ interface BookmarkRecord {
   page_url: string;
   note: string;
   excerpt: string;
+  collection: string;
   createdAt: string | null;
   tagToBookmarks: TagToBookmarkRecord[];
 }
@@ -41,6 +44,13 @@ interface TagToBookmarkRecord {
   tag_name: string;
   bookmarkId: string;
   page_url: string;
+}
+
+interface CollectionRecord {
+  id: string;
+  createdAt: string;
+  name: string;
+  userId: string;
 }
 
 interface BookmarkTextAreas {
@@ -65,6 +75,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     note: "",
     page_url: "",
   });
+
+  const [selectedCollection, setCollectionName] = useState<string>("Unsorted");
+  const [collectionOptions, setCollectionOptions] = useState<Set<string>>(
+    new Set(["Unsorted"])
+  );
+
   const [tagSet, setTagSet] = useState<Set<string>>(new Set());
   const [tagField, setTagField] = useState<string>("");
 
@@ -84,8 +100,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
             page_url: activeTab?.url ?? "",
             note: "",
           });
-          console.log(activeTab?.title);
-          console.log(activeTab?.url);
         } catch (error) {
           console.log(
             "Semantic Bookmarker: Error parsing page information.",
@@ -97,7 +111,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [sessionRecord]);
 
-  // Fetch bookmark from DB on popup
+  // Fetch Bookmark data from DB on popup
   useEffect(() => {
     if (!bookmarkRecord && !initialFetchAttempted && currentTab) {
       const fetchBookmarkRecord = async () => {
@@ -115,9 +129,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
             page_url: response.page_url,
           });
 
-          const initialTags = response.tagToBookmarks.map(
-            (record: TagToBookmarkRecord) => record.tag_name
-          );
+          setCollectionName(response?.collection_name ?? "Unsorted");
+
+          const initialTags = response.tagToBookmarks
+            .map((record: TagToBookmarkRecord) => record.tag_name)
+            .filter((tag_name: string) => tag_name !== "");
           setTagSet(new Set(initialTags));
         }
 
@@ -127,6 +143,35 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [currentTab]);
 
+  // Fetch collection options
+  useEffect(() => {
+    if (sessionRecord) {
+      const fetchCollectionOptions = async () => {
+        try {
+          const response = await getCollections(
+            sessionRecord.sessionToken,
+            sessionRecord.userId
+          );
+
+          if (response) {
+            const collectionNames = response
+              .map((collection: CollectionRecord) => collection.name)
+              .filter((collectionName: string) => collectionName !== "");
+
+            setCollectionOptions(new Set(collectionNames));
+          }
+        } catch (error) {
+          console.log(
+            "Error encountered during collections fetch attempt.",
+            error
+          );
+        }
+      };
+
+      fetchCollectionOptions();
+    }
+  }, [sessionRecord]);
+
   // If this Bookmark record does not exist in the DB, this side effect will create the record.
   useEffect(() => {
     if (!bookmarkRecord && initialFetchAttempted && currentTab) {
@@ -135,6 +180,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         const page_url = currentTab?.url ?? "";
         const note = "";
         const excerpt = "";
+        const collection_name = "Unsorted";
         const userId = sessionRecord?.userId ?? "";
         const sessionToken = sessionRecord?.sessionToken ?? "";
 
@@ -143,6 +189,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           page_url: page_url,
           note: note,
           excerpt: excerpt,
+          collection_name: collection_name,
           userId: userId,
           sessionToken: sessionToken,
         };
@@ -162,7 +209,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   }, [initialFetchAttempted]);
 
-  // TODO: Handle updates to 'excerpt' and 'collection' fields
+  // TODO: Handle updates to 'excerpt' field
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
     const haveRequiredFields = () => {
@@ -182,6 +229,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           title: textAreaValues.title,
           page_url: textAreaValues.page_url,
           note: textAreaValues.note,
+          collection_name: selectedCollection,
           tags: Array.from(tagSet),
           excerpt: "",
         };
@@ -201,7 +249,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     };
 
     performUpdate();
-  }, [textAreaValues, tagSet]);
+  }, [textAreaValues, tagSet, selectedCollection]);
 
   // Store initial values
   useEffect(() => {
@@ -341,7 +389,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       {/* Collection */}
       <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
-        <TextArea useBackground onTextChange={() => {}} onBlur={() => {}} />
+        <CollectionMenu
+          collectionOptions={collectionOptions}
+          selectedCollection={selectedCollection}
+          setCollectionName={(value) => setCollectionName(value)}
+        />
       </div>
 
       {/* Tags */}
