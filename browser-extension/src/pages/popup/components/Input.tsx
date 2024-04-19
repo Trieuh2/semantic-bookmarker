@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import clsx from "clsx";
 
 interface InputProps {
@@ -6,7 +6,10 @@ interface InputProps {
   type?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onBlur?: () => void;
   value?: string;
+  disabled?: boolean;
+  autoFocus?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -14,8 +17,13 @@ const Input: React.FC<InputProps> = ({
   type,
   onChange,
   onKeyDown,
+  onBlur,
   value,
+  disabled = false,
+  autoFocus = false,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const inputClasses = clsx(
     `
     form-input
@@ -38,15 +46,26 @@ const Input: React.FC<InputProps> = ({
     transition`
   );
 
+  // Effect to handle focusing logic based on autoFocus prop
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
+
   return (
     <div className="w-full h-full bg-zinc-800">
       <input
+        ref={inputRef}
         id={id}
         type={type}
         className={inputClasses}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        onBlur={onBlur}
         value={value}
+        disabled={disabled}
+        autoFocus={autoFocus}
       ></input>
     </div>
   );
