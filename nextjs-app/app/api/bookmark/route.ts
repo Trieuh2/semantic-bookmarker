@@ -49,15 +49,24 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, page_url, note, excerpt, userId, sessionToken } = body;
+    const {
+      title,
+      page_url,
+      note,
+      excerpt,
+      collection_name,
+      userId,
+      sessionToken,
+    } = body;
 
     const missingFields = [];
     if (!title) missingFields.push("title");
     if (!page_url) missingFields.push("page_url");
+    if (!collection_name) missingFields.push("collection_name");
     if (!userId) missingFields.push("userId");
     if (!sessionToken) missingFields.push("sessionToken");
 
-    if (!userId || !sessionToken || !title || !page_url) {
+    if (!userId || !sessionToken || !title || !page_url || !collection_name) {
       return NextResponse.json(
         {
           error: "Missing required fields or unauthorized",
@@ -93,6 +102,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create Collection record if it doesn't exist
+    const collectionResponse = await createOrFetchCollection(
+      userId,
+      collection_name
+    );
+    if (collectionResponse.status !== 200) {
+      return NextResponse.json(
+        { error: collectionResponse.error },
+        { status: collectionResponse.status }
+      );
+    }
+    const collection = collectionResponse.data;
+
     const newBookmark = await prisma.bookmark.create({
       data: {
         title: title,
@@ -100,6 +122,7 @@ export async function POST(request: Request) {
         note: note ?? "",
         excerpt: excerpt ?? "",
         userId: userId,
+        collection_name: collection?.name ?? "",
       },
     });
 
@@ -116,7 +139,8 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, sessionToken, tags, ...potentialUpdates } = body;
+    const { id, sessionToken, tags, collection_name, ...potentialUpdates } =
+      body;
 
     // Validate session
     if (!(await getIsSessionValid(sessionToken))) {
@@ -153,7 +177,13 @@ export async function PATCH(request: Request) {
     }
 
     // Check if there are any valid fields to update
-    const validFields = ["title", "page_url", "note", "excerpt"];
+    const validFields = [
+      "title",
+      "page_url",
+      "note",
+      "excerpt",
+      "collection_name",
+    ];
     const updates = Object.keys(potentialUpdates)
       .filter(
         (field) =>
@@ -180,9 +210,22 @@ export async function PATCH(request: Request) {
       }
     }
 
+    // Fetch collectionId
+    const collectionResponse = await updateCollection(
+      sessionToken,
+      collection_name
+    );
+    if (collectionResponse.status !== 200) {
+      return NextResponse.json(
+        { error: collectionResponse.error },
+        { status: collectionResponse.status }
+      );
+    }
+    const collection = collectionResponse.data;
+
     const updatedBookmark = await prisma.bookmark.update({
       where: { id },
-      data: updates,
+      data: { ...updates, collection_name: collection?.name },
     });
 
     return NextResponse.json(updatedBookmark);
@@ -369,6 +412,90 @@ const updateTagToBookmarks = async (
     }
 
     return { status: 200, data: existingTagToBookmarks };
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Internal Server Error",
+    };
+  }
+};
+
+const updateCollection = async (
+  sessionToken: string,
+  collection_name: string
+) => {
+  if (!sessionToken || !collection_name) {
+    return {
+      error: "Missing sessionToken or collection_name.",
+      status: 400,
+    };
+  }
+
+  try {
+    const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
+
+    if (userIdFetchResponse.status !== 200) {
+      return {
+        status: userIdFetchResponse.status,
+        error: userIdFetchResponse.error,
+      };
+    }
+    const userId = userIdFetchResponse.data;
+
+    const collectionCreationFetchResponse = await createOrFetchCollection(
+      userId ?? "",
+      collection_name
+    );
+
+    if (collectionCreationFetchResponse.status !== 200) {
+      return {
+        status: collectionCreationFetchResponse.status,
+        error: collectionCreationFetchResponse.error,
+      };
+    }
+
+    const collection = collectionCreationFetchResponse.data;
+
+    return { status: 200, data: collection };
+  } catch (error) {
+    return { status: 500, error: error };
+  }
+};
+
+const createOrFetchCollection = async (
+  userId: string,
+  collection_name: string
+) => {
+  if (!userId || !collection_name) {
+    return {
+      status: 400,
+      error: "Missing required userId or name.",
+    };
+  }
+
+  try {
+    const existingCollection = await prisma.collection.findFirst({
+      where: {
+        userId,
+        name: collection_name,
+      },
+    });
+
+    if (existingCollection) {
+      return {
+        status: 200,
+        data: existingCollection,
+      };
+    } else {
+      const newCollection = await prisma.collection.create({
+        data: {
+          userId,
+          name: collection_name,
+        },
+      });
+
+      return { status: 200, data: newCollection };
+    }
   } catch (error) {
     return {
       status: 500,
