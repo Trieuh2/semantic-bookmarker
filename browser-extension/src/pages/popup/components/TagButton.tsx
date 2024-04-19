@@ -28,7 +28,7 @@ const TagButton: React.FC<TagButtonProps> = ({
     rounded-md
     border
     border-orange-300
-    text-sm
+    text-xs
     text-left
     text-center
     text-orange-300
