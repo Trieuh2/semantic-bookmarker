@@ -1,6 +1,6 @@
 import React from "react";
 import SignInButton from "./SignInButton";
-import Footer from "../Footer";
+import Footer from "./Footer";
 
 const ExtAuthForm: React.FC = () => {
   return (

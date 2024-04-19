@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import getSessionTokenFromCookie from "../../actions/getSessionTokenFromCookie";
 import getSession from "../../actions/apiActions/getSession";
-import ExtAuthForm from "./components/extAuthForm/ExtAuthForm";
+import ExtAuthForm from "./components/ExtAuthForm";
 import BookmarkForm from "./components/BookmarkForm";
 
 interface SessionRecord {
