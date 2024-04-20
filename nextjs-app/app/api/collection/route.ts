@@ -2,54 +2,25 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getIsSessionValid from "@/app/actions/getIsSessionValid";
 import getUserIdFromUserSession from "@/app/actions/getUserIdFromUserSession";
+import { handleError } from "@/app/utils/errorHandler";
+import getCollections from "@/app/actions/getCollections";
 
 export async function GET(request: Request) {
   try {
     // Parse params
     const url = new URL(request.url);
-    const sessionToken = url.searchParams.get("sessionToken");
-    const userId = url.searchParams.get("userId");
+    const userId = url.searchParams.get("userId") ?? "";
+    const sessionToken = url.searchParams.get("sessionToken") ?? "";
 
-    // Handle missing fields
-    const missingFields = [];
-    if (!sessionToken) missingFields.push("sessionToken");
-    if (!userId) missingFields.push("userId");
+    const collections = await getCollections(userId, sessionToken);
 
-    if (!sessionToken || !userId) {
-      return NextResponse.json(
-        {
-          error: "Missing required fields",
-          missing_fields: missingFields,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate session
-    const isSessionValid = await getIsSessionValid(sessionToken);
-
-    if (!isSessionValid) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Fetch Collections
-    const collections = await prisma.collection.findMany({
-      where: {
-        userId,
-      },
-      take: 10,
-    });
-
-    return NextResponse.json(collections);
+    return NextResponse.json({ success: true, data: collections });
   } catch (error) {
-    console.log(error, "Error fetching bookmark from server.");
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    handleError(error as Error);
   }
 }
 
+// TODO: Separate API layer and business layer
 export async function POST(request: Request) {
   try {
     // Use NextAuth or sessionToken

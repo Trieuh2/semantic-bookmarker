@@ -2807,31 +2807,6 @@ const getSessionTokenFromCookie = async () => {
     }
 };
 
-const getSession = async (sessionToken) => {
-    try {
-        if (!sessionToken) {
-            throw new Error("Session token is required!");
-        }
-        const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            if (response.status === 400) {
-                return null;
-            }
-            if (response.status === 404) {
-                return null;
-            }
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = response.json();
-        return data;
-    }
-    catch (error) {
-        console.error("Failed to fetch server session:", error);
-        return null;
-    }
-};
-
 function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e)){var o=e.length;for(t=0;t<o;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);}else for(f in e)e[f]&&(n&&(n+=" "),n+=f);return n}function clsx(){for(var e,t,f=0,n="",o=arguments.length;f<o;f++)(e=arguments[f])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
 
 const SignInButton = ({ children, disabled }) => {
@@ -2949,35 +2924,6 @@ const Input = ({ id, type, onChange, onKeyDown, onBlur, value, disabled = false,
         react.createElement("input", { ref: inputRef, id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, onBlur: onBlur, value: value, disabled: disabled, autoFocus: autoFocus })));
 };
 
-const getBookmark = async (sessionToken, userId, page_url) => {
-    try {
-        if (!sessionToken || !userId || !page_url) {
-            throw new Error("All parameters (sessionToken, userId, page_url) are required");
-        }
-        const base_url = "http://localhost:3000/api/bookmark";
-        const params = {
-            sessionToken: sessionToken,
-            userId: userId,
-            page_url: page_url,
-        };
-        const queryString = new URLSearchParams(params).toString();
-        const url = `${base_url}?${queryString}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            if (response.status === 404) {
-                return null;
-            }
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = response.json();
-        return data;
-    }
-    catch (error) {
-        console.error("Error fetching bookmark record:", error);
-        return null;
-    }
-};
-
 const signOut = async (sessionToken) => {
     try {
         const url = "http://localhost:3000/api/session";
@@ -3000,41 +2946,6 @@ const signOut = async (sessionToken) => {
     }
     catch (error) {
         console.error("Failed to sign out of current session:", error);
-        throw error;
-    }
-};
-
-const createBookmark = async (createRequest) => {
-    try {
-        const { title, page_url, note, excerpt, collection_name, userId, sessionToken, } = createRequest;
-        if (!title || !page_url || !userId || !sessionToken) {
-            throw Error("Missing required fields (title, page_url, userId, sessionToken).");
-        }
-        const postData = {
-            title: title,
-            page_url: page_url,
-            note: note ?? "",
-            excerpt: excerpt ?? "",
-            collection_name: collection_name ?? "Unsorted",
-            userId: userId,
-            sessionToken: sessionToken,
-        };
-        const url = "http://localhost:3000/api/bookmark";
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postData),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    }
-    catch (error) {
-        console.error("Failed to create or update bookmark:", error);
         throw error;
     }
 };
@@ -3133,30 +3044,6 @@ const TagButton = ({ name, onClick, }) => {
     return (react.createElement("button", { className: buttonClasses, onMouseUp: () => onClick(name), onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave },
         react.createElement("div", { className: divClasses }, isHovered ? react.createElement(HiXMark, null) : react.createElement(HiMiniHashtag, null)),
         react.createElement("span", null, name)));
-};
-
-const getCollections = async (sessionToken, userId) => {
-    try {
-        if (!sessionToken || !userId) {
-            throw new Error("All parameters (sessionToken, userId) are required");
-        }
-        const base_url = "http://localhost:3000/api/collection";
-        const params = {
-            sessionToken: sessionToken,
-            userId: userId,
-        };
-        const queryString = new URLSearchParams(params).toString();
-        const url = `${base_url}?${queryString}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    }
-    catch (error) {
-        console.log("Error fetching collections:", error);
-        return null;
-    }
 };
 
 // THIS FILE IS AUTO GENERATED
@@ -3349,6 +3236,132 @@ const RemoveBookmarkButton = ({ onClick, isLoading, }) => {
     return (react.createElement("button", { className: buttonClasses, onMouseUp: onClick }, "Remove"));
 };
 
+const apiFetchBookmark = async (userId, sessionToken, page_url) => {
+    if (!userId || !sessionToken || !page_url) {
+        throw new Error("All parameters (userId, sessionToken, page_url) are required");
+    }
+    const base_url = "http://localhost:3000/api/bookmark";
+    const params = {
+        userId: userId,
+        sessionToken: sessionToken,
+        page_url: page_url,
+    };
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${base_url}?${queryString}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+const apiCreateBookmark = async (createRequest) => {
+    const { userId, sessionToken, title, page_url, note, excerpt, collection_name, } = createRequest;
+    if (!userId || !sessionToken || !title || !page_url) {
+        throw Error("Missing required fields (userId, sessionToken, title, page_url).");
+    }
+    const postData = {
+        userId: userId,
+        sessionToken: sessionToken,
+        title: title,
+        page_url: page_url,
+        note: note ?? "",
+        excerpt: excerpt ?? "",
+        collection_name: collection_name ?? "Unsorted",
+    };
+    const url = "http://localhost:3000/api/bookmark";
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+
+const fetchBookmark = async (userId, sessionToken, page_url) => {
+    try {
+        const response = await apiFetchBookmark(userId, sessionToken, page_url);
+        if (response && response.success) {
+            return response.data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        // console.error(
+        //   "Error fetching bookmark record:",
+        //   error instanceof Error ? error.message : "An unexpected error occurred"
+        // );
+        return null;
+    }
+};
+const addBookmark = async (createRequest) => {
+    try {
+        const response = await apiCreateBookmark(createRequest);
+        if (response && response.success) {
+            return response.data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error creating bookmark record:", error instanceof Error ? error.message : "An unexpected error occurred");
+        return null;
+    }
+};
+
+const apiFetchCollections = async (userId, sessionToken) => {
+    if (!userId || !sessionToken) {
+        throw new Error("All parameters (userId, sessionToken) are required");
+    }
+    const base_url = "http://localhost:3000/api/collection";
+    const params = {
+        userId: userId,
+        sessionToken: sessionToken,
+    };
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${base_url}?${queryString}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+
+const fetchCollections = async (userId, sessionToken) => {
+    try {
+        const response = await apiFetchCollections(userId, sessionToken);
+        if (response && response.success) {
+            return response.data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error fetching collection records:", error instanceof Error ? error.message : "An unexpected error occurred");
+        return null;
+    }
+};
+
 const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
@@ -3388,19 +3401,19 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     react.useEffect(() => {
         if (!bookmarkRecord && !initialFetchAttempted && currentTab) {
             const fetchBookmarkRecord = async () => {
-                const sessionToken = sessionRecord?.sessionToken ?? "";
                 const userId = sessionRecord?.userId ?? "";
+                const sessionToken = sessionRecord?.sessionToken ?? "";
                 const page_url = currentTab?.url ?? "";
-                const response = await getBookmark(sessionToken, userId, page_url);
-                if (response) {
-                    setBookmarkRecord(response);
+                const bookmark = await fetchBookmark(userId, sessionToken, page_url);
+                if (bookmark) {
+                    setBookmarkRecord(bookmark);
                     setTextAreaValues({
-                        title: response.title,
-                        note: response.note,
-                        page_url: response.page_url,
+                        title: bookmark.title,
+                        note: bookmark.note,
+                        page_url: bookmark.page_url,
                     });
-                    setCollectionName(response?.collection_name ?? "Unsorted");
-                    const initialTags = response.tagToBookmarks
+                    setCollectionName(bookmark?.collection_name ?? "Unsorted");
+                    const initialTags = bookmark.tagToBookmarks
                         .map((record) => record.tag_name)
                         .filter((tag_name) => tag_name !== "");
                     setTagSet(new Set(initialTags));
@@ -3415,7 +3428,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         if (sessionRecord) {
             const fetchCollectionOptions = async () => {
                 try {
-                    const response = await getCollections(sessionRecord.sessionToken, sessionRecord.userId);
+                    const response = await fetchCollections(sessionRecord.userId, sessionRecord.sessionToken);
                     if (response) {
                         const collectionNames = response
                             .map((collection) => collection.name)
@@ -3434,29 +3447,29 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     react.useEffect(() => {
         if (!bookmarkRecord && initialFetchAttempted && currentTab) {
             const createBookmarkRecord = async () => {
+                const userId = sessionRecord?.userId ?? "";
+                const sessionToken = sessionRecord?.sessionToken ?? "";
                 const title = currentTab?.title ?? "";
                 const page_url = currentTab?.url ?? "";
                 const note = "";
                 const excerpt = "";
                 const collection_name = "Unsorted";
-                const userId = sessionRecord?.userId ?? "";
-                const sessionToken = sessionRecord?.sessionToken ?? "";
                 const bookmarkCreateRequest = {
+                    userId: userId,
+                    sessionToken: sessionToken,
                     title: title,
                     page_url: page_url,
                     note: note,
                     excerpt: excerpt,
                     collection_name: collection_name,
-                    userId: userId,
-                    sessionToken: sessionToken,
                 };
-                const response = await createBookmark(bookmarkCreateRequest);
-                if (response) {
-                    setBookmarkRecord(response);
+                const newBookmark = await addBookmark(bookmarkCreateRequest);
+                if (newBookmark) {
+                    setBookmarkRecord(newBookmark);
                     setTextAreaValues({
-                        title: response.title,
-                        note: response.note,
-                        page_url: response.page_url,
+                        title: newBookmark.title,
+                        note: newBookmark.note,
+                        page_url: newBookmark.page_url,
                     });
                 }
             };
@@ -3535,8 +3548,8 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             const performDeletion = async () => {
                 // Remove this bookmark from DB
                 const deleteRequest = {
-                    sessionToken: sessionRecord?.sessionToken ?? "",
                     userId: sessionRecord?.userId ?? "",
+                    sessionToken: sessionRecord?.sessionToken ?? "",
                     id: bookmarkRecord?.id ?? "",
                 };
                 chrome.runtime.sendMessage({
@@ -3611,6 +3624,38 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         react.createElement(Footer, null)));
 };
 
+const apiFetchSession = async (sessionToken) => {
+    if (!sessionToken) {
+        throw new Error("Session token is required!");
+    }
+    const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+
+const fetchSession = async (sessionToken) => {
+    try {
+        const response = await apiFetchSession(sessionToken);
+        if (response && response.success) {
+            return response.data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error fetching session record:", error instanceof Error ? error.message : "An unexpected error occurred");
+        return null;
+    }
+};
+
 const App = () => {
     const [sessionToken, setSessionToken] = react.useState("");
     const [sessionRecord, setSessionRecord] = react.useState(null);
@@ -3631,7 +3676,7 @@ const App = () => {
     react.useEffect(() => {
         if (sessionToken) {
             const fetchServerSession = async () => {
-                const serverSession = await getSession(sessionToken);
+                const serverSession = await fetchSession(sessionToken);
                 if (serverSession) {
                     setSessionRecord(serverSession);
                 }

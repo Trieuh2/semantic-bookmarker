@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import getSessionTokenFromCookie from "../../actions/getSessionTokenFromCookie";
-import getSession from "../../actions/apiActions/getSession";
 import ExtAuthForm from "./components/ExtAuthForm";
 import BookmarkForm from "./components/BookmarkForm";
+import { fetchSession } from "../../actions/sessionActions";
 
 interface SessionRecord {
   id: string;
@@ -37,7 +37,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (sessionToken) {
       const fetchServerSession = async () => {
-        const serverSession = await getSession(sessionToken);
+        const serverSession = await fetchSession(sessionToken);
 
         if (serverSession) {
           setSessionRecord(serverSession);

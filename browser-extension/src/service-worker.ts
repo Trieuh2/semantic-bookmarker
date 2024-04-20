@@ -46,8 +46,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     debouncedUpdateBookmarkAPI(message?.data);
   }
   if (message?.action === "deleteBookmark") {
-    deleteBookmarkAPI(message?.data)
-      .then((response) => console.log("Bookmark deletion successful", response))
-      .catch((error) => console.log("Failed to delete bookmark:", error));
+    deleteBookmarkAPI(message?.data);
   }
 });

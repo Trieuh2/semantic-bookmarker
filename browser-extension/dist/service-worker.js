@@ -1,5 +1,5 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-10ba694d.js"
+              import "./assets/background-page-reloader-0e92f020.js"
               import { c as createCommonjsModule, a as commonjsGlobal } from './commonjsHelpers-318dc0aa.js';
 
 /**
@@ -17227,8 +17227,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         debouncedUpdateBookmarkAPI(message?.data);
     }
     if (message?.action === "deleteBookmark") {
-        deleteBookmarkAPI(message?.data)
-            .then((response) => console.log("Bookmark deletion successful", response))
-            .catch((error) => console.log("Failed to delete bookmark:", error));
+        deleteBookmarkAPI(message?.data);
     }
 });//# sourceMappingURL=service-worker.js.map

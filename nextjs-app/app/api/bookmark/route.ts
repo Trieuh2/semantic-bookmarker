@@ -1,49 +1,26 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getBookmarkRecord from "@/app/actions/getBookmarkRecord";
 import getIsSessionValid from "@/app/actions/getIsSessionValid";
 import getUserIdFromSessionToken from "@/app/actions/getUserIdFromSessionToken";
-import { Tag } from "@prisma/client";
+import { Collection, Tag } from "@prisma/client";
+import getBookmark from "@/app/actions/getBookmark";
 import deleteBookmark from "@/app/actions/deleteBookmark";
+import addBookmark from "@/app/actions/addBookmark";
+import { BadRequestError, NotFoundError } from "@/app/libs/errors";
+import { handleError } from "@/app/utils/errorHandler";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const sessionToken = url.searchParams.get("sessionToken");
-    const userId = url.searchParams.get("userId");
-    const page_url = url.searchParams.get("page_url");
+    const userId = url.searchParams.get("userId") ?? "";
+    const sessionToken = url.searchParams.get("sessionToken") ?? "";
+    const page_url = url.searchParams.get("page_url") ?? "";
 
-    const missingFields = [];
-    if (!sessionToken) missingFields.push("sessionToken");
-    if (!userId) missingFields.push("userId");
-    if (!page_url) missingFields.push("page_url");
+    const bookmark = await getBookmark(userId, sessionToken, page_url);
 
-    if (!sessionToken || !userId || !page_url) {
-      return NextResponse.json(
-        {
-          error: "Missing required fields",
-          missing_fields: missingFields,
-        },
-        { status: 400 }
-      );
-    }
-
-    const isSessionValid = await getIsSessionValid(sessionToken);
-
-    if (!isSessionValid) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const bookmarkRecord = await getBookmarkRecord(
-      sessionToken,
-      userId,
-      page_url
-    );
-
-    return NextResponse.json(bookmarkRecord);
+    return NextResponse.json({ success: true, data: bookmark });
   } catch (error) {
-    console.log(error, "Error fetching bookmark from server.");
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+    return handleError(error as Error);
   }
 }
 
@@ -51,92 +28,32 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      userId,
+      sessionToken,
       title,
       page_url,
       note,
       excerpt,
       collection_name,
-      userId,
-      sessionToken,
     } = body;
 
-    const missingFields = [];
-    if (!title) missingFields.push("title");
-    if (!page_url) missingFields.push("page_url");
-    if (!collection_name) missingFields.push("collection_name");
-    if (!userId) missingFields.push("userId");
-    if (!sessionToken) missingFields.push("sessionToken");
-
-    if (!userId || !sessionToken || !title || !page_url || !collection_name) {
-      return NextResponse.json(
-        {
-          error: "Missing required fields or unauthorized",
-          missing_fields: missingFields,
-        },
-        { status: 400 }
-      );
-    }
-
-    const isSessionValid = await getIsSessionValid(sessionToken);
-
-    if (!isSessionValid) {
-      return NextResponse.json(
-        { error: "Invalid or expired session" },
-        { status: 401 }
-      );
-    }
-
-    // Check if bookmark already exists for this url
-    const existingBookmark = await prisma.bookmark.findFirst({
-      where: {
-        userId: userId,
-        page_url: page_url,
-      },
-    });
-
-    if (existingBookmark) {
-      return NextResponse.json(
-        {
-          error: "A bookmark with the provided page URL already exists.",
-        },
-        { status: 409 }
-      );
-    }
-
-    // Create Collection record if it doesn't exist
-    const collectionResponse = await createOrFetchCollection(
+    const newBookmark = await addBookmark(
       userId,
+      sessionToken,
+      title,
+      page_url,
+      note,
+      excerpt,
       collection_name
     );
-    if (collectionResponse.status !== 200) {
-      return NextResponse.json(
-        { error: collectionResponse.error },
-        { status: collectionResponse.status }
-      );
-    }
-    const collection = collectionResponse.data;
 
-    const newBookmark = await prisma.bookmark.create({
-      data: {
-        title: title,
-        page_url: page_url,
-        note: note ?? "",
-        excerpt: excerpt ?? "",
-        userId: userId,
-        collection_name: collection?.name ?? "",
-      },
-    });
-
-    return NextResponse.json(newBookmark);
+    return NextResponse.json({ success: true, data: newBookmark });
   } catch (error) {
-    console.log(error, "Error encountered during Bookmark creation process.");
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return handleError(error as Error);
   }
 }
 
+// TODO: Separate API layer and business layer
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
@@ -212,50 +129,28 @@ export async function PATCH(request: Request) {
     }
 
     // Fetch collectionId
-    const collectionResponse = await updateCollection(
-      sessionToken,
-      collection_name
-    );
-    if (collectionResponse.status !== 200) {
-      return NextResponse.json(
-        { error: collectionResponse.error },
-        { status: collectionResponse.status }
-      );
-    }
-    const collection = collectionResponse.data;
+    const collection = await updateCollection(sessionToken, collection_name);
 
     const updatedBookmark = await prisma.bookmark.update({
       where: { id },
-      data: { ...updates, collection_name: collection?.name },
+      data: { ...updates, collection_name: collection?.name ?? "" },
     });
 
     return NextResponse.json(updatedBookmark);
   } catch (error) {
-    console.log(error, "Error encountered during Bookmark update process.");
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return handleError(error as Error);
   }
 }
 
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { id, userId, sessionToken } = body;
+    const { userId, sessionToken, id } = body;
+    const deletedBookmark = await deleteBookmark(userId, sessionToken, id);
 
-    const result = await deleteBookmark(id, sessionToken, userId);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true, data: deletedBookmark });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return handleError(error as Error);
   }
 }
 
@@ -446,81 +341,50 @@ const updateCollection = async (
   collection_name: string
 ) => {
   if (!sessionToken || !collection_name) {
-    return {
-      error: "Missing sessionToken or collection_name.",
-      status: 400,
-    };
+    throw new BadRequestError("Missing sessionToken or collection_name.");
   }
+  const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
 
-  try {
-    const userIdFetchResponse = await getUserIdFromSessionToken(sessionToken);
+  if (userIdFetchResponse.status !== 200) {
+    throw new BadRequestError("Error fetching userId from session token.");
+  }
+  const userId = userIdFetchResponse.data;
 
-    if (userIdFetchResponse.status !== 200) {
-      return {
-        status: userIdFetchResponse.status,
-        error: userIdFetchResponse.error,
-      };
-    }
-    const userId = userIdFetchResponse.data;
+  const collection = await createOrFetchCollection(
+    userId ?? "",
+    collection_name
+  );
 
-    const collectionCreationFetchResponse = await createOrFetchCollection(
-      userId ?? "",
-      collection_name
-    );
-
-    if (collectionCreationFetchResponse.status !== 200) {
-      return {
-        status: collectionCreationFetchResponse.status,
-        error: collectionCreationFetchResponse.error,
-      };
-    }
-
-    const collection = collectionCreationFetchResponse.data;
-
-    return { status: 200, data: collection };
-  } catch (error) {
-    return { status: 500, error: error };
+  if (collection) {
+    return collection;
+  } else {
+    throw new NotFoundError("Error creating or fetching collection.");
   }
 };
 
 const createOrFetchCollection = async (
   userId: string,
   collection_name: string
-) => {
+): Promise<Collection> => {
   if (!userId || !collection_name) {
-    return {
-      status: 400,
-      error: "Missing required userId or name.",
-    };
+    throw new BadRequestError("Missing required userId or collection_name.");
   }
 
-  try {
-    const existingCollection = await prisma.collection.findFirst({
-      where: {
+  const collection = await prisma.collection.findFirst({
+    where: {
+      userId,
+      name: collection_name,
+    },
+  });
+
+  if (!collection) {
+    const newCollection = await prisma.collection.create({
+      data: {
         userId,
         name: collection_name,
       },
     });
-
-    if (existingCollection) {
-      return {
-        status: 200,
-        data: existingCollection,
-      };
-    } else {
-      const newCollection = await prisma.collection.create({
-        data: {
-          userId,
-          name: collection_name,
-        },
-      });
-
-      return { status: 200, data: newCollection };
-    }
-  } catch (error) {
-    return {
-      status: 500,
-      error: "Internal Server Error",
-    };
+    return newCollection;
   }
+  return collection;
 };

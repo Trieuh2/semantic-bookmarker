@@ -1,4 +1,4 @@
-import getSessionRecord from "./getSessionRecord";
+import getSession from "./getSession";
 
 const getIsSessionValid = async (sessionToken: string): Promise<boolean> => {
   if (!sessionToken) {
@@ -8,7 +8,7 @@ const getIsSessionValid = async (sessionToken: string): Promise<boolean> => {
   const nowTimestamp = Date.now();
   const nowDate = new Date(nowTimestamp);
 
-  const sessionRecord = await getSessionRecord(sessionToken);
+  const sessionRecord = await getSession(sessionToken);
 
   if (!sessionRecord) {
     return false; // No session record from DB to validate with, return False

@@ -2,20 +2,19 @@ import React, { useEffect, useState } from "react";
 import Footer from "./Footer";
 import TextArea from "./TextArea";
 import Input from "./Input";
-import getBookmark from "../../../actions/apiActions/getBookmark";
 import signOut from "../../../actions/apiActions/signOut";
-import createBookmark from "../../../actions/apiActions/createBookmark";
 import TagButton from "./TagButton";
-import getCollections from "../../../actions/apiActions/getCollections";
 import CollectionMenu from "./CollectionMenu";
 import RemoveBookmarkButton from "../RemoveBookmarkButton";
+import { fetchBookmark, addBookmark } from "../../../actions/bookmarkActions";
+import { fetchCollections } from "../../../actions/collectionActions";
 
 interface BookmarkFormProps {
-  sessionRecord: SessionRecord | null;
+  sessionRecord: Session | null;
   parentOnSignOut: () => void;
 }
 
-interface SessionRecord {
+interface Session {
   id: string;
   userId: string;
   expires: number;
@@ -27,18 +26,18 @@ interface ChromeTab {
   url?: string;
 }
 
-interface BookmarkRecord {
+interface Bookmark {
   id: string;
   title: string;
   page_url: string;
   note: string;
   excerpt: string;
-  collection: string;
+  collection_name: string;
   createdAt: string | null;
-  tagToBookmarks: TagToBookmarkRecord[];
+  tagToBookmarks: TagToBookmark[];
 }
 
-interface TagToBookmarkRecord {
+interface TagToBookmark {
   id: string;
   createdAt: string;
   tagId: string;
@@ -47,7 +46,7 @@ interface TagToBookmarkRecord {
   page_url: string;
 }
 
-interface CollectionRecord {
+interface Collection {
   id: string;
   createdAt: string;
   name: string;
@@ -65,12 +64,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   parentOnSignOut,
 }) => {
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
-  const [bookmarkRecord, setBookmarkRecord] = useState<BookmarkRecord | null>(
-    null
-  );
-  const [initialValues, setInitialValues] = useState<BookmarkRecord | null>(
-    null
-  );
+  const [bookmarkRecord, setBookmarkRecord] = useState<Bookmark | null>(null);
+  const [initialValues, setInitialValues] = useState<Bookmark | null>(null);
   const [textAreaValues, setTextAreaValues] = useState<BookmarkTextAreas>({
     title: "",
     note: "",
@@ -116,24 +111,24 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   useEffect(() => {
     if (!bookmarkRecord && !initialFetchAttempted && currentTab) {
       const fetchBookmarkRecord = async () => {
-        const sessionToken = sessionRecord?.sessionToken ?? "";
         const userId = sessionRecord?.userId ?? "";
+        const sessionToken = sessionRecord?.sessionToken ?? "";
         const page_url = currentTab?.url ?? "";
 
-        const response = await getBookmark(sessionToken, userId, page_url);
+        const bookmark = await fetchBookmark(userId, sessionToken, page_url);
 
-        if (response) {
-          setBookmarkRecord(response);
+        if (bookmark) {
+          setBookmarkRecord(bookmark);
           setTextAreaValues({
-            title: response.title,
-            note: response.note,
-            page_url: response.page_url,
+            title: bookmark.title,
+            note: bookmark.note,
+            page_url: bookmark.page_url,
           });
 
-          setCollectionName(response?.collection_name ?? "Unsorted");
+          setCollectionName(bookmark?.collection_name ?? "Unsorted");
 
-          const initialTags = response.tagToBookmarks
-            .map((record: TagToBookmarkRecord) => record.tag_name)
+          const initialTags = bookmark.tagToBookmarks
+            .map((record: TagToBookmark) => record.tag_name)
             .filter((tag_name: string) => tag_name !== "");
           setTagSet(new Set(initialTags));
         }
@@ -149,14 +144,14 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     if (sessionRecord) {
       const fetchCollectionOptions = async () => {
         try {
-          const response = await getCollections(
-            sessionRecord.sessionToken,
-            sessionRecord.userId
+          const response = await fetchCollections(
+            sessionRecord.userId,
+            sessionRecord.sessionToken
           );
 
           if (response) {
             const collectionNames = response
-              .map((collection: CollectionRecord) => collection.name)
+              .map((collection: Collection) => collection.name)
               .filter((collectionName: string) => collectionName !== "");
 
             setCollectionOptions(new Set(collectionNames));
@@ -177,32 +172,32 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   useEffect(() => {
     if (!bookmarkRecord && initialFetchAttempted && currentTab) {
       const createBookmarkRecord = async () => {
+        const userId = sessionRecord?.userId ?? "";
+        const sessionToken = sessionRecord?.sessionToken ?? "";
         const title = currentTab?.title ?? "";
         const page_url = currentTab?.url ?? "";
         const note = "";
         const excerpt = "";
         const collection_name = "Unsorted";
-        const userId = sessionRecord?.userId ?? "";
-        const sessionToken = sessionRecord?.sessionToken ?? "";
 
         const bookmarkCreateRequest = {
+          userId: userId,
+          sessionToken: sessionToken,
           title: title,
           page_url: page_url,
           note: note,
           excerpt: excerpt,
           collection_name: collection_name,
-          userId: userId,
-          sessionToken: sessionToken,
         };
 
-        const response = await createBookmark(bookmarkCreateRequest);
+        const newBookmark = await addBookmark(bookmarkCreateRequest);
 
-        if (response) {
-          setBookmarkRecord(response);
+        if (newBookmark) {
+          setBookmarkRecord(newBookmark);
           setTextAreaValues({
-            title: response.title,
-            note: response.note,
-            page_url: response.page_url,
+            title: newBookmark.title,
+            note: newBookmark.note,
+            page_url: newBookmark.page_url,
           });
         }
       };
@@ -300,8 +295,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
       const performDeletion = async () => {
         // Remove this bookmark from DB
         const deleteRequest = {
-          sessionToken: sessionRecord?.sessionToken ?? "",
           userId: sessionRecord?.userId ?? "",
+          sessionToken: sessionRecord?.sessionToken ?? "",
           id: bookmarkRecord?.id ?? "",
         };
         chrome.runtime.sendMessage({
