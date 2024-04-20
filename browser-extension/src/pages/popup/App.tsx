@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import getSessionTokenFromCookie from "../../actions/getSessionTokenFromCookie";
 import ExtAuthForm from "./components/ExtAuthForm";
 import BookmarkForm from "./components/BookmarkForm";
 import { fetchSession } from "../../actions/sessionActions";
+import { getSessionTokenFromCookie } from "../../actions/cookieActions";
 
 interface SessionRecord {
   id: string;
