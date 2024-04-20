@@ -4,6 +4,7 @@ import getBookmarkRecord from "@/app/actions/getBookmarkRecord";
 import getIsSessionValid from "@/app/actions/getIsSessionValid";
 import getUserIdFromSessionToken from "@/app/actions/getUserIdFromSessionToken";
 import { Tag } from "@prisma/client";
+import deleteBookmark from "@/app/actions/deleteBookmark";
 
 export async function GET(request: Request) {
   try {
@@ -231,6 +232,26 @@ export async function PATCH(request: Request) {
     return NextResponse.json(updatedBookmark);
   } catch (error) {
     console.log(error, "Error encountered during Bookmark update process.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, userId, sessionToken } = body;
+
+    const result = await deleteBookmark(id, sessionToken, userId);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

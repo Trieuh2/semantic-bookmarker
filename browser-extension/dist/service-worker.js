@@ -1,5 +1,5 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-84b9283d.js"
+              import "./assets/background-page-reloader-10ba694d.js"
               import { c as createCommonjsModule, a as commonjsGlobal } from './commonjsHelpers-318dc0aa.js';
 
 /**
@@ -17213,8 +17213,22 @@ async function updateBookmarkAPI(data) {
 const debouncedUpdateBookmarkAPI = lodash.debounce((data) => {
     updateBookmarkAPI(data).catch((error) => console.error("Semantic Bookmarker: Error updating bookmark", error));
 }, 500);
+async function deleteBookmarkAPI(data) {
+    return fetch("http://localhost:3000/api/bookmark", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+}
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.action === "updateBookmark") {
         debouncedUpdateBookmarkAPI(message?.data);
+    }
+    if (message?.action === "deleteBookmark") {
+        deleteBookmarkAPI(message?.data)
+            .then((response) => console.log("Bookmark deletion successful", response))
+            .catch((error) => console.log("Failed to delete bookmark:", error));
     }
 });//# sourceMappingURL=service-worker.js.map

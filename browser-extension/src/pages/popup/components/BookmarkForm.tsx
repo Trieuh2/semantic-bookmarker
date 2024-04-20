@@ -8,6 +8,7 @@ import createBookmark from "../../../actions/apiActions/createBookmark";
 import TagButton from "./TagButton";
 import getCollections from "../../../actions/apiActions/getCollections";
 import CollectionMenu from "./CollectionMenu";
+import RemoveBookmarkButton from "../RemoveBookmarkButton";
 
 interface BookmarkFormProps {
   sessionRecord: SessionRecord | null;
@@ -294,6 +295,27 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     performSignOut();
   };
 
+  const handleRemoveBookmark = () => {
+    if (bookmarkRecord && sessionRecord) {
+      const performDeletion = async () => {
+        // Remove this bookmark from DB
+        const deleteRequest = {
+          sessionToken: sessionRecord?.sessionToken ?? "",
+          userId: sessionRecord?.userId ?? "",
+          id: bookmarkRecord?.id ?? "",
+        };
+        chrome.runtime.sendMessage({
+          action: "deleteBookmark",
+          data: deleteRequest,
+        });
+      };
+      performDeletion();
+
+      // Close popup window
+      window.close();
+    }
+  };
+
   const formatDate = (date: string): string => {
     const dateObj = new Date(date);
     const month = dateObj.getMonth() + 1;
@@ -319,7 +341,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         items-start
         text-start
         bg-zinc-800
-        gap-2
+        gap-1.5
       "
     >
       {/* Header icon and Logout Button */}
@@ -459,6 +481,12 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
           )}
         </div>
       </div>
+
+      {/* Remove Bookmark Button */}
+      <div className="w-full px-4 flex justify-end bg-zinc-800">
+        <RemoveBookmarkButton onClick={handleRemoveBookmark} />
+      </div>
+
       <Footer />
     </div>
   );
