@@ -49,8 +49,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     mx-2
     rounded-md
     border
-    border-orange-300
-  `);
+    border-orange-300`);
 
   return (
     <div className="flex flex-col w-full justify-center text-start bg-zinc-800">
@@ -87,9 +86,13 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
                   event.preventDefault();
                 }
               }}
-              onBlur={() => setIsInputFieldOpen(false)}
+              onBlur={() => {
+                setIsInputFieldOpen(false);
+                setInputFieldValue("");
+              }}
               disabled={!isInputFieldOpen}
               autoFocus={isInputFieldOpen}
+              value={inputFieldValue}
             />
           </div>
 
@@ -103,8 +106,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
         </div>
 
         {isCollectionMenuOpen && (
-          <div ref={collectionMenuRef}>
-            <ul className={collectionMenuClasses}>
+          <div ref={collectionMenuRef} className={collectionMenuClasses}>
+            <ul>
               <CollectionMenuOption
                 key={selectedCollection}
                 name={selectedCollection}

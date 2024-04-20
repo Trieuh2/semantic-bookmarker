@@ -64,14 +64,14 @@ const NewCollectionButton: React.FC<NewCollectionButtonProps> = ({
     border
     border-transparent
     bg-zinc-800
-    hover:bg-zinc-600
     transition-opacity
     duration-100`,
-    isInputOpen && "z-10 py-2"
+    isInputOpen && "z-10 py-2",
+    !isTransitioning && "hover:bg-zinc-600"
   );
 
   const buttonStyle = {
-    transition: "transform 0.3s ease-in-out",
+    transition: "transform 0.2s ease-in-out",
     transform: isInputOpen ? buttonTransitionStyle : "translateX(0%)",
   };
 
