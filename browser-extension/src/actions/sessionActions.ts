@@ -1,6 +1,6 @@
 import apiFetchSession from "./apiActions/sessionAPI";
 
-export const fetchSession = async (sessionToken: string) => {
+const fetchSession = async (sessionToken: string) => {
   try {
     const response = await apiFetchSession(sessionToken);
     if (response && response.success) {
@@ -16,3 +16,32 @@ export const fetchSession = async (sessionToken: string) => {
     return null;
   }
 };
+
+const signOut = async (sessionToken: string) => {
+  try {
+    const url = "http://localhost:3000/api/session";
+    const postData = {
+      sessionToken: sessionToken,
+    };
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // Parse the JSON response
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to sign out of current session:", error);
+    throw error;
+  }
+};
+
+export { fetchSession, signOut };

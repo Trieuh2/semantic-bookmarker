@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import Footer from "./Footer";
 import TextArea from "./TextArea";
 import Input from "./Input";
-import signOut from "../../../actions/apiActions/signOut";
 import TagButton from "./TagButton";
 import CollectionMenu from "./CollectionMenu";
 import RemoveBookmarkButton from "../RemoveBookmarkButton";
 import { fetchBookmark, addBookmark } from "../../../actions/bookmarkActions";
 import { fetchCollections } from "../../../actions/collectionActions";
 import { Bookmark, Collection, Session, TagToBookmark } from "../../../types";
+import { signOut } from "../../../actions/sessionActions";
 
 interface BookmarkFormProps {
   sessionRecord: Session | null;

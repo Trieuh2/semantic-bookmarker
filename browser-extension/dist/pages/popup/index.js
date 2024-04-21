@@ -2893,32 +2893,6 @@ const Input = ({ id, type, onChange, onKeyDown, onBlur, value, disabled = false,
         react.createElement("input", { ref: inputRef, id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, onBlur: onBlur, value: value, disabled: disabled, autoFocus: autoFocus })));
 };
 
-const signOut = async (sessionToken) => {
-    try {
-        const url = "http://localhost:3000/api/session";
-        const postData = {
-            sessionToken: sessionToken,
-        };
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postData),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        // Parse the JSON response
-        const data = await response.json();
-        return data;
-    }
-    catch (error) {
-        console.error("Failed to sign out of current session:", error);
-        throw error;
-    }
-};
-
 var DefaultContext = {
   color: undefined,
   size: undefined,
@@ -3277,6 +3251,63 @@ const fetchCollections = async (userId, sessionToken) => {
     }
 };
 
+const apiFetchSession = async (sessionToken) => {
+    if (!sessionToken) {
+        throw new Error("Session token is required!");
+    }
+    const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+
+const fetchSession = async (sessionToken) => {
+    try {
+        const response = await apiFetchSession(sessionToken);
+        if (response && response.success) {
+            return response.data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error fetching session record:", error instanceof Error ? error.message : "An unexpected error occurred");
+        return null;
+    }
+};
+const signOut = async (sessionToken) => {
+    try {
+        const url = "http://localhost:3000/api/session";
+        const postData = {
+            sessionToken: sessionToken,
+        };
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        // Parse the JSON response
+        const data = await response.json();
+        return data;
+    }
+    catch (error) {
+        console.error("Failed to sign out of current session:", error);
+        throw error;
+    }
+};
+
 const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
@@ -3537,38 +3568,6 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         react.createElement("div", { className: "w-full px-4 flex justify-end bg-zinc-800" },
             react.createElement(RemoveBookmarkButton, { onClick: handleRemoveBookmark })),
         react.createElement(Footer, null)));
-};
-
-const apiFetchSession = async (sessionToken) => {
-    if (!sessionToken) {
-        throw new Error("Session token is required!");
-    }
-    const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = (await response.json());
-    if (!data.success) {
-        throw new Error(data.error || "Unknown error occurred");
-    }
-    return data;
-};
-
-const fetchSession = async (sessionToken) => {
-    try {
-        const response = await apiFetchSession(sessionToken);
-        if (response && response.success) {
-            return response.data;
-        }
-        else {
-            return null;
-        }
-    }
-    catch (error) {
-        console.error("Error fetching session record:", error instanceof Error ? error.message : "An unexpected error occurred");
-        return null;
-    }
 };
 
 const getCookie = async () => {
