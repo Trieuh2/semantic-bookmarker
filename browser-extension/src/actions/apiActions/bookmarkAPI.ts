@@ -94,9 +94,9 @@ const apiCreateBookmark = async (
 };
 
 const apiUpdateBookmark = async (updateRequest: BookmarkUpdateRequest) => {
-  const { id, sessionToken } = updateRequest;
+  const { sessionToken, id } = updateRequest;
 
-  if (!id || !sessionToken) {
+  if (!sessionToken || !id) {
     throw Error("Missing required fields (id, sessionToken)");
   }
 

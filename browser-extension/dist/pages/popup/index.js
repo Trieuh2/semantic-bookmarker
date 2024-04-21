@@ -1,4 +1,4 @@
-import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-8305d90d.js';
+import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-decb4c7b.js';
 
 /**
  * @license React
@@ -3434,13 +3434,13 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         const performUpdate = () => {
             if (haveRequiredFields() && initialValues) {
                 const updatePayload = {
-                    id: bookmarkRecord?.id,
                     sessionToken: sessionRecord?.sessionToken,
+                    id: bookmarkRecord?.id,
                     title: textAreaValues.title,
-                    page_url: textAreaValues.page_url,
                     note: textAreaValues.note,
                     collection_name: selectedCollection,
                     tags: Array.from(tagSet),
+                    page_url: textAreaValues.page_url,
                     excerpt: "",
                 };
                 try {

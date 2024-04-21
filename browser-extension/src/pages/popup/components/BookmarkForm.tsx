@@ -187,13 +187,13 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     const performUpdate = () => {
       if (haveRequiredFields() && initialValues) {
         const updatePayload = {
-          id: bookmarkRecord?.id,
           sessionToken: sessionRecord?.sessionToken,
+          id: bookmarkRecord?.id,
           title: textAreaValues.title,
-          page_url: textAreaValues.page_url,
           note: textAreaValues.note,
           collection_name: selectedCollection,
           tags: Array.from(tagSet),
+          page_url: textAreaValues.page_url,
           excerpt: "",
         };
 

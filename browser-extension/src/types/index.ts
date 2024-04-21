@@ -43,11 +43,13 @@ export interface BookmarkCreateRequest {
 }
 
 export interface BookmarkUpdateRequest {
-  id: string;
   sessionToken: string;
+  id: string;
   title?: string;
-  page_url?: string;
   note?: string;
+  collection_name?: string;
+  tags?: string[];
+  page_url?: string;
   excerpt?: string;
 }
 
