@@ -8,49 +8,16 @@ import CollectionMenu from "./CollectionMenu";
 import RemoveBookmarkButton from "../RemoveBookmarkButton";
 import { fetchBookmark, addBookmark } from "../../../actions/bookmarkActions";
 import { fetchCollections } from "../../../actions/collectionActions";
+import { Bookmark, Collection, Session, TagToBookmark } from "../../../types";
 
 interface BookmarkFormProps {
   sessionRecord: Session | null;
   parentOnSignOut: () => void;
 }
 
-interface Session {
-  id: string;
-  userId: string;
-  expires: number;
-  sessionToken: string;
-}
-
 interface ChromeTab {
   title?: string;
   url?: string;
-}
-
-interface Bookmark {
-  id: string;
-  title: string;
-  page_url: string;
-  note: string;
-  excerpt: string;
-  collection_name: string;
-  createdAt: string | null;
-  tagToBookmarks: TagToBookmark[];
-}
-
-interface TagToBookmark {
-  id: string;
-  createdAt: string;
-  tagId: string;
-  tag_name: string;
-  bookmarkId: string;
-  page_url: string;
-}
-
-interface Collection {
-  id: string;
-  createdAt: string;
-  name: string;
-  userId: string;
 }
 
 interface BookmarkTextAreas {

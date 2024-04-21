@@ -1,17 +1,8 @@
+import { BookmarkCreateRequest } from "../types";
 import {
   apiCreateBookmark as apiAddBookmark,
   apiFetchBookmark,
 } from "./apiActions/bookmarkAPI";
-
-interface BookmarkCreateRequest {
-  userId: string;
-  sessionToken: string;
-  title: string;
-  page_url: string;
-  note?: string;
-  excerpt?: string;
-  collection_name: string;
-}
 
 export const fetchBookmark = async (
   userId: string,

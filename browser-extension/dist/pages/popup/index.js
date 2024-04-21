@@ -1,4 +1,4 @@
-import { c as createCommonjsModule } from '../../commonjsHelpers-318dc0aa.js';
+import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-8305d90d.js';
 
 /**
  * @license React
@@ -3203,60 +3203,6 @@ const CollectionMenu = ({ collectionOptions, selectedCollection, setCollectionNa
 const RemoveBookmarkButton = ({ onClick, isLoading, }) => {
     const buttonClasses = "font-bold text-red-400 hover:bg-zinc-600 py-1.5 px-2 rounded-md transition";
     return (react.createElement("button", { className: buttonClasses, onMouseUp: onClick }, "Remove"));
-};
-
-const apiFetchBookmark = async (userId, sessionToken, page_url) => {
-    if (!userId || !sessionToken || !page_url) {
-        throw new Error("All parameters (userId, sessionToken, page_url) are required");
-    }
-    const base_url = "http://localhost:3000/api/bookmark";
-    const params = {
-        userId: userId,
-        sessionToken: sessionToken,
-        page_url: page_url,
-    };
-    const queryString = new URLSearchParams(params).toString();
-    const url = `${base_url}?${queryString}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = (await response.json());
-    if (!data.success) {
-        throw new Error(data.error || "Unknown error occurred");
-    }
-    return data;
-};
-const apiCreateBookmark = async (createRequest) => {
-    const { userId, sessionToken, title, page_url, note, excerpt, collection_name, } = createRequest;
-    if (!userId || !sessionToken || !title || !page_url) {
-        throw Error("Missing required fields (userId, sessionToken, title, page_url).");
-    }
-    const postData = {
-        userId: userId,
-        sessionToken: sessionToken,
-        title: title,
-        page_url: page_url,
-        note: note ?? "",
-        excerpt: excerpt ?? "",
-        collection_name: collection_name ?? "Unsorted",
-    };
-    const url = "http://localhost:3000/api/bookmark";
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = (await response.json());
-    if (!data.success) {
-        throw new Error(data.error || "Unknown error occurred");
-    }
-    return data;
 };
 
 const fetchBookmark = async (userId, sessionToken, page_url) => {

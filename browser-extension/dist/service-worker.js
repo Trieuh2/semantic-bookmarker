@@ -1,6 +1,6 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-01397bea.js"
-              import { c as createCommonjsModule, a as commonjsGlobal } from './commonjsHelpers-318dc0aa.js';
+              import "./assets/background-page-reloader-5fe02d10.js"
+              import { c as createCommonjsModule, a as apiUpdateBookmark, b as apiDeleteBookmark, d as commonjsGlobal } from './bookmarkAPI-8305d90d.js';
 
 /**
  * @license
@@ -17201,32 +17201,14 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-async function updateBookmarkAPI(data) {
-    return fetch("http://localhost:3000/api/bookmark", {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-}
 const debouncedUpdateBookmarkAPI = lodash.debounce((data) => {
-    updateBookmarkAPI(data).catch((error) => console.error("Semantic Bookmarker: Error updating bookmark", error));
+    apiUpdateBookmark(data).catch((error) => console.error("Semantic Bookmarker: Error updating bookmark", error));
 }, 500);
-async function deleteBookmarkAPI(data) {
-    return fetch("http://localhost:3000/api/bookmark", {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-}
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.action === "updateBookmark") {
         debouncedUpdateBookmarkAPI(message?.data);
     }
     if (message?.action === "deleteBookmark") {
-        deleteBookmarkAPI(message?.data);
+        apiDeleteBookmark(message?.data);
     }
 });//# sourceMappingURL=service-worker.js.map

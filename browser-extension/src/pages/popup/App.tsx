@@ -3,19 +3,11 @@ import ExtAuthForm from "./components/ExtAuthForm";
 import BookmarkForm from "./components/BookmarkForm";
 import { fetchSession } from "../../actions/sessionActions";
 import { getSessionTokenFromCookie } from "../../actions/cookieActions";
-
-interface SessionRecord {
-  id: string;
-  userId: string;
-  expires: number;
-  sessionToken: string;
-}
+import { Session } from "../../types";
 
 const App: React.FC = () => {
   const [sessionToken, setSessionToken] = useState<string | null>("");
-  const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(
-    null
-  );
+  const [sessionRecord, setSessionRecord] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     localStorage.getItem("isAuthenticated") === "true"
   );

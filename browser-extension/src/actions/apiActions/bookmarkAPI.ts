@@ -1,32 +1,9 @@
-interface Bookmark {
-  id: string;
-  title: string;
-  page_url: string;
-  note: string;
-  excerpt: string;
-  collection_name: string;
-  createdAt: string | null;
-  tagToBookmarks: TagToBookmark[];
-}
-
-interface TagToBookmark {
-  id: string;
-  createdAt: string;
-  tagId: string;
-  tag_name: string;
-  bookmarkId: string;
-  page_url: string;
-}
-
-interface BookmarkCreateRequest {
-  userId: string;
-  sessionToken: string;
-  title: string;
-  page_url: string;
-  note?: string;
-  excerpt?: string;
-  collection_name: string;
-}
+import {
+  Bookmark,
+  BookmarkCreateRequest,
+  BookmarkDeleteRequest,
+  BookmarkUpdateRequest,
+} from "../../types";
 
 interface APIResponse<T> {
   success: boolean;
@@ -116,4 +93,47 @@ const apiCreateBookmark = async (
   return data;
 };
 
-export { apiFetchBookmark, apiCreateBookmark };
+const apiUpdateBookmark = async (updateRequest: BookmarkUpdateRequest) => {
+  const { id, sessionToken } = updateRequest;
+
+  if (!id || !sessionToken) {
+    throw Error("Missing required fields (id, sessionToken)");
+  }
+
+  const url = "http://localhost:3000/api/bookmark";
+  const response = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updateRequest),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = (await response.json()) as APIResponse<Bookmark>;
+  if (!data.success) {
+    throw new Error(data.error || "Unknown error occurred");
+  }
+
+  return data;
+};
+
+const apiDeleteBookmark = async (deleteRequest: BookmarkDeleteRequest) => {
+  return fetch("http://localhost:3000/api/bookmark", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(deleteRequest),
+  });
+};
+
+export {
+  apiFetchBookmark,
+  apiCreateBookmark,
+  apiUpdateBookmark,
+  apiDeleteBookmark,
+};
