@@ -1,10 +1,8 @@
 import prisma from "@/app/libs/prismadb";
-import getIsSessionValid from "./getIsSessionValid";
 import { Session } from "@prisma/client";
 import {
   BadRequestError,
   NotFoundError,
-  UnauthorizedError,
 } from "../../libs/errors";
 import getSession from "./getSession";
 
