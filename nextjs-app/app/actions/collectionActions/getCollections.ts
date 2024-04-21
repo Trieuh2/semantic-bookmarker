@@ -13,13 +13,17 @@ const getCollections = async (
 ): Promise<Collection[]> => {
   // Validate fields
   if (!sessionToken || !userId) {
-    throw new BadRequestError("Missing required fields: userId, sessionToken");
+    throw new BadRequestError(
+      "Error fetching collections. Missing required fields: userId, sessionToken"
+    );
   }
 
   // Validate session
   const isSessionValid = await getIsSessionValid(sessionToken);
   if (!isSessionValid) {
-    throw new UnauthorizedError("Invalid or expired session.");
+    throw new UnauthorizedError(
+      "Error fetching collections. Invalid or expired session."
+    );
   }
 
   // Fetch Collections
@@ -31,7 +35,9 @@ const getCollections = async (
   });
 
   if (!collections) {
-    throw new NotFoundError("No collections found.");
+    throw new NotFoundError(
+      "Error fetching collections. No collections found."
+    );
   }
 
   return collections;
