@@ -41,7 +41,17 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     };
   }, []);
 
-  const collectionMenuClasses = clsx(`
+  const scrollbarClasses = `
+    scrollbar-thin
+    scrollbar-thumb-rounded-md
+    scrollbar-thumb-neutral-600
+    scrollbar-track-rounded-md
+    scrollbar-track-neutral-500
+    overflow-y-scroll
+  `;
+
+  const collectionMenuClasses = clsx(
+    `
     absolute 
     left-0 
     top-0 
@@ -49,7 +59,11 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     mx-2
     rounded-md
     border
-    border-orange-300`);
+    border-orange-300
+    max-h-[180px]
+    `,
+    scrollbarClasses
+  );
 
   return (
     <div className="flex flex-col w-full justify-center text-start bg-zinc-800">

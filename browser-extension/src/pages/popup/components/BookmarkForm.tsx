@@ -4,11 +4,11 @@ import TextArea from "./TextArea";
 import Input from "./Input";
 import TagButton from "./TagButton";
 import CollectionMenu from "./CollectionMenu";
-import RemoveBookmarkButton from "../RemoveBookmarkButton";
 import { fetchBookmark, addBookmark } from "../../../actions/bookmarkActions";
 import { fetchCollections } from "../../../actions/collectionActions";
 import { Bookmark, Collection, Session, TagToBookmark } from "../../../types";
 import { signOut } from "../../../actions/sessionActions";
+import RemoveBookmarkButton from "./RemoveBookmarkButton";
 
 interface BookmarkFormProps {
   sessionRecord: Session | null;

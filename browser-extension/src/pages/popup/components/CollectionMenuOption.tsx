@@ -28,8 +28,8 @@ const CollectionMenuOption: React.FC<CollectionMenuOption> = ({
     transition
     ease-in-out
     `,
-    isFirst && "rounded-t-md",
-    isLast && "rounded-b-md"
+    isFirst && "rounded-tl-md",
+    isLast && "rounded-bl-md"
   );
 
   const iconClasses = `
