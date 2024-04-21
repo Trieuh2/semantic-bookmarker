@@ -1,5 +1,5 @@
 import prisma from "@/app/libs/prismadb";
-import { BadRequestError, NotFoundError } from "../libs/errors";
+import { BadRequestError, NotFoundError } from "../../libs/errors";
 
 const getSession = async (sessionToken: string) => {
   if (!sessionToken) {

@@ -1,13 +1,13 @@
 import prisma from "@/app/libs/prismadb";
-import getUserIdFromSessionToken from "./getUserIdFromSessionToken";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 import { Bookmark, Tag } from "@prisma/client";
 import {
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
-} from "../libs/errors";
-import getIsSessionValid from "./getIsSessionValid";
-import createOrFetchCollection from "./createOrFetchCollection";
+} from "../../libs/errors";
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
+import createOrFetchCollection from "../collectionActions/createOrFetchCollection";
 
 const updateBookmark = async (
   sessionToken: string,

@@ -3,8 +3,8 @@ import {
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
-} from "../libs/errors";
-import getIsSessionValid from "./getIsSessionValid";
+} from "../../libs/errors";
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import { Collection } from "@prisma/client";
 
 const getCollections = async (

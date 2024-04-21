@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getIsSessionValid from "@/app/actions/getIsSessionValid";
-import getUserIdFromUserSession from "@/app/actions/getUserIdFromUserSession";
+import getIsSessionValid from "@/app/actions/sessionActions/getIsSessionValid";
+import getUserIdFromUserSession from "@/app/actions/sessionActions/getUserIdFromUserSession";
 import { handleError } from "@/app/utils/errorHandler";
-import getCollections from "@/app/actions/getCollections";
+import getCollections from "@/app/actions/collectionActions/getCollections";
 
 export async function GET(request: Request) {
   try {

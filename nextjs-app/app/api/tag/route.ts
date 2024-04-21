@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getIsSessionValid from "@/app/actions/getIsSessionValid";
+import getIsSessionValid from "@/app/actions/sessionActions/getIsSessionValid";
 
 export async function POST(request: Request) {
   try {

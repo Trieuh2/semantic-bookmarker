@@ -1,4 +1,4 @@
-import getCurrentUser from "./getCurrentUser";
+import getCurrentUser from "../getCurrentUser";
 
 const getUserIdFromUserSession = async () => {
   const currentUser = await getCurrentUser();

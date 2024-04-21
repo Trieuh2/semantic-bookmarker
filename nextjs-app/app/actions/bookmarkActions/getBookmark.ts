@@ -1,11 +1,11 @@
 import prisma from "@/app/libs/prismadb";
-import getIsSessionValid from "./getIsSessionValid";
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import { Bookmark } from "@prisma/client";
 import {
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
-} from "../libs/errors";
+} from "../../libs/errors";
 
 const getBookmark = async (
   userId: string,

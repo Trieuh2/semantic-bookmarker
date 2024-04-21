@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import getCollections from "../actions/getCollections";
-import getTags from "../actions/getTags";
+import getCollections from "../actions/collectionActions/getCollections";
+import getTags from "../actions/tagActions/getTags";
 import Sidebar from "../components/sidebar/Sidebar";
 import { Tag } from "@prisma/client";
 import { FullCollectionType } from "../types";

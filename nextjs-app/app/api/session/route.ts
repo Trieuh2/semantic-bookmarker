@@ -1,7 +1,7 @@
-import getSession from "@/app/actions/getSession";
+import getSession from "@/app/actions/sessionActions/getSession";
 import { NextResponse } from "next/server";
 import { handleError } from "@/app/utils/errorHandler";
-import deleteSession from "@/app/actions/deleteSession";
+import deleteSession from "@/app/actions/sessionActions/deleteSession";
 
 export async function GET(request: Request) {
   try {

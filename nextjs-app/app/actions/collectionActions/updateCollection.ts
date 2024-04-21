@@ -1,6 +1,6 @@
-import { BadRequestError, NotFoundError } from "../libs/errors";
+import { BadRequestError, NotFoundError } from "../../libs/errors";
 import createOrFetchCollection from "./createOrFetchCollection";
-import getUserIdFromSessionToken from "./getUserIdFromSessionToken";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const updateCollection = async (
   sessionToken: string,

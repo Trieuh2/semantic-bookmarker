@@ -1,6 +1,6 @@
 import prisma from "@/app/libs/prismadb";
 import { Collection } from "@prisma/client";
-import { BadRequestError } from "../libs/errors";
+import { BadRequestError } from "../../libs/errors";
 
 const createOrFetchCollection = async (
   userId: string,

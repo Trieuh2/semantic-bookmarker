@@ -1,12 +1,12 @@
 import prisma from "@/app/libs/prismadb";
-import getIsSessionValid from "./getIsSessionValid";
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import {
   BadRequestError,
   ConflictError,
   UnauthorizedError,
-} from "../libs/errors";
+} from "../../libs/errors";
 import { Bookmark } from "@prisma/client";
-import createOrFetchCollection from "./createOrFetchCollection";
+import createOrFetchCollection from "../collectionActions/createOrFetchCollection";
 
 const addBookmark = async (
   userId: string,

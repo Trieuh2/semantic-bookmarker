@@ -1,5 +1,5 @@
 import prisma from "@/app/libs/prismadb";
-import { NotFoundError } from "../libs/errors";
+import { NotFoundError } from "../../libs/errors";
 
 const getUserIdFromSessionToken = async (sessionToken: string) => {
   const sessionRecord = await prisma?.session.findFirst({

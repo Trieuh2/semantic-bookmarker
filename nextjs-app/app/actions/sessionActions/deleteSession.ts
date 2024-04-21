@@ -5,7 +5,7 @@ import {
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
-} from "../libs/errors";
+} from "../../libs/errors";
 import getSession from "./getSession";
 
 const deleteSession = async (sessionToken: string): Promise<Session> => {

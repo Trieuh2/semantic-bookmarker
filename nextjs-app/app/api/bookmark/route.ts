@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import getBookmark from "@/app/actions/getBookmark";
-import deleteBookmark from "@/app/actions/deleteBookmark";
-import addBookmark from "@/app/actions/addBookmark";
+import getBookmark from "@/app/actions/bookmarkActions/getBookmark";
+import deleteBookmark from "@/app/actions/bookmarkActions/deleteBookmark";
+import addBookmark from "@/app/actions/bookmarkActions/addBookmark";
 import { handleError } from "@/app/utils/errorHandler";
-import { updateBookmark } from "@/app/actions/updateBookmark";
+import { updateBookmark } from "@/app/actions/bookmarkActions/updateBookmark";
 
 export async function GET(request: Request) {
   try {
