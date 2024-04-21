@@ -31,7 +31,6 @@ const getCollections = async (
     where: {
       userId,
     },
-    take: 10,
   });
 
   if (!collections) {
