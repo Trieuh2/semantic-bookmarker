@@ -59,10 +59,14 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     mx-2
     rounded-md
     border
-    border-orange-300
     max-h-[180px]
+    transition-opacity
+    duration-200
     `,
-    scrollbarClasses
+    scrollbarClasses,
+    isCollectionMenuOpen
+      ? "border-orange-300 opacity-100"
+      : "border-transparent opacity-0"
   );
 
   return (
@@ -119,8 +123,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
           />
         </div>
 
-        {isCollectionMenuOpen && (
-          <div ref={collectionMenuRef} className={collectionMenuClasses}>
+        <div ref={collectionMenuRef} className={collectionMenuClasses}>
+          {isCollectionMenuOpen && (
             <ul>
               <CollectionMenuOption
                 key={selectedCollection}
@@ -147,8 +151,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
                   );
                 })}
             </ul>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

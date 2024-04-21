@@ -1,5 +1,5 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-045e2e3f.js"
+              import "./assets/background-page-reloader-24c9ce8f.js"
               import { c as createCommonjsModule, a as apiUpdateBookmark, b as apiDeleteBookmark, d as commonjsGlobal } from './bookmarkAPI-decb4c7b.js';
 
 /**
