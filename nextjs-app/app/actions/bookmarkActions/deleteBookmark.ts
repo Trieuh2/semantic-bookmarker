@@ -14,14 +14,16 @@ const deleteBookmark = async (
 ): Promise<Bookmark> => {
   if (!userId || !sessionToken || !id) {
     throw new BadRequestError(
-      "Missing required fields (userId, sessionToken, id)"
+      "Error encountered during Bookmark deletion. Missing required fields (userId, sessionToken, id)"
     );
   }
 
   // Validate session
   const isSessionValid = await getIsSessionValid(sessionToken);
   if (!isSessionValid) {
-    throw new UnauthorizedError("Invalid or expired session.");
+    throw new UnauthorizedError(
+      "Error encountered during Bookmark deletion. Invalid or expired session."
+    );
   }
 
   // Check if the bookmark exists before deletion to handle not found error gracefully
@@ -30,7 +32,9 @@ const deleteBookmark = async (
   });
 
   if (!bookmark) {
-    throw new NotFoundError("Bookmark not found.");
+    throw new NotFoundError(
+      "Error encountered during Bookmark deletion. Bookmark not found."
+    );
   }
 
   // If bookmark exists, proceed with deletion
@@ -42,7 +46,9 @@ const deleteBookmark = async (
   });
 
   if (!deletedBookmark) {
-    throw new Error("Error deleting Bookmark record.");
+    throw new Error(
+      "Error encountered during Bookmark deletion. Internal Server Error."
+    );
   }
   return deletedBookmark;
 };

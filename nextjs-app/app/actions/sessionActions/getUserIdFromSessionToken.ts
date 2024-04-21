@@ -10,7 +10,7 @@ const getUserIdFromSessionToken = async (sessionToken: string) => {
 
   if (!sessionRecord) {
     throw new NotFoundError(
-      "Error retrieving userId. No session record found for the associated session token."
+      "Error retrieving userId from session token. No session record found for the associated session token."
     );
   }
   return sessionRecord.userId;

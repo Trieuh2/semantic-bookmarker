@@ -20,13 +20,13 @@ const addBookmark = async (
   // Validate session
   const isSessionValid = await getIsSessionValid(sessionToken);
   if (!isSessionValid) {
-    throw new UnauthorizedError("Invalid or expired session.");
+    throw new UnauthorizedError("Error encountered during Bookmark creation. Invalid or expired session.");
   }
 
   // Validate fields
   if (!userId || !sessionToken || !title || !page_url) {
     throw new BadRequestError(
-      "Missing required fields (userId, sessionToken, title, page_url, collection_name)."
+      "Error encountered during Bookmark creation. Missing required fields (userId, sessionToken, title, page_url, collection_name)."
     );
   }
 
@@ -39,7 +39,9 @@ const addBookmark = async (
   });
 
   if (existingBookmark) {
-    throw new ConflictError("Bookmark already exists for this URL.");
+    throw new ConflictError(
+      "Error encountered during Bookmark creation. Bookmark already exists for this page URL."
+    );
   }
 
   // Create or fetch the collection
@@ -49,7 +51,7 @@ const addBookmark = async (
   );
   if (!collection) {
     throw new Error(
-      "Error creating or fetching collection to associate with Bookmark record."
+      "Error encountered during Bookmark creation. Error creating or fetching associated Collection record."
     );
   }
 
@@ -65,7 +67,9 @@ const addBookmark = async (
   });
 
   if (!newBookmark) {
-    throw new Error("Error creating new Bookmark record.");
+    throw new Error(
+      "Error encountered during Bookmark creation. Internal Server Error."
+    );
   }
 
   return newBookmark;

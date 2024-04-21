@@ -24,19 +24,19 @@ const createCollection = async (
 
   if (!userId) {
     throw new UnauthorizedError(
-      "Error encountered during Collection creation. Failed to fetch userId from session token or user session."
+      "Error encountered during collection creation. Failed to fetch userId from session token or user session."
     );
   }
   if (!(await getIsSessionValid(sessionToken))) {
     throw new UnauthorizedError(
-      "Error encountered during Collection creation. Invalid or expired session."
+      "Error encountered during collection creation. Invalid or expired session."
     );
   }
 
   // Validate request parameters
   if (!name) {
     throw new BadRequestError(
-      "Error encountered during Collection creation. Missing required fields: name."
+      "Error encountered during collection creation. Missing required fields: name."
     );
   }
 
@@ -49,7 +49,7 @@ const createCollection = async (
 
   if (existingCollection) {
     throw new ConflictError(
-      "Error encountered during Collection creation. A Collection with this name already exists. Please use a different name."
+      "Error encountered during collection creation. A Collection with this name already exists. Please use a different name."
     );
   }
 
@@ -63,7 +63,7 @@ const createCollection = async (
 
   if (!newCollection) {
     throw new Error(
-      "Error encountered during Collection creation. Internal Server Error."
+      "Error encountered during collection creation. Internal Server Error."
     );
   }
 

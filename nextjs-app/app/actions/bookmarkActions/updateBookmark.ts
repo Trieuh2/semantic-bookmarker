@@ -20,13 +20,13 @@ const updateBookmark = async (
   excerpt?: string
 ): Promise<Bookmark> => {
   if (!sessionToken || !id) {
-    throw new BadRequestError("Missing required fields (sessionToken, id)");
+    throw new BadRequestError("Error updating Bookmark record. Missing required fields (sessionToken, id)");
   }
 
   // Validate session
   if (!(await getIsSessionValid(sessionToken))) {
     throw new UnauthorizedError(
-      "Failed to update Bookmark record. Invalid or expired session."
+      "Error updating Bookmark record. Invalid or expired session."
     );
   }
 
@@ -37,7 +37,7 @@ const updateBookmark = async (
 
   if (!bookmark) {
     throw new NotFoundError(
-      "Failed to update Bookmark. Bookmark record not found."
+      "Error updating Bookmark record. Bookmark record not found."
     );
   }
 
@@ -73,7 +73,7 @@ const updateBookmark = async (
 
     if (!tagsUpdate) {
       throw new Error(
-        "Failed to create/update Tag and TagToBookmarks associated with this Bookmark record."
+        "Error updating Bookmark record. Failed to create/update the associated Tag and TagToBookmarks records for this Bookmark."
       );
     }
   }
@@ -89,7 +89,9 @@ const updateBookmark = async (
   });
 
   if (!updatedBookmark) {
-    throw new Error("Failed to update Bookmark record.");
+    throw new Error(
+      "Error updating Bookmark record. Internal Server Error."
+    );
   }
 
   return updatedBookmark;
@@ -105,7 +107,9 @@ const updateTagsAndTagToBookmarks = async (
 
   const updatedTags = await updateTags(userId ?? "", tagNames);
   if (!updatedTags) {
-    throw new Error("Failed to update tag for Bookmark record.");
+    throw new Error(
+      "Error updating Bookmark record. Failed to update tag for Bookmark record."
+    );
   }
 
   // Create TagToBookmark records
@@ -121,7 +125,7 @@ const updateTagsAndTagToBookmarks = async (
 const updateTags = async (userId: string, tagNames: string[]) => {
   if (!userId || !tagNames) {
     throw new BadRequestError(
-      "Failed to update tags associated with Bookmark record. Missing userId or tagNames."
+      "Error updating Bookmark record. Failed to update associated tags due to missing userId or tagNames."
     );
   }
 
@@ -144,7 +148,9 @@ const updateTags = async (userId: string, tagNames: string[]) => {
         resultingTags.push(tagRecord);
       }
     } catch (error) {
-      throw new Error("Error encountered while fetching Tags.");
+      throw new Error(
+        "Error updating Bookmark record. Error encountered while fetching Tags."
+      );
     }
   }
 
@@ -159,7 +165,9 @@ const updateTags = async (userId: string, tagNames: string[]) => {
       });
       resultingTags.push(newTagRecord);
     } catch (error) {
-      throw new Error("Error encountered during Tag creation process.");
+      throw new Error(
+        "Error updating Bookmark record. Error encountered creating associated Tag record."
+      );
     }
   }
 
@@ -173,7 +181,7 @@ const updateTagToBookmarks = async (
 ) => {
   if (!userId || !id || !tags) {
     throw new BadRequestError(
-      "Error creating TagToBookmark record. Missing userId, id, or tags parameters."
+      "Error updating Bookmark record. Error creating TagToBookmark associated record. Missing userId, id, or tags parameters."
     );
   }
 
@@ -187,7 +195,7 @@ const updateTagToBookmarks = async (
 
   if (!bookmark) {
     throw new NotFoundError(
-      "Error creating TagToBookmark record. Associated bookmark record not found."
+      "Error updating Bookmark record. Error creating TagToBookmark record. Associated bookmark record not found."
     );
   }
 
@@ -241,12 +249,16 @@ const updateTagToBookmarks = async (
         },
       });
     } catch (error) {
-      throw new Error("Failed to delete TagToBookmark record.");
+      throw new Error(
+        "Error updating Bookmark record. Failed to delete associated TagToBookmark record."
+      );
     }
 
     return tagToBookmarks;
   } catch (error) {
-    throw new Error("Failed to update TagToBookmark records.");
+    throw new Error(
+      "Error updating Bookmark record. Failed to update TagToBookmark records."
+    );
   }
 };
 

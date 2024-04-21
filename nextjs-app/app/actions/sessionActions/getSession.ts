@@ -3,7 +3,9 @@ import { BadRequestError, NotFoundError } from "../../libs/errors";
 
 const getSession = async (sessionToken: string) => {
   if (!sessionToken) {
-    throw new BadRequestError("Missing required fields: sessionToken.");
+    throw new BadRequestError(
+      "Error fetching session. Missing required fields: sessionToken."
+    );
   }
 
   const sessionRecord = await prisma.session.findUnique({
@@ -13,7 +15,9 @@ const getSession = async (sessionToken: string) => {
   });
 
   if (!sessionRecord) {
-    throw new NotFoundError("No session found for the provided token");
+    throw new NotFoundError(
+      "Error fetching session. No session found for the provided token."
+    );
   }
 
   return sessionRecord;

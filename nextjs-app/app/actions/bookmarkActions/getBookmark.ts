@@ -15,14 +15,16 @@ const getBookmark = async (
   // Validate fields
   if (!userId || !sessionToken || !page_url) {
     throw new BadRequestError(
-      "Missing required fields (userId, sessionToken, page_url)"
+      "Error fetching Bookmark record. Missing required fields (userId, sessionToken, page_url)"
     );
   }
 
   // Validate session
   const isSessionValid = await getIsSessionValid(sessionToken);
   if (!isSessionValid) {
-    throw new UnauthorizedError("Invalid or expired session.");
+    throw new UnauthorizedError(
+      "Error fetching Bookmark record. Invalid or expired session."
+    );
   }
 
   // Fetch Bookmark
@@ -37,7 +39,9 @@ const getBookmark = async (
   });
 
   if (!bookmark) {
-    throw new NotFoundError("Bookmark not found.");
+    throw new NotFoundError(
+      "Error fetching Bookmark record. Bookmark not found."
+    );
   }
 
   return bookmark;
