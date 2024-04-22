@@ -9,10 +9,7 @@ const AuthenticatedApp: React.FC = () => {
   return (
     <div>
       {session.isAuthenticated ? (
-        <BookmarkForm
-          key={session.isAuthenticated.toString()}
-          sessionRecord={session.sessionRecord}
-        />
+        <BookmarkForm sessionRecord={session.sessionRecord} />
       ) : (
         <AuthForm />
       )}

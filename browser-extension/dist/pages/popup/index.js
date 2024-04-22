@@ -2837,6 +2837,31 @@ const fetchSession = async (sessionToken) => {
         return null;
     }
 };
+const deleteSession = async (sessionToken) => {
+    try {
+        const url = "http://localhost:3000/api/session";
+        const postData = {
+            sessionToken: sessionToken,
+        };
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        // Parse the JSON response
+        const data = await response.json();
+        return data;
+    }
+    catch (error) {
+        console.error("Failed to sign out of current session:", error);
+        throw error;
+    }
+};
 
 const SessionContext = react.createContext(null);
 const SessionProvider = ({ children }) => {
@@ -2851,7 +2876,6 @@ const SessionProvider = ({ children }) => {
             if (!sessionToken) {
                 setIsAuthenticated(false);
                 localStorage.setItem("isAuthenticated", "false");
-                return;
             }
             setSessionToken(sessionToken ?? "");
         };
@@ -2863,6 +2887,9 @@ const SessionProvider = ({ children }) => {
             const fetchServerSession = async () => {
                 const serverSession = await fetchSession(sessionToken);
                 if (serverSession) {
+                    const isSessionExpired = serverSession?.expires < Date.now();
+                    setIsAuthenticated(!isSessionExpired);
+                    localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
                     setSessionRecord(serverSession);
                     setUserId(serverSession.userId);
                 }
@@ -2874,21 +2901,17 @@ const SessionProvider = ({ children }) => {
             fetchServerSession();
         }
     }, [sessionToken]);
-    // Validate session
-    react.useEffect(() => {
-        if (sessionRecord) {
-            const isSessionExpired = sessionRecord?.expires < Date.now();
-            setIsAuthenticated(!isSessionExpired);
-            localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
-        }
-    }, [sessionRecord]);
     const handleSignOut = () => {
-        document.cookie =
-            "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        localStorage.setItem("isAuthenticated", "false");
-        setIsAuthenticated(false);
-        setSessionToken("");
-        setSessionRecord(null);
+        const performSignOut = async () => {
+            await deleteSession(sessionToken);
+            document.cookie =
+                "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+            localStorage.setItem("isAuthenticated", "false");
+            setIsAuthenticated(false);
+            setSessionToken("");
+            setSessionRecord(null);
+        };
+        performSignOut();
     };
     return (react.createElement(react.Fragment, null,
         react.createElement(SessionContext.Provider, { value: {
@@ -3656,7 +3679,7 @@ const AuthForm = () => {
 
 const AuthenticatedApp = () => {
     const session = useSession();
-    return (react.createElement("div", null, session.isAuthenticated ? (react.createElement(BookmarkForm, { key: session.isAuthenticated.toString(), sessionRecord: session.sessionRecord })) : (react.createElement(AuthForm, null))));
+    return (react.createElement("div", null, session.isAuthenticated ? (react.createElement(BookmarkForm, { sessionRecord: session.sessionRecord })) : (react.createElement(AuthForm, null))));
 };
 
 const App = () => {

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Session } from "../types";
 import { getSessionTokenFromCookie } from "../actions/cookieActions";
-import { fetchSession } from "../actions/sessionActions";
+import { fetchSession, deleteSession } from "../actions/sessionActions";
 
 interface SessionContextType {
   userId: string;
@@ -30,7 +30,6 @@ export const SessionProvider: React.FC<{
       if (!sessionToken) {
         setIsAuthenticated(false);
         localStorage.setItem("isAuthenticated", "false");
-        return;
       }
       setSessionToken(sessionToken ?? "");
     };
@@ -44,6 +43,12 @@ export const SessionProvider: React.FC<{
         const serverSession = await fetchSession(sessionToken);
 
         if (serverSession) {
+          const isSessionExpired = serverSession?.expires < Date.now();
+          setIsAuthenticated(!isSessionExpired);
+          localStorage.setItem(
+            "isAuthenticated",
+            (!isSessionExpired).toString()
+          );
           setSessionRecord(serverSession);
           setUserId(serverSession.userId);
         } else {
@@ -55,22 +60,17 @@ export const SessionProvider: React.FC<{
     }
   }, [sessionToken]);
 
-  // Validate session
-  useEffect(() => {
-    if (sessionRecord) {
-      const isSessionExpired = sessionRecord?.expires < Date.now();
-      setIsAuthenticated(!isSessionExpired);
-      localStorage.setItem("isAuthenticated", (!isSessionExpired).toString());
-    }
-  }, [sessionRecord]);
-
   const handleSignOut = () => {
-    document.cookie =
-      "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-    localStorage.setItem("isAuthenticated", "false");
-    setIsAuthenticated(false);
-    setSessionToken("");
-    setSessionRecord(null);
+    const performSignOut = async () => {
+      await deleteSession(sessionToken);
+      document.cookie =
+        "sessionToken=; expires Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      localStorage.setItem("isAuthenticated", "false");
+      setIsAuthenticated(false);
+      setSessionToken("");
+      setSessionRecord(null);
+    };
+    performSignOut();
   };
 
   return (

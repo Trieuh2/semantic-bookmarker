@@ -17,7 +17,7 @@ const fetchSession = async (sessionToken: string) => {
   }
 };
 
-const signOut = async (sessionToken: string) => {
+const deleteSession = async (sessionToken: string) => {
   try {
     const url = "http://localhost:3000/api/session";
     const postData = {
@@ -44,4 +44,4 @@ const signOut = async (sessionToken: string) => {
   }
 };
 
-export { fetchSession, signOut };
+export { fetchSession, deleteSession };
