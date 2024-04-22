@@ -20,7 +20,7 @@ const AuthContext: React.FC<AuthContextProps> = ({ children }) => {
   const session = useSession();
   const router = useRouter();
   const currentPath = usePathname();
-  const protected_path = "/collections";
+  const protected_path = "/bookmarks";
   const home_path = "/";
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const AuthContext: React.FC<AuthContextProps> = ({ children }) => {
     if (session?.status === "unauthenticated" && currentPath !== "/") {
       router.push(home_path);
     }
-  }, [session?.status, router]);
+  }, [session?.status, currentPath, router]);
 
   return <>{children}</>;
 };

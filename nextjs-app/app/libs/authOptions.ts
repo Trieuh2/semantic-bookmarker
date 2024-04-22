@@ -45,6 +45,21 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    async session({ session, user }) {
+      const sessionRecord = await prisma.session.findUnique({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (sessionRecord) {
+        session.sessionToken = sessionRecord.sessionToken;
+        session.userId = sessionRecord.userId;
+      }
+      return session;
+    },
+  },
   adapter: PrismaAdapter(prisma),
   debug: false,
   session: {
