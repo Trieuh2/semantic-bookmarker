@@ -1,8 +1,8 @@
 import BaseLayout from "../layouts/BaseLayout";
 
-interface BookmarksProps {}
+interface BookmarkPageProps {}
 
-const Bookmarks: React.FC<BookmarksProps> = ({}) => {
+const BookmarkPage: React.FC<BookmarkPageProps> = ({}) => {
   return (
     <BaseLayout>
       <div>"Bookmarks Page"</div>
@@ -10,4 +10,4 @@ const Bookmarks: React.FC<BookmarksProps> = ({}) => {
   );
 };
 
-export default Bookmarks;
+export default BookmarkPage;
