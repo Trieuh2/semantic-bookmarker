@@ -1,29 +1,27 @@
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "../getCurrentUser";
+import { BadRequestError, UnauthorizedError } from "@/app/libs/errors";
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
 
-const getTags = async () => {
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser?.id) {
-    return [];
+const getTags = async (userId: string, sessionToken: string) => {
+  if (!userId || !sessionToken) {
+    throw new BadRequestError(
+      "Error fetching tags. Missing required fields: userId, sessionToken"
+    );
   }
 
-  try {
-    const tags = await prisma.tag.findMany({
-      orderBy: {
-        name: "asc",
-      },
-      where: {
-        userId: {
-          equals: currentUser.id,
-        },
-      },
-    });
-
-    return tags;
-  } catch (error) {
-    return [];
+  // Validate session
+  if (!(await getIsSessionValid)) {
+    throw new UnauthorizedError("Error fetching tags. Unauthorized.");
   }
+
+  // Attempt fetch
+  const tags = await prisma.tag.findMany({
+    where: {
+      userId,
+    },
+  });
+
+  return tags;
 };
 
 export default getTags;

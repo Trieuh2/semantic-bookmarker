@@ -1,8 +1,11 @@
+import { BadRequestError } from "@/app/libs/errors";
 import getSession from "./getSession";
 
 const getIsSessionValid = async (sessionToken: string): Promise<boolean> => {
   if (!sessionToken) {
-    return false;
+    throw new BadRequestError(
+      "Error validating session. Missing required fields: sessionToken."
+    );
   }
 
   const nowTimestamp = Date.now();

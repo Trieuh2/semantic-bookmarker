@@ -1,5 +1,4 @@
 import prisma from "@/app/libs/prismadb";
-import getUserIdFromUserSession from "../sessionActions/getUserIdFromUserSession";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 import {
@@ -13,32 +12,21 @@ const createCollection = async (
   sessionToken: string,
   name: string
 ): Promise<Collection> => {
-  let userId;
-
-  // Get userId from user session or sessionToken
-  if (!sessionToken) {
-    userId = await getUserIdFromUserSession();
-  } else {
-    userId = await getUserIdFromSessionToken(sessionToken);
-  }
-
-  if (!userId) {
-    throw new UnauthorizedError(
-      "Error encountered during collection creation. Failed to fetch userId from session token or user session."
+  // Validate request parameters
+  if (!name) {
+    throw new BadRequestError(
+      "Error encountered during collection creation. Missing required fields: sessionToken, name."
     );
   }
+
+  // Validate session
   if (!(await getIsSessionValid(sessionToken))) {
     throw new UnauthorizedError(
       "Error encountered during collection creation. Invalid or expired session."
     );
   }
 
-  // Validate request parameters
-  if (!name) {
-    throw new BadRequestError(
-      "Error encountered during collection creation. Missing required fields: name."
-    );
-  }
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   const existingCollection = await prisma.collection.findFirst({
     where: {

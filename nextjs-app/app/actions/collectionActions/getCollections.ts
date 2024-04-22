@@ -1,7 +1,6 @@
 import prisma from "@/app/libs/prismadb";
 import {
   BadRequestError,
-  NotFoundError,
   UnauthorizedError,
 } from "../../libs/errors";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
@@ -33,11 +32,11 @@ const getCollections = async (
     },
   });
 
-  if (!collections) {
-    throw new NotFoundError(
-      "Error fetching collections. No collections found."
-    );
-  }
+  // if (!collections) {
+  //   throw new NotFoundError(
+  //     "Error fetching collections. No collections found."
+  //   );
+  // }
 
   return collections;
 };
