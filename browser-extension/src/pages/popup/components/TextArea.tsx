@@ -47,8 +47,7 @@ const TextArea: React.FC<TextAreaProps> = ({
     border-transparent
     bg-transparent
     text-start
-    overflow-auto
-    break-words
+    break-all
     outline-none
     transition`,
     useBackground && "bg-zinc-900",

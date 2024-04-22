@@ -58,15 +58,14 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     z-20
     mx-2
     rounded-md
-    border
     max-h-[180px]
     transition-opacity
     duration-200
     `,
     scrollbarClasses,
     isCollectionMenuOpen
-      ? "border-orange-300 opacity-100"
-      : "border-transparent opacity-0"
+      ? "ring-2 ring-orange-300 opacity-100"
+      : "ring-2 ring-transparent opacity-0"
   );
 
   return (
