@@ -61,9 +61,6 @@ const NewCollectionButton: React.FC<NewCollectionButtonProps> = ({
     text-start
     rounded-md
     p-1
-    ring-2
-    ring-transparent
-    hover:ring-orange-300
     bg-zinc-800
     transition-opacity
     duration-100`,
