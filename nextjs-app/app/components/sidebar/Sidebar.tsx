@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { Bookmark, Collection, Tag } from "@prisma/client";
 import { getSession } from "next-auth/react";
 import axios from "axios";
+import SidebarGroup from "./SidebarGroup";
 
 interface SidebarProps {}
 
@@ -50,7 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({}) => {
           );
 
           if (axiosResponse.status === 200) {
-            setCollections(axiosResponse.data.data);
+            const apiData = axiosResponse.data.data as Collection[];
+            const filteredCollections = apiData.filter(
+              (collection: Collection) => collection.name != "Unsorted"
+            );
+            setCollections(filteredCollections);
           }
         } catch (error) {
           console.log(error);
@@ -61,43 +66,51 @@ const Sidebar: React.FC<SidebarProps> = ({}) => {
   }, [userId, sessionToken, collections]);
 
   // Fetch tags
-  // useEffect(() => {
-  //   if (userId && sessionToken) {
-  //     const fetchTags = async () => {
-  //       try {
-  //         const params = {
-  //           userId: userId,
-  //           sessionToken: sessionToken,
-  //         };
-  //         const axiosResponse = await axios.get(
-  //           "http://localhost:3000/api/tags/",
-  //           { params }
-  //         );
+  useEffect(() => {
+    if (userId && sessionToken) {
+      const fetchTags = async () => {
+        try {
+          const params = {
+            userId: userId,
+            sessionToken: sessionToken,
+          };
+          const axiosResponse = await axios.get(
+            "http://localhost:3000/api/tag/",
+            { params }
+          );
 
-  //         if (axiosResponse.status === 200) {
-  //           setTags(axiosResponse.data.data);
-  //         }
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     };
-  //     fetchTags();
-  //   }
-  // }, [userId, sessionToken, tags]);
+          if (axiosResponse.status === 200) {
+            setTags(axiosResponse.data.data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchTags();
+    }
+  }, [userId, sessionToken, tags]);
 
-  const sidebarClassNames = clsx(
+  const scrollbarClasses = `
+    overflow-y-scroll
+    scrollbar
+    scrollbar-track-stone-700
+    scrollbar-thumb-stone-500
+  `;
+
+  const sidebarClasses = clsx(
     `
     h-full
-    w-64
+    w-80
     bg-neutral-800
     border-r
     border-neutral-700
     font-light
-    `
+    `,
+    scrollbarClasses
   );
 
   return (
-    <div className={sidebarClassNames}>
+    <div className={sidebarClasses}>
       {/* Static SidebarItems */}
       <SidebarItem
         href="/bookmarks"
@@ -108,32 +121,34 @@ const Sidebar: React.FC<SidebarProps> = ({}) => {
       <SidebarItem href="/trash" label="Trash" icon={FaTrashAlt} />
 
       {/* Collections */}
-      <div>
-        {collections &&
-          collections.map((collection) => (
-            <SidebarItem
-              key={collection.id}
-              href={`/collection/${collection.id}`}
-              label={collection.name}
-              icon={IoIosFolder}
-              count={collections.length}
-            />
-          ))}
-      </div>
+      <SidebarGroup name="Collections" count={collections?.length}>
+        <div>
+          {collections &&
+            collections.map((collection) => (
+              <SidebarItem
+                key={collection.id}
+                href={`/collection/${collection.id}`}
+                label={collection.name}
+                icon={IoIosFolder}
+              />
+            ))}
+        </div>
+      </SidebarGroup>
 
       {/* Tags */}
-      {/* <div>
-        {tags &&
-          tags.map((tag) => (
-            <SidebarItem
-              key={tag.id}
-              href={`/tag/${tag.id}`}
-              label={tag.name}
-              icon={HiHashtag}
-              count={tags.length}
-            />
-          ))}
-      </div> */}
+      <SidebarGroup name="Tags" count={collections?.length}>
+        <div>
+          {tags &&
+            tags.map((tag) => (
+              <SidebarItem
+                key={tag.id}
+                href={`/tag/${tag.id}`}
+                label={tag.name}
+                icon={HiHashtag}
+              />
+            ))}
+        </div>
+      </SidebarGroup>
     </div>
   );
 };
