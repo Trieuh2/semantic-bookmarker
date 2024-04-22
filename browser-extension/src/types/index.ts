@@ -1,3 +1,8 @@
+export interface ChromeTab {
+  title?: string;
+  url?: string;
+}
+
 export interface Bookmark {
   id: string;
   title: string;

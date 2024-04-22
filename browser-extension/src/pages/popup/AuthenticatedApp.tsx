@@ -12,7 +12,6 @@ const AuthenticatedApp: React.FC = () => {
         <BookmarkForm
           key={session.isAuthenticated.toString()}
           sessionRecord={session.sessionRecord}
-          parentOnSignOut={session.handleSignOut}
         />
       ) : (
         <AuthForm />

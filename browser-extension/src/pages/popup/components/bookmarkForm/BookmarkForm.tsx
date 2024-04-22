@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from "react";
+
+// Component imports
 import Footer from "../Footer";
 import TextArea from "./TextArea";
-import Input from "./Input";
-import TagButton from "./TagButton";
 import CollectionMenu from "./collectionMenu/CollectionMenu";
+import RemoveBookmarkButton from "./RemoveBookmarkButton";
+import BookmarkFormHeader from "./BookmarkFormHeader";
+import TagSection from "./tagSection/TagSection";
+
+// Action imports
 import {
   fetchBookmark,
   addBookmark,
 } from "../../../../actions/bookmarkActions";
 import { fetchCollections } from "../../../../actions/collectionActions";
+
+// Type imports
 import {
   Bookmark,
+  ChromeTab,
   Collection,
   Session,
   TagToBookmark,
 } from "../../../../types";
-import { signOut } from "../../../../actions/sessionActions";
-import RemoveBookmarkButton from "./RemoveBookmarkButton";
-import BookmarkFormHeader from "./BookmarkFormHeader";
 
 interface BookmarkFormProps {
   sessionRecord: Session | null;
-  parentOnSignOut: () => void;
-}
-
-interface ChromeTab {
-  title?: string;
-  url?: string;
 }
 
 interface BookmarkTextAreas {
@@ -35,10 +34,7 @@ interface BookmarkTextAreas {
   note: string;
 }
 
-const BookmarkForm: React.FC<BookmarkFormProps> = ({
-  sessionRecord,
-  parentOnSignOut,
-}) => {
+const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
   const [bookmarkRecord, setBookmarkRecord] = useState<Bookmark | null>(null);
   const [initialValues, setInitialValues] = useState<Bookmark | null>(null);
@@ -54,7 +50,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
   );
 
   const [tagSet, setTagSet] = useState<Set<string>>(new Set());
-  const [tagField, setTagField] = useState<string>("");
+  const [tagFieldValue, setTagFieldValue] = useState<string>("");
 
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
@@ -251,21 +247,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
     }
   };
 
-  const handleRedirectToWebsite = () => {
-    chrome.tabs.create({
-      url: "http://localhost:3000/",
-    });
-  };
-
-  const handleSignOut = () => {
-    const performSignOut = async () => {
-      const sessionToken = sessionRecord?.sessionToken ?? "";
-      await signOut(sessionToken);
-      parentOnSignOut();
-    };
-    performSignOut();
-  };
-
   const handleRemoveBookmark = () => {
     if (bookmarkRecord && sessionRecord) {
       const performDeletion = async () => {
@@ -315,7 +296,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         gap-1.5
       "
     >
-      {/* Header icon and Logout Button */}
       <BookmarkFormHeader />
 
       {/* Title */}
@@ -346,54 +326,18 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         />
       </div>
 
-      {/* Collection */}
-      <div className="w-full flex bg-zinc-800">
-        <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
-        <CollectionMenu
-          collectionOptions={collectionOptions}
-          selectedCollection={selectedCollection}
-          setCollectionName={(value) => setCollectionName(value)}
-        />
-      </div>
+      <CollectionMenu
+        collectionOptions={collectionOptions}
+        selectedCollection={selectedCollection}
+        setCollectionName={(value) => setCollectionName(value)}
+      />
 
-      {/* Tags */}
-      <div className="w-full flex bg-zinc-800">
-        <div className="min-w-20 p-2 text-end bg-zinc-800">Tags</div>
-        <div className="w-full flex flex-col mx-2">
-          <Input
-            id="tags"
-            value={tagField}
-            onChange={(event) => setTagField(event.currentTarget.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                const newTag = tagField.trim();
-                setTagSet(new Set([...tagSet, newTag]));
-                setTagField("");
-                event.preventDefault();
-              }
-            }}
-          />
-
-          {/* Tag buttons */}
-          {tagSet && tagSet.size > 0 && (
-            <div className="flex flex-wrap w-full gap-1 mt-2">
-              {Array.from(tagSet).map((tagName, index) => {
-                return (
-                  <TagButton
-                    key={index}
-                    name={tagName}
-                    onClick={(name) => {
-                      const updatedTagSet = new Set(tagSet);
-                      updatedTagSet.delete(name);
-                      setTagSet(updatedTagSet);
-                    }}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+      <TagSection
+        tagFieldValue={tagFieldValue}
+        setTagFieldValue={setTagFieldValue}
+        tagSet={tagSet}
+        setTagSet={setTagSet}
+      />
 
       {/* URL */}
       <div className="w-full flex bg-zinc-800">
@@ -420,11 +364,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({
         </div>
       </div>
 
-      {/* Remove Bookmark Button */}
-      <div className="w-full px-4 flex justify-end bg-zinc-800">
-        <RemoveBookmarkButton onClick={handleRemoveBookmark} />
-      </div>
-
+      <RemoveBookmarkButton onClick={handleRemoveBookmark} />
       <Footer />
     </div>
   );

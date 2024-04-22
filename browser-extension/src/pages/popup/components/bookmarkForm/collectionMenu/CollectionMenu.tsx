@@ -69,88 +69,91 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
   );
 
   return (
-    <div className="flex flex-col w-full justify-center text-start bg-zinc-800">
-      <div className="relative">
-        <div className="flex w-full relative" ref={inputFieldParentRef}>
-          <CollectionButton
-            name={selectedCollection}
-            onMouseUp={() => {
-              setIsCollectionMenuOpen(true);
-            }}
-            isInputFieldOpen={isInputFieldOpen}
-          />
+    <div className="w-full flex bg-zinc-800">
+      <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
+      <div className="flex flex-col w-full justify-center text-start bg-zinc-800">
+        <div className="relative">
+          <div className="flex w-full relative" ref={inputFieldParentRef}>
+            <CollectionButton
+              name={selectedCollection}
+              onMouseUp={() => {
+                setIsCollectionMenuOpen(true);
+              }}
+              isInputFieldOpen={isInputFieldOpen}
+            />
 
-          {/* Input field for a new Collection name */}
-          <div
-            className={clsx(
-              "absolute w-full px-2 transition-opacity",
-              isInputFieldOpen ? "opacity-100" : "opacity-0"
-            )}
-          >
-            <Input
-              id={"newCollectionField"}
-              onChange={(event) =>
-                setInputFieldValue(event.currentTarget.value)
-              }
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  const newCollectionName = inputFieldValue.trim();
-                  if (newCollectionName) {
-                    setCollectionName(newCollectionName);
-                  }
-                  setInputFieldValue("");
-                  setIsInputFieldOpen(false);
-                  event.preventDefault();
+            {/* Input field for a new Collection name */}
+            <div
+              className={clsx(
+                "absolute w-full px-2 transition-opacity",
+                isInputFieldOpen ? "opacity-100" : "opacity-0"
+              )}
+            >
+              <Input
+                id={"newCollectionField"}
+                onChange={(event) =>
+                  setInputFieldValue(event.currentTarget.value)
                 }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    const newCollectionName = inputFieldValue.trim();
+                    if (newCollectionName) {
+                      setCollectionName(newCollectionName);
+                    }
+                    setInputFieldValue("");
+                    setIsInputFieldOpen(false);
+                    event.preventDefault();
+                  }
+                }}
+                onBlur={() => {
+                  setIsInputFieldOpen(false);
+                  setInputFieldValue("");
+                }}
+                disabled={!isInputFieldOpen}
+                autoFocus={isInputFieldOpen}
+                value={inputFieldValue}
+              />
+            </div>
+
+            <NewCollectionButton
+              onMouseUp={() => {
+                setIsInputFieldOpen(!isInputFieldOpen);
               }}
-              onBlur={() => {
-                setIsInputFieldOpen(false);
-                setInputFieldValue("");
-              }}
-              disabled={!isInputFieldOpen}
-              autoFocus={isInputFieldOpen}
-              value={inputFieldValue}
+              isInputOpen={isInputFieldOpen}
+              parentRef={inputFieldParentRef}
             />
           </div>
 
-          <NewCollectionButton
-            onMouseUp={() => {
-              setIsInputFieldOpen(!isInputFieldOpen);
-            }}
-            isInputOpen={isInputFieldOpen}
-            parentRef={inputFieldParentRef}
-          />
-        </div>
-
-        <div ref={collectionMenuRef} className={collectionMenuClasses}>
-          {isCollectionMenuOpen && (
-            <ul>
-              <CollectionMenuOption
-                key={selectedCollection}
-                name={selectedCollection}
-                isFirst={true}
-                onMouseUp={() => {
-                  setCollectionName(selectedCollection);
-                  setIsCollectionMenuOpen(false);
-                }}
-              />
-              {Array.from(collectionOptions)
-                .filter((name) => name !== selectedCollection)
-                .map((name, index) => {
-                  return (
-                    <CollectionMenuOption
-                      key={name}
-                      name={name}
-                      isLast={collectionOptions.size - 2 === index}
-                      onMouseUp={() => {
-                        setCollectionName(name);
-                        setIsCollectionMenuOpen(false);
-                      }}
-                    />
-                  );
-                })}
-            </ul>
-          )}
+          <div ref={collectionMenuRef} className={collectionMenuClasses}>
+            {isCollectionMenuOpen && (
+              <ul>
+                <CollectionMenuOption
+                  key={selectedCollection}
+                  name={selectedCollection}
+                  isFirst={true}
+                  onMouseUp={() => {
+                    setCollectionName(selectedCollection);
+                    setIsCollectionMenuOpen(false);
+                  }}
+                />
+                {Array.from(collectionOptions)
+                  .filter((name) => name !== selectedCollection)
+                  .map((name, index) => {
+                    return (
+                      <CollectionMenuOption
+                        key={name}
+                        name={name}
+                        isLast={collectionOptions.size - 2 === index}
+                        onMouseUp={() => {
+                          setCollectionName(name);
+                          setIsCollectionMenuOpen(false);
+                        }}
+                      />
+                    );
+                  })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

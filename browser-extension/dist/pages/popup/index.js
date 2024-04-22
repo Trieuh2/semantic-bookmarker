@@ -2962,37 +2962,6 @@ const TextArea = ({ value = "", useBackground, useUnderline, onTextChange, onBlu
         useUnderline && isFocused && (react.createElement("div", { className: clsx("absolute bottom-0 left-0 right-0 h-0.5 mx-2", isFocused && "bg-orange-300") }))));
 };
 
-const Input = ({ id, type, onChange, onKeyDown, onBlur, value, disabled = false, autoFocus = false, }) => {
-    const inputRef = react.useRef(null);
-    const inputClasses = clsx(`
-    form-input
-    block
-    w-full
-    h-8
-    rounded-md
-    border
-    border-transparent
-    py-2
-    px-2
-    shadow-sm
-    bg-zinc-900
-    text-white
-    text-sm
-    focus:outline-none
-    focus:ring-2
-    focus:ring-orange-300
-    focus:bg-transparent
-    transition`);
-    // Effect to handle focusing logic based on autoFocus prop
-    react.useEffect(() => {
-        if (autoFocus && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [autoFocus]);
-    return (react.createElement("div", { className: "w-full h-full bg-zinc-800" },
-        react.createElement("input", { ref: inputRef, id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, onBlur: onBlur, value: value, disabled: disabled, autoFocus: autoFocus })));
-};
-
 var DefaultContext = {
   color: undefined,
   size: undefined,
@@ -3050,44 +3019,6 @@ function IconBase(props) {
   };
   return IconContext !== undefined ? /*#__PURE__*/react.createElement(IconContext.Consumer, null, conf => elem(conf)) : elem(DefaultContext);
 }
-
-// THIS FILE IS AUTO GENERATED
-function HiXMark (props) {
-  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 24 24","fill":"currentColor","aria-hidden":"true"},"child":[{"tag":"path","attr":{"fillRule":"evenodd","d":"M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z","clipRule":"evenodd"},"child":[]}]})(props);
-}function HiMiniHashtag (props) {
-  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 20 20","fill":"currentColor","aria-hidden":"true"},"child":[{"tag":"path","attr":{"fillRule":"evenodd","d":"M9.493 2.853a.75.75 0 00-1.486-.205L7.545 6H4.198a.75.75 0 000 1.5h3.14l-.69 5H3.302a.75.75 0 000 1.5h3.14l-.435 3.148a.75.75 0 001.486.205L7.955 14h2.986l-.434 3.148a.75.75 0 001.486.205L12.456 14h3.346a.75.75 0 000-1.5h-3.14l.69-5h3.346a.75.75 0 000-1.5h-3.14l.435-3.147a.75.75 0 00-1.486-.205L12.045 6H9.059l.434-3.147zM8.852 7.5l-.69 5h2.986l.69-5H8.852z","clipRule":"evenodd"},"child":[]}]})(props);
-}
-
-const TagButton = ({ name, onClick, }) => {
-    const [isHovered, setIsHovered] = react.useState(false);
-    const handleMouseEnter = () => {
-        setIsHovered(true);
-    };
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
-    const buttonClasses = clsx(`
-    px-1
-    py-0.5
-    rounded-md
-    border
-    border-orange-300
-    text-xs
-    text-left
-    text-center
-    text-orange-300
-    text-ellipsis
-    hover:border-red-500
-    hover:text-red-500
-    transition-colors
-    duration-150
-    flex
-    items-center`);
-    const divClasses = "h-full inline-flex justify-end items-center";
-    return (react.createElement("button", { className: buttonClasses, onMouseUp: () => onClick(name), onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave },
-        react.createElement("div", { className: divClasses }, isHovered ? react.createElement(HiXMark, null) : react.createElement(HiMiniHashtag, null)),
-        react.createElement("span", null, name)));
-};
 
 // THIS FILE IS AUTO GENERATED
 function FaBoxArchive (props) {
@@ -3204,6 +3135,37 @@ const NewCollectionButton = ({ onMouseUp, isInputOpen, parentRef, }) => {
     return (react.createElement("button", { className: buttonClasses, onMouseUp: handleMouseUp, ref: buttonRef, style: buttonStyle, disabled: isTransitioning }, !isInputOpen ? (react.createElement(IoMdAddCircle, { className: iconClasses })) : (react.createElement(MdCancel, { className: iconClasses, style: { color: "red" } }))));
 };
 
+const Input = ({ id, type, onChange, onKeyDown, onBlur, value, disabled = false, autoFocus = false, }) => {
+    const inputRef = react.useRef(null);
+    const inputClasses = clsx(`
+    form-input
+    block
+    w-full
+    h-8
+    rounded-md
+    border
+    border-transparent
+    py-2
+    px-2
+    shadow-sm
+    bg-zinc-900
+    text-white
+    text-sm
+    focus:outline-none
+    focus:ring-2
+    focus:ring-orange-300
+    focus:bg-transparent
+    transition`);
+    // Effect to handle focusing logic based on autoFocus prop
+    react.useEffect(() => {
+        if (autoFocus && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [autoFocus]);
+    return (react.createElement("div", { className: "w-full h-full bg-zinc-800" },
+        react.createElement("input", { ref: inputRef, id: id, type: type, className: inputClasses, onChange: onChange, onKeyDown: onKeyDown, onBlur: onBlur, value: value, disabled: disabled, autoFocus: autoFocus })));
+};
+
 const CollectionMenu = ({ collectionOptions, selectedCollection, setCollectionName, }) => {
     const collectionMenuRef = react.useRef(null);
     const [isCollectionMenuOpen, setIsCollectionMenuOpen] = react.useState(false);
@@ -3244,43 +3206,124 @@ const CollectionMenu = ({ collectionOptions, selectedCollection, setCollectionNa
     `, scrollbarClasses, isCollectionMenuOpen
         ? "ring-2 ring-orange-300 opacity-100"
         : "ring-2 ring-transparent opacity-0");
-    return (react.createElement("div", { className: "flex flex-col w-full justify-center text-start bg-zinc-800" },
-        react.createElement("div", { className: "relative" },
-            react.createElement("div", { className: "flex w-full relative", ref: inputFieldParentRef },
-                react.createElement(CollectionButton, { name: selectedCollection, onMouseUp: () => {
-                        setIsCollectionMenuOpen(true);
-                    }, isInputFieldOpen: isInputFieldOpen }),
-                react.createElement("div", { className: clsx("absolute w-full px-2 transition-opacity", isInputFieldOpen ? "opacity-100" : "opacity-0") },
-                    react.createElement(Input, { id: "newCollectionField", onChange: (event) => setInputFieldValue(event.currentTarget.value), onKeyDown: (event) => {
-                            if (event.key === "Enter") {
-                                const newCollectionName = inputFieldValue.trim();
-                                if (newCollectionName) {
-                                    setCollectionName(newCollectionName);
+    return (react.createElement("div", { className: "w-full flex bg-zinc-800" },
+        react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Collection"),
+        react.createElement("div", { className: "flex flex-col w-full justify-center text-start bg-zinc-800" },
+            react.createElement("div", { className: "relative" },
+                react.createElement("div", { className: "flex w-full relative", ref: inputFieldParentRef },
+                    react.createElement(CollectionButton, { name: selectedCollection, onMouseUp: () => {
+                            setIsCollectionMenuOpen(true);
+                        }, isInputFieldOpen: isInputFieldOpen }),
+                    react.createElement("div", { className: clsx("absolute w-full px-2 transition-opacity", isInputFieldOpen ? "opacity-100" : "opacity-0") },
+                        react.createElement(Input, { id: "newCollectionField", onChange: (event) => setInputFieldValue(event.currentTarget.value), onKeyDown: (event) => {
+                                if (event.key === "Enter") {
+                                    const newCollectionName = inputFieldValue.trim();
+                                    if (newCollectionName) {
+                                        setCollectionName(newCollectionName);
+                                    }
+                                    setInputFieldValue("");
+                                    setIsInputFieldOpen(false);
+                                    event.preventDefault();
                                 }
-                                setInputFieldValue("");
+                            }, onBlur: () => {
                                 setIsInputFieldOpen(false);
-                                event.preventDefault();
-                            }
-                        }, onBlur: () => {
-                            setIsInputFieldOpen(false);
-                            setInputFieldValue("");
-                        }, disabled: !isInputFieldOpen, autoFocus: isInputFieldOpen, value: inputFieldValue })),
-                react.createElement(NewCollectionButton, { onMouseUp: () => {
-                        setIsInputFieldOpen(!isInputFieldOpen);
-                    }, isInputOpen: isInputFieldOpen, parentRef: inputFieldParentRef })),
-            react.createElement("div", { ref: collectionMenuRef, className: collectionMenuClasses }, isCollectionMenuOpen && (react.createElement("ul", null,
-                react.createElement(CollectionMenuOption, { key: selectedCollection, name: selectedCollection, isFirst: true, onMouseUp: () => {
-                        setCollectionName(selectedCollection);
-                        setIsCollectionMenuOpen(false);
-                    } }),
-                Array.from(collectionOptions)
-                    .filter((name) => name !== selectedCollection)
-                    .map((name, index) => {
-                    return (react.createElement(CollectionMenuOption, { key: name, name: name, isLast: collectionOptions.size - 2 === index, onMouseUp: () => {
-                            setCollectionName(name);
+                                setInputFieldValue("");
+                            }, disabled: !isInputFieldOpen, autoFocus: isInputFieldOpen, value: inputFieldValue })),
+                    react.createElement(NewCollectionButton, { onMouseUp: () => {
+                            setIsInputFieldOpen(!isInputFieldOpen);
+                        }, isInputOpen: isInputFieldOpen, parentRef: inputFieldParentRef })),
+                react.createElement("div", { ref: collectionMenuRef, className: collectionMenuClasses }, isCollectionMenuOpen && (react.createElement("ul", null,
+                    react.createElement(CollectionMenuOption, { key: selectedCollection, name: selectedCollection, isFirst: true, onMouseUp: () => {
+                            setCollectionName(selectedCollection);
                             setIsCollectionMenuOpen(false);
-                        } }));
-                })))))));
+                        } }),
+                    Array.from(collectionOptions)
+                        .filter((name) => name !== selectedCollection)
+                        .map((name, index) => {
+                        return (react.createElement(CollectionMenuOption, { key: name, name: name, isLast: collectionOptions.size - 2 === index, onMouseUp: () => {
+                                setCollectionName(name);
+                                setIsCollectionMenuOpen(false);
+                            } }));
+                    }))))))));
+};
+
+const RemoveBookmarkButton = ({ onClick, isLoading, }) => {
+    const buttonClasses = "font-bold text-red-400 hover:bg-zinc-600 py-1.5 px-2 rounded-md transition";
+    return (react.createElement("div", { className: "w-full px-4 flex justify-end bg-zinc-800" },
+        react.createElement("button", { className: buttonClasses, onMouseUp: onClick }, "Remove")));
+};
+
+const BookmarkFormHeader = () => {
+    const { handleSignOut } = useSession();
+    const handleRedirectToWebsite = () => {
+        chrome.tabs.create({
+            url: "http://localhost:3000/",
+        });
+    };
+    return (react.createElement(react.Fragment, null,
+        react.createElement("div", { className: "w-full flex justify-between bg-zinc-800" },
+            react.createElement("button", { className: "\r\n            p-2\r\n            m-2\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleRedirectToWebsite },
+                react.createElement("img", { src: chrome.runtime.getURL("assets/icons/64.png"), alt: "App logo", width: "24", height: "24" })),
+            react.createElement("button", { className: "\r\n            p-2\r\n            m-2\r\n            text-lg\r\n            font-bold\r\n          text-white\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleSignOut }, "Log out"))));
+};
+
+// THIS FILE IS AUTO GENERATED
+function HiXMark (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 24 24","fill":"currentColor","aria-hidden":"true"},"child":[{"tag":"path","attr":{"fillRule":"evenodd","d":"M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z","clipRule":"evenodd"},"child":[]}]})(props);
+}function HiMiniHashtag (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 20 20","fill":"currentColor","aria-hidden":"true"},"child":[{"tag":"path","attr":{"fillRule":"evenodd","d":"M9.493 2.853a.75.75 0 00-1.486-.205L7.545 6H4.198a.75.75 0 000 1.5h3.14l-.69 5H3.302a.75.75 0 000 1.5h3.14l-.435 3.148a.75.75 0 001.486.205L7.955 14h2.986l-.434 3.148a.75.75 0 001.486.205L12.456 14h3.346a.75.75 0 000-1.5h-3.14l.69-5h3.346a.75.75 0 000-1.5h-3.14l.435-3.147a.75.75 0 00-1.486-.205L12.045 6H9.059l.434-3.147zM8.852 7.5l-.69 5h2.986l.69-5H8.852z","clipRule":"evenodd"},"child":[]}]})(props);
+}
+
+const TagButton = ({ name, onClick, }) => {
+    const [isHovered, setIsHovered] = react.useState(false);
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
+    const buttonClasses = clsx(`
+    px-1
+    py-0.5
+    rounded-md
+    border
+    border-orange-300
+    text-xs
+    text-left
+    text-center
+    text-orange-300
+    text-ellipsis
+    hover:border-red-500
+    hover:text-red-500
+    transition-colors
+    duration-150
+    flex
+    items-center`);
+    const divClasses = "h-full inline-flex justify-end items-center";
+    return (react.createElement("button", { className: buttonClasses, onMouseUp: () => onClick(name), onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave },
+        react.createElement("div", { className: divClasses }, isHovered ? react.createElement(HiXMark, null) : react.createElement(HiMiniHashtag, null)),
+        react.createElement("span", null, name)));
+};
+
+const TagSection = ({ tagFieldValue, setTagFieldValue, tagSet, setTagSet, }) => {
+    return (react.createElement("div", { className: "w-full flex bg-zinc-800" },
+        react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Tags"),
+        react.createElement("div", { className: "w-full flex flex-col mx-2" },
+            react.createElement(Input, { id: "tags", value: tagFieldValue, onChange: (event) => setTagFieldValue(event.currentTarget.value), onKeyDown: (event) => {
+                    if (event.key === "Enter") {
+                        const newTag = tagFieldValue.trim();
+                        setTagSet(new Set([...tagSet, newTag]));
+                        setTagFieldValue("");
+                        event.preventDefault();
+                    }
+                } }),
+            tagSet && tagSet.size > 0 && (react.createElement("div", { className: "flex flex-wrap w-full gap-1 mt-2" }, Array.from(tagSet).map((tagName, index) => {
+                return (react.createElement(TagButton, { key: index, name: tagName, onClick: (name) => {
+                        const updatedTagSet = new Set(tagSet);
+                        updatedTagSet.delete(name);
+                        setTagSet(updatedTagSet);
+                    } }));
+            }))))));
 };
 
 const fetchBookmark = async (userId, sessionToken, page_url) => {
@@ -3355,26 +3398,7 @@ const fetchCollections = async (userId, sessionToken) => {
     }
 };
 
-const RemoveBookmarkButton = ({ onClick, isLoading, }) => {
-    const buttonClasses = "font-bold text-red-400 hover:bg-zinc-600 py-1.5 px-2 rounded-md transition";
-    return (react.createElement("button", { className: buttonClasses, onMouseUp: onClick }, "Remove"));
-};
-
-const BookmarkFormHeader = () => {
-    const { handleSignOut } = useSession();
-    const handleRedirectToWebsite = () => {
-        chrome.tabs.create({
-            url: "http://localhost:3000/",
-        });
-    };
-    return (react.createElement(react.Fragment, null,
-        react.createElement("div", { className: "w-full flex justify-between bg-zinc-800" },
-            react.createElement("button", { className: "\r\n            p-2\r\n            m-2\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleRedirectToWebsite },
-                react.createElement("img", { src: chrome.runtime.getURL("assets/icons/64.png"), alt: "App logo", width: "24", height: "24" })),
-            react.createElement("button", { className: "\r\n            p-2\r\n            m-2\r\n            text-lg\r\n            font-bold\r\n          text-white\r\n            hover:bg-zinc-700\r\n            rounded-md\r\n            transition-colors\r\n            duration-150", onMouseUp: handleSignOut }, "Log out"))));
-};
-
-const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
+const BookmarkForm = ({ sessionRecord }) => {
     const [currentTab, setCurrentTab] = react.useState(null);
     const [bookmarkRecord, setBookmarkRecord] = react.useState(null);
     const [initialValues, setInitialValues] = react.useState(null);
@@ -3386,7 +3410,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
     const [selectedCollection, setCollectionName] = react.useState("Unsorted");
     const [collectionOptions, setCollectionOptions] = react.useState(new Set(["Unsorted"]));
     const [tagSet, setTagSet] = react.useState(new Set());
-    const [tagField, setTagField] = react.useState("");
+    const [tagFieldValue, setTagFieldValue] = react.useState("");
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
     // Parse the page to preload popup fields and gather information for DB queries
     react.useEffect(() => {
@@ -3586,27 +3610,8 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
             react.createElement(TextArea, { value: textAreaValues.note, useBackground: true, onTextChange: (value) => {
                     handleTextAreaOnChange("note", value);
                 }, onBlur: () => handleTextAreaOnBlur("note") })),
-        react.createElement("div", { className: "w-full flex bg-zinc-800" },
-            react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Collection"),
-            react.createElement(CollectionMenu, { collectionOptions: collectionOptions, selectedCollection: selectedCollection, setCollectionName: (value) => setCollectionName(value) })),
-        react.createElement("div", { className: "w-full flex bg-zinc-800" },
-            react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "Tags"),
-            react.createElement("div", { className: "w-full flex flex-col mx-2" },
-                react.createElement(Input, { id: "tags", value: tagField, onChange: (event) => setTagField(event.currentTarget.value), onKeyDown: (event) => {
-                        if (event.key === "Enter") {
-                            const newTag = tagField.trim();
-                            setTagSet(new Set([...tagSet, newTag]));
-                            setTagField("");
-                            event.preventDefault();
-                        }
-                    } }),
-                tagSet && tagSet.size > 0 && (react.createElement("div", { className: "flex flex-wrap w-full gap-1 mt-2" }, Array.from(tagSet).map((tagName, index) => {
-                    return (react.createElement(TagButton, { key: index, name: tagName, onClick: (name) => {
-                            const updatedTagSet = new Set(tagSet);
-                            updatedTagSet.delete(name);
-                            setTagSet(updatedTagSet);
-                        } }));
-                }))))),
+        react.createElement(CollectionMenu, { collectionOptions: collectionOptions, selectedCollection: selectedCollection, setCollectionName: (value) => setCollectionName(value) }),
+        react.createElement(TagSection, { tagFieldValue: tagFieldValue, setTagFieldValue: setTagFieldValue, tagSet: tagSet, setTagSet: setTagSet }),
         react.createElement("div", { className: "w-full flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 p-2 text-end bg-zinc-800" }, "URL"),
             react.createElement(TextArea, { value: textAreaValues.page_url, useBackground: true, onTextChange: (value) => {
@@ -3615,8 +3620,7 @@ const BookmarkForm = ({ sessionRecord, parentOnSignOut, }) => {
         react.createElement("div", { className: "w-full py-2 px-4 flex bg-zinc-800" },
             react.createElement("div", { className: "min-w-20 h-full flex-none bg-zinc-800" }),
             react.createElement("div", { className: "w-full h-full flex-none bg-zinc-800" }, bookmarkRecord ? ("Saved " + formatDate(bookmarkRecord?.createdAt ?? "")) : (react.createElement(react.Fragment, null, "\u00A0")))),
-        react.createElement("div", { className: "w-full px-4 flex justify-end bg-zinc-800" },
-            react.createElement(RemoveBookmarkButton, { onClick: handleRemoveBookmark })),
+        react.createElement(RemoveBookmarkButton, { onClick: handleRemoveBookmark }),
         react.createElement(Footer, null)));
 };
 
@@ -3652,7 +3656,7 @@ const AuthForm = () => {
 
 const AuthenticatedApp = () => {
     const session = useSession();
-    return (react.createElement("div", null, session.isAuthenticated ? (react.createElement(BookmarkForm, { key: session.isAuthenticated.toString(), sessionRecord: session.sessionRecord, parentOnSignOut: session.handleSignOut })) : (react.createElement(AuthForm, null))));
+    return (react.createElement("div", null, session.isAuthenticated ? (react.createElement(BookmarkForm, { key: session.isAuthenticated.toString(), sessionRecord: session.sessionRecord })) : (react.createElement(AuthForm, null))));
 };
 
 const App = () => {
