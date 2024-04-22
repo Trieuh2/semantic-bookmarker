@@ -72,7 +72,7 @@ const AuthForm = () => {
 
         if (callback?.error) {
         } else if (callback?.ok) {
-          router.push("/collections");
+          router.push("/bookmarks");
         }
       } catch (error) {
         console.error("Error during registration:", error);
