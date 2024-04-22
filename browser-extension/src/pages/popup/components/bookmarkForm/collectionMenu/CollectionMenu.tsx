@@ -53,8 +53,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
   const collectionMenuClasses = clsx(
     `
     absolute 
-    left-0 
-    top-0 
+    left-0
+    top-0
     z-20
     mx-2
     rounded-md
@@ -65,7 +65,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     scrollbarClasses,
     isCollectionMenuOpen
       ? "ring-2 ring-orange-300 opacity-100"
-      : "ring-2 ring-transparent opacity-0"
+      : "ring-2 ring-transparent opacity-0 pointer-events-none"
   );
 
   return (
@@ -73,6 +73,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
       <div className="min-w-20 p-2 text-end bg-zinc-800">Collection</div>
       <div className="flex flex-col w-full justify-center text-start bg-zinc-800">
         <div className="relative">
+          {/* Input field for a new Collection name */}
           <div className="flex w-full relative" ref={inputFieldParentRef}>
             <CollectionButton
               name={selectedCollection}
@@ -82,7 +83,6 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
               isInputFieldOpen={isInputFieldOpen}
             />
 
-            {/* Input field for a new Collection name */}
             <div
               className={clsx(
                 "absolute w-full px-2 transition-opacity",
@@ -125,34 +125,32 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
           </div>
 
           <div ref={collectionMenuRef} className={collectionMenuClasses}>
-            {isCollectionMenuOpen && (
-              <ul>
-                <CollectionMenuOption
-                  key={selectedCollection}
-                  name={selectedCollection}
-                  isFirst={true}
-                  onMouseUp={() => {
-                    setCollectionName(selectedCollection);
-                    setIsCollectionMenuOpen(false);
-                  }}
-                />
-                {Array.from(collectionOptions)
-                  .filter((name) => name !== selectedCollection)
-                  .map((name, index) => {
-                    return (
-                      <CollectionMenuOption
-                        key={name}
-                        name={name}
-                        isLast={collectionOptions.size - 2 === index}
-                        onMouseUp={() => {
-                          setCollectionName(name);
-                          setIsCollectionMenuOpen(false);
-                        }}
-                      />
-                    );
-                  })}
-              </ul>
-            )}
+            <ul>
+              <CollectionMenuOption
+                key={selectedCollection}
+                name={selectedCollection}
+                isFirst={true}
+                onMouseUp={() => {
+                  setCollectionName(selectedCollection);
+                  setIsCollectionMenuOpen(false);
+                }}
+              />
+              {Array.from(collectionOptions)
+                .filter((name) => name !== selectedCollection)
+                .map((name, index) => {
+                  return (
+                    <CollectionMenuOption
+                      key={name}
+                      name={name}
+                      isLast={collectionOptions.size - 2 === index}
+                      onMouseUp={() => {
+                        setCollectionName(name);
+                        setIsCollectionMenuOpen(false);
+                      }}
+                    />
+                  );
+                })}
+            </ul>
           </div>
         </div>
       </div>

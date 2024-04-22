@@ -43,7 +43,8 @@ const Input: React.FC<InputProps> = ({
     focus:ring-2
     focus:ring-orange-300
     focus:bg-transparent
-    transition`
+    transition`,
+    disabled && "pointer-events-none"
   );
 
   // Effect to handle focusing logic based on autoFocus prop
@@ -64,7 +65,6 @@ const Input: React.FC<InputProps> = ({
         onKeyDown={onKeyDown}
         onBlur={onBlur}
         value={value}
-        disabled={disabled}
         autoFocus={autoFocus}
       ></input>
     </div>
