@@ -62,8 +62,7 @@ const Sidebar: React.FC = React.memo(() => {
     <div className={sidebarClasses}>
       {/* Static SidebarItems */}
       <SidebarItem href="/home/" label="All bookmarks" icon={IoIosBookmarks} />
-      <SidebarItem href="/home/" label="Unsorted" icon={FaBoxArchive} />
-      <SidebarItem href="/home/" label="Trash" icon={FaTrashAlt} />
+      <SidebarItem href="/home/collections/unsorted" label="Unsorted" icon={FaBoxArchive} />
 
       {/* Collections */}
       <SidebarGroup name="Collections" count={collections.length}>

@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { IconType } from "react-icons";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
 interface SidebarItemProps {
   href: string;
@@ -13,7 +15,11 @@ interface SidebarItemProps {
 
 const SidebarItem: React.FC<SidebarItemProps> = React.memo(
   ({ href, label, icon: Icon, count }) => {
-    const linkContainerClasses = `
+    const pathname = usePathname();
+    const isActive = pathname === href;
+
+    const linkContainerClasses = clsx(
+      `
       flex
       w-full
       items-center
@@ -21,9 +27,11 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       px-4
       gap-x-2
       text-stone-200
-      hover:bg-neutral-700
       transition-colors
-      duration-100`;
+      duration-100`,
+      isActive && "bg-neutral-600",
+      !isActive && "hover:bg-neutral-700"
+    );
     const iconClasses = "flex-shrink-0 fill-orange-500";
     const labelClasses = "flex-grow text-sm leading-6 truncate overflow-hidden";
     const countLabelClasses = "text-end text-xs text-gray-500 font-semibold";
