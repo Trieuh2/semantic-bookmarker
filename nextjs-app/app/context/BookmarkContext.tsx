@@ -1,11 +1,15 @@
 import { Collection, Tag } from "@prisma/client";
 import axios from "axios";
-import { getSession } from "next-auth/react";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useAuth } from "./AuthContext";
 
 interface BookmarkContextType {
-  userId: string;
-  sessionToken: string;
   collections: Collection[];
   setCollections: (collections: Collection[]) => void;
   tags: Tag[];
@@ -19,27 +23,10 @@ const BookmarkContext = createContext<BookmarkContextType | undefined>(
 export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [userId, setUserId] = useState<string>("");
-  const [sessionToken, setSessionToken] = useState<string>("");
   // const [bookmarks, setBookmarks] = useState<Bookmark[] | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-
-  // Fetch session
-  useEffect(() => {
-    const fetchSession = async () => {
-      const nextAuthSession = await getSession();
-      if (
-        nextAuthSession &&
-        nextAuthSession.sessionToken &&
-        nextAuthSession.userId
-      ) {
-        setUserId(nextAuthSession.userId);
-        setSessionToken(nextAuthSession.sessionToken);
-      }
-    };
-    fetchSession();
-  }, []);
+  const { userId, sessionToken } = useAuth();
 
   // Fetch collections and tags
   useEffect(() => {
@@ -89,17 +76,18 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [userId, sessionToken]);
 
+  const value = useMemo(
+    () => ({
+      collections,
+      setCollections,
+      tags,
+      setTags,
+    }),
+    [collections, tags]
+  );
+
   return (
-    <BookmarkContext.Provider
-      value={{
-        userId,
-        sessionToken,
-        collections,
-        setCollections,
-        tags,
-        setTags,
-      }}
-    >
+    <BookmarkContext.Provider value={value}>
       {children}
     </BookmarkContext.Provider>
   );
