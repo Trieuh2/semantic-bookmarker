@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import AuthSocialButton from "./AuthSocialButton";
 import { BsGoogle } from "react-icons/bs";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Input from "@/app/components/inputs/Input";
 import Button from "@/app/components/Button";
@@ -15,9 +15,16 @@ import axios from "axios";
 type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm = () => {
+  const session = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [variant, setVariant] = useState<Variant>("LOGIN");
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/bookmark");
+    }
+  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     setVariant(variant === "LOGIN" ? "REGISTER" : "LOGIN");
@@ -72,7 +79,7 @@ const AuthForm = () => {
 
         if (callback?.error) {
         } else if (callback?.ok) {
-          router.push("/bookmarks");
+          router.push("/bookmark");
         }
       } catch (error) {
         console.error("Error during registration:", error);
