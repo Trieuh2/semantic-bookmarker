@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useMemo } from "react";
 import { IoIosBookmarks, IoIosFolder } from "react-icons/io";
 import { FaTrashAlt } from "react-icons/fa";
 import { FaBoxArchive } from "react-icons/fa6";
@@ -8,8 +10,34 @@ import clsx from "clsx";
 import SidebarGroup from "./SidebarGroup";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC = React.memo(() => {
   const { collections, tags } = useBookmarks();
+
+  const collectionItems = useMemo(
+    () =>
+      collections.map((collection) => (
+        <SidebarItem
+          key={collection.id}
+          href={`/home/collections/${collection.id}`}
+          label={collection.name}
+          icon={IoIosFolder}
+        />
+      )),
+    [collections]
+  );
+
+  const tagItems = useMemo(
+    () =>
+      tags.map((tag) => (
+        <SidebarItem
+          key={tag.id}
+          href={`/home/tags/${tag.id}`}
+          label={tag.name}
+          icon={HiHashtag}
+        />
+      )),
+    [tags]
+  );
 
   const scrollbarClasses = `
     overflow-y-scroll
@@ -33,45 +61,21 @@ const Sidebar: React.FC = () => {
   return (
     <div className={sidebarClasses}>
       {/* Static SidebarItems */}
-      <SidebarItem
-        href="/bookmarks"
-        label="All bookmarks"
-        icon={IoIosBookmarks}
-      />
-      <SidebarItem href="/unsorted" label="Unsorted" icon={FaBoxArchive} />
-      <SidebarItem href="/trash" label="Trash" icon={FaTrashAlt} />
+      <SidebarItem href="/home/" label="All bookmarks" icon={IoIosBookmarks} />
+      <SidebarItem href="/home/" label="Unsorted" icon={FaBoxArchive} />
+      <SidebarItem href="/home/" label="Trash" icon={FaTrashAlt} />
 
       {/* Collections */}
-      <SidebarGroup name="Collections" count={collections?.length}>
-        <div>
-          {collections &&
-            collections.map((collection) => (
-              <SidebarItem
-                key={collection.id}
-                href={`/collection/${collection.id}`}
-                label={collection.name}
-                icon={IoIosFolder}
-              />
-            ))}
-        </div>
+      <SidebarGroup name="Collections" count={collections.length}>
+        <div>{collectionItems}</div>
       </SidebarGroup>
 
       {/* Tags */}
-      <SidebarGroup name="Tags" count={collections?.length}>
-        <div>
-          {tags &&
-            tags.map((tag) => (
-              <SidebarItem
-                key={tag.id}
-                href={`/tag/${tag.id}`}
-                label={tag.name}
-                icon={HiHashtag}
-              />
-            ))}
-        </div>
+      <SidebarGroup name="Tags" count={tags.length}>
+        <div>{tagItems}</div>
       </SidebarGroup>
     </div>
   );
-};
+});
 
 export default Sidebar;

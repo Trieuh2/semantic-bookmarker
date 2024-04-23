@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession, signOut } from "next-auth/react";
+import { getSession, signOut, SessionProvider } from "next-auth/react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 interface AuthContextType {
@@ -47,7 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     [userId, sessionToken]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <SessionProvider session={undefined}>
+      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    </SessionProvider>
+  );
 };
 
 export const useAuth = () => {

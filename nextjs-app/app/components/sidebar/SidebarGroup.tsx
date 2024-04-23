@@ -1,5 +1,7 @@
+"use client";
+
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 interface SidebarGroupProps {
   name: string;
@@ -7,15 +9,12 @@ interface SidebarGroupProps {
   children: React.ReactNode;
 }
 
-const SidebarGroup: React.FC<SidebarGroupProps> = ({
-  name,
-  count,
-  children,
-}) => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const labelName = count ? name + " (" + count.toString() + ")" : name;
+const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
+  ({ name, count, children }) => {
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+    const labelName = count ? name + " (" + count.toString() + ")" : name;
 
-  const divClasses = clsx(`
+    const divClasses = clsx(`
     flex
     w-full
     items-center
@@ -25,19 +24,24 @@ const SidebarGroup: React.FC<SidebarGroupProps> = ({
     hover:cursor-pointer
   `);
 
-  const labelClasses = `
+    const labelClasses = `
     flex-grow
     text-stone-400
     text-sm`;
 
-  return (
-    <div>
-      <div className={divClasses} onClick={() => setIsCollapsed(!isCollapsed)}>
-        <span className={labelClasses}>{labelName}</span>
+    const handleGroupClick = useCallback(() => {
+      setIsCollapsed((prevState) => !prevState);
+    }, []);
+
+    return (
+      <div>
+        <div className={divClasses} onClick={handleGroupClick}>
+          <span className={labelClasses}>{labelName}</span>
+        </div>
+        {!isCollapsed && <>{children}</>}
       </div>
-      {!isCollapsed && <>{children}</>}
-    </div>
-  );
-};
+    );
+  }
+);
 
 export default SidebarGroup;

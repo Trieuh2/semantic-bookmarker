@@ -22,7 +22,7 @@ const AuthForm = () => {
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push("/bookmark");
+      router.push("/home");
     }
   }, [session?.status, router]);
 
@@ -79,7 +79,7 @@ const AuthForm = () => {
 
         if (callback?.error) {
         } else if (callback?.ok) {
-          router.push("/bookmark");
+          router.push("/home");
         }
       } catch (error) {
         console.error("Error during registration:", error);

@@ -1,7 +1,10 @@
+"use client";
+
 import { Collection, Tag } from "@prisma/client";
 import axios from "axios";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -28,53 +31,47 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tags, setTags] = useState<Tag[]>([]);
   const { userId, sessionToken } = useAuth();
 
-  // Fetch collections and tags
-  useEffect(() => {
+  const fetchCollections = useCallback(async () => {
     if (userId && sessionToken) {
-      const fetchCollections = async () => {
-        try {
-          const params = {
-            userId: userId,
-            sessionToken: sessionToken,
-          };
-          const axiosResponse = await axios.get(
-            "http://localhost:3000/api/collection/",
-            { params }
+      try {
+        const params = { userId, sessionToken };
+        const axiosResponse = await axios.get(
+          "http://localhost:3000/api/collection/",
+          { params }
+        );
+        if (axiosResponse.status === 200) {
+          const apiData = axiosResponse.data.data as Collection[];
+          setCollections(
+            apiData.filter((collection) => collection.name != "Unsorted")
           );
-
-          if (axiosResponse.status === 200) {
-            const apiData = axiosResponse.data.data as Collection[];
-            const filteredCollections = apiData.filter(
-              (collection: Collection) => collection.name != "Unsorted"
-            );
-            setCollections(filteredCollections);
-          }
-        } catch (error) {
-          console.log(error);
         }
-      };
-      const fetchTags = async () => {
-        try {
-          const params = {
-            userId: userId,
-            sessionToken: sessionToken,
-          };
-          const axiosResponse = await axios.get(
-            "http://localhost:3000/api/tag/",
-            { params }
-          );
-
-          if (axiosResponse.status === 200) {
-            setTags(axiosResponse.data.data);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      fetchCollections();
-      fetchTags();
+      } catch (error) {
+        console.log(error);
+      }
     }
   }, [userId, sessionToken]);
+
+  const fetchTags = useCallback(async () => {
+    if (userId && sessionToken) {
+      try {
+        const params = { userId, sessionToken };
+        const axiosResponse = await axios.get(
+          "http://localhost:3000/api/tag/",
+          { params }
+        );
+        if (axiosResponse.status === 200) {
+          setTags(axiosResponse.data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, [userId, sessionToken]);
+
+  useEffect(() => {
+    fetchCollections();
+    fetchTags();
+  }, [fetchCollections, fetchTags]);
 
   const value = useMemo(
     () => ({
