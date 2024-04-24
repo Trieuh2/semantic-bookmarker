@@ -33,6 +33,9 @@ const getBookmarksFromCollection = async (
     include: {
       tagToBookmarks: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return bookmarks;
