@@ -81,9 +81,9 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
   `;
 
   return (
-    <a href={data.page_url} target="_blank">
-      <div
-        className="
+    <div
+      className="
+        relative
         flex
         flex-col
         grow-0
@@ -92,56 +92,61 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
         hover:bg-neutral-700
         hover:cursor-pointer
       "
-      >
-        {/* Top Divider */}
-        <div className={dividerClasses} />
-        <div className={mainContainerClasses}>
-          {/* Title */}
-          <div className={titleClasses}>{data.title}</div>
+    >
+      <a
+        className="absolute inset-0"
+        href={data.page_url}
+        target="_blank"
+      />
 
-          {/* Tags */}
-          {data.tagToBookmarks && (
-            <div className={tagsClasses}>
-              {data.tagToBookmarks.map((tagToBookmark) => {
-                const tagLink = "/home/tags/" + tagToBookmark.tagId;
-                return (
-                  <Link
-                    key={tagToBookmark.tagId}
-                    href={tagLink}
-                    className="flex hover:underline items-center"
-                  >
-                    <TbHash />
-                    {tagToBookmark.tag_name}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+      {/* Top Divider */}
+      <div className={dividerClasses} />
+      <div className={mainContainerClasses}>
+        {/* Title */}
+        <span className={titleClasses}>{data.title}</span>
 
-          {/* Information Container */}
-          <div className={infoContainerClasses}>
-            {/* Collection */}
-            <Link
-              href={`/home/collections/${encodeURIComponent(
-                data.collection_name.toLowerCase()
-              )}`}
-              className="hover:underline"
-            >
-              <span className="flex gap-2 items-center">
-                <IoIosFolder />
-                {data.collection_name}
-              </span>
-            </Link>
-            <span>·</span>
-            {/* Page URL */}
-            <span>{formatPageUrl(data.page_url)}</span>
-            <span>·</span>
-            {/* Friendly Date */}
-            <span>{formatDate(data.createdAt)}</span>
+        {/* Tags */}
+        {data.tagToBookmarks && (
+          <div className={tagsClasses}>
+            {data.tagToBookmarks.map((tagToBookmark) => {
+              const tagLink = "/home/tags/" + tagToBookmark.tagId;
+              return (
+                <Link
+                  key={tagToBookmark.tagId}
+                  href={tagLink}
+                  className="flex hover:underline items-center z-10"
+                >
+                  <TbHash />
+                  {tagToBookmark.tag_name}
+                </Link>
+              );
+            })}
           </div>
+        )}
+
+        {/* Information Container */}
+        <div className={infoContainerClasses}>
+          {/* Collection */}
+          <Link
+            href={`/home/collections/${encodeURIComponent(
+              data.collection_name.toLowerCase()
+            )}`}
+            className="hover:underline z-10"
+          >
+            <span className="flex gap-2 items-center">
+              <IoIosFolder />
+              {data.collection_name}
+            </span>
+          </Link>
+          <span>·</span>
+          {/* Page URL */}
+          <span>{formatPageUrl(data.page_url)}</span>
+          <span>·</span>
+          {/* Friendly Date */}
+          <span>{formatDate(data.createdAt)}</span>
         </div>
       </div>
-    </a>
+    </div>
   );
 };
 
