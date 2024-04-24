@@ -1,5 +1,9 @@
-import { Bookmark, Collection } from "@prisma/client";
+import { Bookmark, Collection, TagToBookmark } from "@prisma/client";
 
 export type FullCollectionType = Collection & {
   bookmarks: Bookmark[];
+};
+
+export type FullBookmarkType = Bookmark & {
+  tagToBookmarks: TagToBookmark[]
 };

@@ -22,7 +22,7 @@ const AuthForm = () => {
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push("/home");
+      router.push("/home/bookmarks");
     }
   }, [session?.status, router]);
 

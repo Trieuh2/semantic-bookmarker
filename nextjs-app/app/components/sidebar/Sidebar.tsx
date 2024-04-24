@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import { IoIosBookmarks, IoIosFolder } from "react-icons/io";
-import { FaTrashAlt } from "react-icons/fa";
 import { FaBoxArchive } from "react-icons/fa6";
 import { HiHashtag } from "react-icons/hi";
 import SidebarItem from "./SidebarItem";
@@ -18,7 +17,9 @@ const Sidebar: React.FC = React.memo(() => {
       collections.map((collection) => (
         <SidebarItem
           key={collection.id}
-          href={`/home/collections/${collection.id}`}
+          href={`/home/collections/${encodeURIComponent(
+            collection.name.toLowerCase()
+          )}`}
           label={collection.name}
           icon={IoIosFolder}
         />
@@ -49,7 +50,11 @@ const Sidebar: React.FC = React.memo(() => {
   const sidebarClasses = clsx(
     `
     h-full
-    w-80
+    flex
+    flex-col
+    shrink-0
+    grow-0
+    w-72
     bg-neutral-800
     border-r
     border-neutral-700
@@ -61,8 +66,16 @@ const Sidebar: React.FC = React.memo(() => {
   return (
     <div className={sidebarClasses}>
       {/* Static SidebarItems */}
-      <SidebarItem href="/home/" label="All bookmarks" icon={IoIosBookmarks} />
-      <SidebarItem href="/home/collections/unsorted" label="Unsorted" icon={FaBoxArchive} />
+      <SidebarItem
+        href="/home/bookmarks"
+        label="All bookmarks"
+        icon={IoIosBookmarks}
+      />
+      <SidebarItem
+        href="/home/collections/unsorted"
+        label="Unsorted"
+        icon={FaBoxArchive}
+      />
 
       {/* Collections */}
       <SidebarGroup name="Collections" count={collections.length}>

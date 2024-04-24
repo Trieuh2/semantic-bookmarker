@@ -4,6 +4,7 @@ import deleteBookmark from "@/app/actions/bookmarkActions/deleteBookmark";
 import addBookmark from "@/app/actions/bookmarkActions/addBookmark";
 import { handleError } from "@/app/utils/errorHandler";
 import { updateBookmark } from "@/app/actions/bookmarkActions/updateBookmark";
+import getAllBookmarks from "@/app/actions/bookmarkActions/getAllBookmarks";
 
 export async function GET(request: Request) {
   try {
@@ -12,9 +13,11 @@ export async function GET(request: Request) {
     const sessionToken = url.searchParams.get("sessionToken") ?? "";
     const page_url = url.searchParams.get("page_url") ?? "";
 
-    const bookmark = await getBookmark(userId, sessionToken, page_url);
+    const data = page_url
+      ? await getBookmark(userId, sessionToken, page_url)
+      : await getAllBookmarks(userId, sessionToken);
 
-    return NextResponse.json({ success: true, data: bookmark });
+    return NextResponse.json({ success: true, data: data });
   } catch (error) {
     return handleError(error as Error);
   }
