@@ -5,6 +5,25 @@ import addBookmark from "@/app/actions/bookmarkActions/addBookmark";
 import { handleError } from "@/app/utils/errorHandler";
 import { updateBookmark } from "@/app/actions/bookmarkActions/updateBookmark";
 import getAllBookmarks from "@/app/actions/bookmarkActions/getAllBookmarks";
+import getBookmarksFromCollection from "@/app/actions/bookmarkActions/getBookmarksFromCollection";
+
+export async function fetchData(
+  userId: string,
+  sessionToken: string,
+  page_url: string,
+  collection_name: string
+) {
+  if (collection_name !== "") {
+    return await getBookmarksFromCollection(
+      userId,
+      sessionToken,
+      collection_name
+    );
+  } else if (page_url) {
+    return await getBookmark(userId, sessionToken, page_url);
+  }
+  return await getAllBookmarks(userId, sessionToken);
+}
 
 export async function GET(request: Request) {
   try {
@@ -12,10 +31,14 @@ export async function GET(request: Request) {
     const userId = url.searchParams.get("userId") ?? "";
     const sessionToken = url.searchParams.get("sessionToken") ?? "";
     const page_url = url.searchParams.get("page_url") ?? "";
+    const collection_name = url.searchParams.get("collection_name") ?? "";
 
-    const data = page_url
-      ? await getBookmark(userId, sessionToken, page_url)
-      : await getAllBookmarks(userId, sessionToken);
+    const data = await fetchData(
+      userId,
+      sessionToken,
+      page_url,
+      collection_name
+    );
 
     return NextResponse.json({ success: true, data: data });
   } catch (error) {

@@ -18,7 +18,7 @@ const Sidebar: React.FC = React.memo(() => {
         <SidebarItem
           key={collection.id}
           href={`/home/collections/${encodeURIComponent(
-            collection.name.toLowerCase()
+            collection.name
           )}`}
           label={collection.name}
           icon={IoIosFolder}

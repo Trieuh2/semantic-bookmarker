@@ -129,7 +129,7 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
           {/* Collection */}
           <Link
             href={`/home/collections/${encodeURIComponent(
-              data.collection_name.toLowerCase()
+              data.collection_name
             )}`}
             className="hover:underline z-10"
           >
