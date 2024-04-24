@@ -12,26 +12,27 @@ interface APIResponse<T> {
 }
 
 const apiFetchBookmark = async (
-  userId: string,
   sessionToken: string,
   page_url: string
 ): Promise<APIResponse<Bookmark> | null> => {
-  if (!userId || !sessionToken || !page_url) {
+  if (!sessionToken || !page_url) {
     throw new Error(
-      "All parameters (userId, sessionToken, page_url) are required"
+      "All parameters (sessionToken, page_url) are required"
     );
   }
 
   const base_url = "http://localhost:3000/api/bookmark";
   const params = {
-    userId: userId,
-    sessionToken: sessionToken,
     page_url: page_url,
   };
   const queryString = new URLSearchParams(params).toString();
   const url = `${base_url}?${queryString}`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${sessionToken}`
+    }
+  });
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`);
   }

@@ -5,22 +5,17 @@ import {
 } from "./apiActions/bookmarkAPI";
 
 export const fetchBookmark = async (
-  userId: string,
   sessionToken: string,
   page_url: string
 ) => {
   try {
-    const response = await apiFetchBookmark(userId, sessionToken, page_url);
+    const response = await apiFetchBookmark(sessionToken, page_url);
     if (response && response.success) {
       return response.data;
     } else {
       return null;
     }
   } catch (error) {
-    // console.error(
-    //   "Error fetching bookmark record:",
-    //   error instanceof Error ? error.message : "An unexpected error occurred"
-    // );
     return null;
   }
 };

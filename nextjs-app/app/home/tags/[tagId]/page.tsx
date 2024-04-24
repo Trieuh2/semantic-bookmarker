@@ -26,13 +26,15 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
         const base_url = "http://localhost:3000/api/bookmark";
         const tagId = fetchTagIdFromPath();
         const params = {
-          userId: userId,
-          sessionToken: sessionToken,
           tagId: tagId,
         };
         const queryString = new URLSearchParams(params).toString();
         const url = `${base_url}?${queryString}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        });
 
         if (response.status === 200) {
           const responseBody = await response.json();

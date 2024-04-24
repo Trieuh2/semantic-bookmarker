@@ -2,15 +2,15 @@ import prisma from "@/app/libs/prismadb";
 import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import { CollectionWithBookmarkCount } from "@/app/types";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const getAllCollections = async (
-  userId: string,
   sessionToken: string
 ): Promise<CollectionWithBookmarkCount[]> => {
   // Validate fields
-  if (!sessionToken || !userId) {
+  if (!sessionToken) {
     throw new BadRequestError(
-      "Error fetching collections. Missing required fields: userId, sessionToken"
+      "Error fetching collections. Missing required fields: sessionToken"
     );
   }
 
@@ -21,6 +21,9 @@ const getAllCollections = async (
       "Error fetching collections. Invalid or expired session."
     );
   }
+  
+  // Retrieve userId from sessionToken
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Fetch Collections
   const collections = await prisma.collection.findMany({
@@ -33,12 +36,6 @@ const getAllCollections = async (
       },
     },
   });
-
-  // if (!collections) {
-  //   throw new NotFoundError(
-  //     "Error fetching collections. No collections found."
-  //   );
-  // }
 
   return collections;
 };

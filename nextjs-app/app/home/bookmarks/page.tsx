@@ -11,20 +11,19 @@ const BookmarksPage: React.FC<BookmarksPageProps> = () => {
   const [initialItems, setInitialItems] = useState<FullBookmarkType[] | null>(
     []
   );
-  const { userId, sessionToken } = useAuth();
+  const { sessionToken } = useAuth();
 
   // Fetch the Bookmark records
   useEffect(() => {
-    if (userId && sessionToken) {
+    if (sessionToken) {
       const fetchBookmarks = async () => {
-        const base_url = "http://localhost:3000/api/bookmark";
-        const params = {
-          userId: userId,
-          sessionToken: sessionToken,
-        };
-        const queryString = new URLSearchParams(params).toString();
-        const url = `${base_url}?${queryString}`;
-        const response = await fetch(url);
+        const url = "http://localhost:3000/api/bookmark";
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        });
 
         if (response.status === 200) {
           const responseBody = await response.json();
@@ -33,7 +32,7 @@ const BookmarksPage: React.FC<BookmarksPageProps> = () => {
       };
       fetchBookmarks();
     }
-  }, [userId, sessionToken]);
+  }, [sessionToken]);
 
   return (
     <>

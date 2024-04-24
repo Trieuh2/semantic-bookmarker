@@ -83,11 +83,10 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
   useEffect(() => {
     if (!bookmarkRecord && !initialFetchAttempted && currentTab) {
       const fetchBookmarkRecord = async () => {
-        const userId = sessionRecord?.userId ?? "";
         const sessionToken = sessionRecord?.sessionToken ?? "";
         const page_url = currentTab?.url ?? "";
 
-        const bookmark = await fetchBookmark(userId, sessionToken, page_url);
+        const bookmark = await fetchBookmark(sessionToken, page_url);
 
         if (bookmark) {
           setBookmarkRecord(bookmark);
@@ -117,7 +116,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
       const fetchCollectionOptions = async () => {
         try {
           const response = await fetchCollections(
-            sessionRecord.userId,
             sessionRecord.sessionToken
           );
 

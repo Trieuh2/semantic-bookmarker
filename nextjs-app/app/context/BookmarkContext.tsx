@@ -30,15 +30,18 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
   const [tags, setTags] = useState<TagWithBookmarkCount[]>([]);
-  const { userId, sessionToken } = useAuth();
+  const { sessionToken } = useAuth();
 
   const fetchCollections = useCallback(async () => {
-    if (userId && sessionToken) {
+    if (sessionToken) {
       try {
-        const params = { userId, sessionToken };
         const axiosResponse = await axios.get(
           "http://localhost:3000/api/collection/",
-          { params }
+          {
+            headers: {
+              Authorization: `Bearer ${sessionToken}`,
+            },
+          }
         );
         if (axiosResponse.status === 200) {
           const apiData = axiosResponse.data
@@ -51,15 +54,18 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(error);
       }
     }
-  }, [userId, sessionToken]);
+  }, [sessionToken]);
 
   const fetchTags = useCallback(async () => {
-    if (userId && sessionToken) {
+    if (sessionToken) {
       try {
-        const params = { userId, sessionToken };
         const axiosResponse = await axios.get(
           "http://localhost:3000/api/tag/",
-          { params }
+          {
+            headers: {
+              Authorization: `Bearer ${sessionToken}`,
+            },
+          }
         );
         if (axiosResponse.status === 200) {
           setTags(axiosResponse.data.data);
@@ -68,7 +74,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(error);
       }
     }
-  }, [userId, sessionToken]);
+  }, [sessionToken]);
 
   useEffect(() => {
     fetchCollections();

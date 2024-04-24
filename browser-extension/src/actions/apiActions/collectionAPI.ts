@@ -12,21 +12,18 @@ interface APIResponse<T> {
 }
 
 const apiFetchCollections = async (
-  userId: string,
   sessionToken: string
 ): Promise<APIResponse<Collection[]> | null> => {
-  if (!userId || !sessionToken) {
-    throw new Error("All parameters (userId, sessionToken) are required");
+  if (!sessionToken) {
+    throw new Error("Error fetching collections. Missing sessionToken");
   }
 
-  const base_url = "http://localhost:3000/api/collection";
-  const params = {
-    userId: userId,
-    sessionToken: sessionToken,
-  };
-  const queryString = new URLSearchParams(params).toString();
-  const url = `${base_url}?${queryString}`;
-  const response = await fetch(url);
+  const url = "http://localhost:3000/api/collection";
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);

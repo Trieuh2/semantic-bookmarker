@@ -29,13 +29,15 @@ const CollectionsDetailedPage: React.FC<
         const base_url = "http://localhost:3000/api/bookmark";
         const collection_name = fetchCollectionNameFromPath();
         const params = {
-          userId: userId,
-          sessionToken: sessionToken,
           collection_name: collection_name,
         };
         const queryString = new URLSearchParams(params).toString();
         const url = `${base_url}?${queryString}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        });
 
         if (response.status === 200) {
           const responseBody = await response.json();

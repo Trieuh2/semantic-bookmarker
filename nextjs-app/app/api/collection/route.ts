@@ -5,11 +5,10 @@ import { createCollection } from "@/app/actions/collectionActions/createCollecti
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
-    const userId = url.searchParams.get("userId") ?? "";
-    const sessionToken = url.searchParams.get("sessionToken") ?? "";
-
-    const collections = await getAllCollections(userId, sessionToken);
+    // Retrieve sessionToken from the Authorization header
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+    const collections = await getAllCollections(sessionToken);
 
     return NextResponse.json({ success: true, data: collections });
   } catch (error) {

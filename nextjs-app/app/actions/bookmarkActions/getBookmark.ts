@@ -6,16 +6,16 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../libs/errors";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const getBookmark = async (
-  userId: string,
   sessionToken: string,
   page_url: string
 ): Promise<Bookmark | null> => {
   // Validate fields
-  if (!userId || !sessionToken || !page_url) {
+  if (!sessionToken || !page_url) {
     throw new BadRequestError(
-      "Error fetching Bookmark record. Missing required fields (userId, sessionToken, page_url)"
+      "Error fetching Bookmark record. Missing required fields (sessionToken, page_url)"
     );
   }
 
@@ -26,6 +26,9 @@ const getBookmark = async (
       "Error fetching Bookmark record. Invalid or expired session."
     );
   }
+
+  // Retrieve userId from sessionToken
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Fetch Bookmark
   const bookmark = await prisma.bookmark.findFirst({

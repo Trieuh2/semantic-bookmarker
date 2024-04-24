@@ -9,37 +9,34 @@ import getBookmarksFromCollection from "@/app/actions/bookmarkActions/getBookmar
 import getBookmarksFromTagId from "@/app/actions/bookmarkActions/getBookmarksFromTagId";
 
 export async function fetchData(
-  userId: string,
   sessionToken: string,
   page_url: string,
   collection_name: string,
   tagId: string
 ) {
-  if (collection_name !== "") {
+  if (collection_name) {
     return await getBookmarksFromCollection(
-      userId,
       sessionToken,
       collection_name
     );
   } else if (page_url) {
-    return await getBookmark(userId, sessionToken, page_url);
+    return await getBookmark(sessionToken, page_url);
   } else if (tagId) {
-    return await getBookmarksFromTagId(userId, sessionToken, tagId);
+    return await getBookmarksFromTagId(sessionToken, tagId);
   }
-  return await getAllBookmarks(userId, sessionToken);
+  return await getAllBookmarks(sessionToken);
 }
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const userId = url.searchParams.get("userId") ?? "";
-    const sessionToken = url.searchParams.get("sessionToken") ?? "";
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
     const page_url = url.searchParams.get("page_url") ?? "";
     const collection_name = url.searchParams.get("collection_name") ?? "";
     const tagId = url.searchParams.get("tagId") ?? "";
 
     const data = await fetchData(
-      userId,
       sessionToken,
       page_url,
       collection_name,

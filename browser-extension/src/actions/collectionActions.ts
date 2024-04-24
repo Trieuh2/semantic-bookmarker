@@ -1,11 +1,10 @@
 import apiFetchCollections from "./apiActions/collectionAPI";
 
 export const fetchCollections = async (
-  userId: string,
   sessionToken: string
 ) => {
   try {
-    const response = await apiFetchCollections(userId, sessionToken);
+    const response = await apiFetchCollections(sessionToken);
 
     if (response && response.success) {
       return response.data;

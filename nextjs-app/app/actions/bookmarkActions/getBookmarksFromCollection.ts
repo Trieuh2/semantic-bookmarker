@@ -2,16 +2,16 @@ import prisma from "@/app/libs/prismadb";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import { FullBookmarkType } from "@/app/types";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const getBookmarksFromCollection = async (
-  userId: string,
   sessionToken: string,
   collection_name: string
 ): Promise<FullBookmarkType[] | null> => {
   // Validate fields
-  if (!userId || !sessionToken || !collection_name) {
+  if (!sessionToken || !collection_name) {
     throw new BadRequestError(
-      "Error fetching Bookmark records. Missing required fields (userId, sessionToken, collection_name)"
+      "Error fetching Bookmark records. Missing required fields (sessionToken, collection_name)"
     );
   }
 
@@ -22,6 +22,10 @@ const getBookmarksFromCollection = async (
       "Error fetching Bookmark records. Invalid or expired session."
     );
   }
+
+  // Retrieve userId from sessionToken
+  const userId = await getUserIdFromSessionToken(sessionToken);
+
   const decodedCollectionName = decodeURIComponent(collection_name);
 
   // Fetch Bookmark

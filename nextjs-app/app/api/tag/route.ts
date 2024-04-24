@@ -5,10 +5,9 @@ import getAllTags from "@/app/actions/tagActions/getAllTags";
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
-    const userId = url.searchParams.get("userId") ?? "";
-    const sessionToken = url.searchParams.get("sessionToken") ?? "";
-    const tags = await getAllTags(userId, sessionToken);
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+    const tags = await getAllTags(sessionToken);
 
     return NextResponse.json({ success: true, data: tags });
   } catch (error) {
