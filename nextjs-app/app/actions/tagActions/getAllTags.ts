@@ -1,8 +1,12 @@
 import prisma from "@/app/libs/prismadb";
 import { BadRequestError, UnauthorizedError } from "@/app/libs/errors";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
+import { TagWithBookmarkCount } from "@/app/types";
 
-const getTags = async (userId: string, sessionToken: string) => {
+const getAllTags = async (
+  userId: string,
+  sessionToken: string
+): Promise<TagWithBookmarkCount[]> => {
   if (!userId || !sessionToken) {
     throw new BadRequestError(
       "Error fetching tags. Missing required fields: userId, sessionToken"
@@ -19,9 +23,14 @@ const getTags = async (userId: string, sessionToken: string) => {
     where: {
       userId,
     },
+    include: {
+      _count: {
+        select: { tagToBookmarks: true },
+      },
+    },
   });
 
   return tags;
 };
 
-export default getTags;
+export default getAllTags;

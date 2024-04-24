@@ -1,9 +1,14 @@
-import { Bookmark, Collection, TagToBookmark } from "@prisma/client";
+import { Bookmark, Collection, Tag, TagToBookmark } from "@prisma/client";
 
-// Define a new type that includes the count of bookmarks
 export type CollectionWithBookmarkCount = Collection & {
   _count: {
     bookmarks: number;
+  };
+};
+
+export type TagWithBookmarkCount = Tag & {
+  _count: {
+    tagToBookmarks: number;
   };
 };
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { Collection, Tag } from "@prisma/client";
 import axios from "axios";
 import React, {
   createContext,
@@ -11,13 +10,13 @@ import React, {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-import { CollectionWithBookmarkCount } from "../types";
+import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 
 interface BookmarkContextType {
   collections: CollectionWithBookmarkCount[];
   setCollections: (collections: CollectionWithBookmarkCount[]) => void;
-  tags: Tag[];
-  setTags: (tags: Tag[]) => void;
+  tags: TagWithBookmarkCount[];
+  setTags: (tags: TagWithBookmarkCount[]) => void;
 }
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
@@ -27,11 +26,10 @@ const BookmarkContext = createContext<BookmarkContextType | undefined>(
 export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // const [bookmarks, setBookmarks] = useState<Bookmark[] | null>(null);
   const [collections, setCollections] = useState<CollectionWithBookmarkCount[]>(
     []
   );
-  const [tags, setTags] = useState<Tag[]>([]);
+  const [tags, setTags] = useState<TagWithBookmarkCount[]>([]);
   const { userId, sessionToken } = useAuth();
 
   const fetchCollections = useCallback(async () => {

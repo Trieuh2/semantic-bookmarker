@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import createTag from "@/app/actions/tagActions/createTag";
 import { handleError } from "@/app/utils/errorHandler";
-import getTags from "@/app/actions/tagActions/getTags";
+import getAllTags from "@/app/actions/tagActions/getAllTags";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const userId = url.searchParams.get("userId") ?? "";
     const sessionToken = url.searchParams.get("sessionToken") ?? "";
-    const tags = await getTags(userId, sessionToken);
+    const tags = await getAllTags(userId, sessionToken);
 
     return NextResponse.json({ success: true, data: tags });
   } catch (error) {

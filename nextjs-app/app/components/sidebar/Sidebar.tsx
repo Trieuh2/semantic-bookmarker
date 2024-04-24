@@ -34,6 +34,7 @@ const Sidebar: React.FC = React.memo(() => {
           href={`/home/tags/${tag.id}`}
           label={tag.name}
           icon={HiHashtag}
+          count={tag._count.tagToBookmarks}
         />
       )),
     [tags]
