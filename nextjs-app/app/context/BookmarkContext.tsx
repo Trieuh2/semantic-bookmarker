@@ -11,10 +11,11 @@ import React, {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
+import { CollectionWithBookmarkCount } from "../types";
 
 interface BookmarkContextType {
-  collections: Collection[];
-  setCollections: (collections: Collection[]) => void;
+  collections: CollectionWithBookmarkCount[];
+  setCollections: (collections: CollectionWithBookmarkCount[]) => void;
   tags: Tag[];
   setTags: (tags: Tag[]) => void;
 }
@@ -27,7 +28,9 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // const [bookmarks, setBookmarks] = useState<Bookmark[] | null>(null);
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [collections, setCollections] = useState<CollectionWithBookmarkCount[]>(
+    []
+  );
   const [tags, setTags] = useState<Tag[]>([]);
   const { userId, sessionToken } = useAuth();
 
@@ -40,7 +43,8 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
           { params }
         );
         if (axiosResponse.status === 200) {
-          const apiData = axiosResponse.data.data as Collection[];
+          const apiData = axiosResponse.data
+            .data as CollectionWithBookmarkCount[];
           setCollections(
             apiData.filter((collection) => collection.name != "Unsorted")
           );

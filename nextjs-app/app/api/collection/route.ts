@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleError } from "@/app/utils/errorHandler";
-import getCollections from "@/app/actions/collectionActions/getCollections";
+import getAllCollections from "@/app/actions/collectionActions/getAllCollections";
 import { createCollection } from "@/app/actions/collectionActions/createCollection";
 
 export async function GET(request: Request) {
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const userId = url.searchParams.get("userId") ?? "";
     const sessionToken = url.searchParams.get("sessionToken") ?? "";
 
-    const collections = await getCollections(userId, sessionToken);
+    const collections = await getAllCollections(userId, sessionToken);
 
     return NextResponse.json({ success: true, data: collections });
   } catch (error) {

@@ -1,15 +1,12 @@
 import prisma from "@/app/libs/prismadb";
-import {
-  BadRequestError,
-  UnauthorizedError,
-} from "../../libs/errors";
+import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
-import { Collection } from "@prisma/client";
+import { CollectionWithBookmarkCount } from "@/app/types";
 
-const getCollections = async (
+const getAllCollections = async (
   userId: string,
   sessionToken: string
-): Promise<Collection[]> => {
+): Promise<CollectionWithBookmarkCount[]> => {
   // Validate fields
   if (!sessionToken || !userId) {
     throw new BadRequestError(
@@ -30,6 +27,11 @@ const getCollections = async (
     where: {
       userId,
     },
+    include: {
+      _count: {
+        select: { bookmarks: true },
+      },
+    },
   });
 
   // if (!collections) {
@@ -41,4 +43,4 @@ const getCollections = async (
   return collections;
 };
 
-export default getCollections;
+export default getAllCollections;

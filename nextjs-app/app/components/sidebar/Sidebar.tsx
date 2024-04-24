@@ -17,11 +17,10 @@ const Sidebar: React.FC = React.memo(() => {
       collections.map((collection) => (
         <SidebarItem
           key={collection.id}
-          href={`/home/collections/${encodeURIComponent(
-            collection.name
-          )}`}
+          href={`/home/collections/${encodeURIComponent(collection.name)}`}
           label={collection.name}
           icon={IoIosFolder}
+          count={collection._count.bookmarks}
         />
       )),
     [collections]

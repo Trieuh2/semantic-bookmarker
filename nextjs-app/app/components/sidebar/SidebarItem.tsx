@@ -40,7 +40,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       <Link href={href} className={linkContainerClasses}>
         {Icon && <Icon className={iconClasses} />}
         <span className={labelClasses}>{label}</span>
-        {count && <span className={countLabelClasses}>{count}</span>}
+        {<span className={countLabelClasses}>{count}</span>}
       </Link>
     );
   }
