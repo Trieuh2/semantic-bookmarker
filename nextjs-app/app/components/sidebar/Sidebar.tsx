@@ -72,7 +72,7 @@ const Sidebar: React.FC = React.memo(() => {
         icon={IoIosBookmarks}
       />
       <SidebarItem
-        href="/home/collections/unsorted"
+        href="/home/collections/Unsorted"
         label="Unsorted"
         icon={FaBoxArchive}
       />
