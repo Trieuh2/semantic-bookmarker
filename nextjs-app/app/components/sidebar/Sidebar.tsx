@@ -21,6 +21,8 @@ const Sidebar: React.FC = React.memo(() => {
           label={collection.name}
           icon={IoIosFolder}
           count={collection._count.bookmarks}
+          type="collection"
+          identifier={collection.name}
         />
       )),
     [collections]
@@ -35,6 +37,8 @@ const Sidebar: React.FC = React.memo(() => {
           label={tag.name}
           icon={HiHashtag}
           count={tag._count.tagToBookmarks}
+          type="tag"
+          identifier={tag.id}
         />
       )),
     [tags]

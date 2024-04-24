@@ -17,6 +17,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
     const divClasses = clsx(`
     flex
     w-full
+    h-8
     items-center
     py-1
     px-3
