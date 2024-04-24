@@ -21,6 +21,7 @@ const apiFetchCollections = async (
   const url = "http://localhost:3000/api/collection";
   const response = await fetch(url, {
     headers: {
+      method: "GET",
       Authorization: `Bearer ${sessionToken}`,
     },
   });

@@ -1,4 +1,4 @@
-import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-99aa96df.js';
+import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-40e17e4c.js';
 
 /**
  * @license React
@@ -2810,8 +2810,33 @@ const apiFetchSession = async (sessionToken) => {
     if (!sessionToken) {
         throw new Error("Session token is required!");
     }
-    const url = `http://localhost:3000/api/session?sessionToken=${sessionToken}`;
-    const response = await fetch(url);
+    const url = "http://localhost:3000/api/session";
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${sessionToken}`,
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = (await response.json());
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+const apiDeleteSession = async (sessionToken) => {
+    if (!sessionToken) {
+        throw new Error("Session token is required!");
+    }
+    const url = "http://localhost:3000/api/session";
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${sessionToken}`,
+        },
+    });
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -2839,27 +2864,17 @@ const fetchSession = async (sessionToken) => {
 };
 const deleteSession = async (sessionToken) => {
     try {
-        const url = "http://localhost:3000/api/session";
-        const postData = {
-            sessionToken: sessionToken,
-        };
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(postData),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        const response = await apiDeleteSession(sessionToken);
+        if (response && response.success) {
+            return response.data;
         }
-        // Parse the JSON response
-        const data = await response.json();
-        return data;
+        else {
+            return null;
+        }
     }
     catch (error) {
-        console.error("Failed to sign out of current session:", error);
-        throw error;
+        console.error("Error deleting session record:", error instanceof Error ? error.message : "An unexpected error occurred");
+        return null;
     }
 };
 
@@ -3387,6 +3402,7 @@ const apiFetchCollections = async (sessionToken) => {
     const url = "http://localhost:3000/api/collection";
     const response = await fetch(url, {
         headers: {
+            method: "GET",
             Authorization: `Bearer ${sessionToken}`,
         },
     });
@@ -3500,7 +3516,6 @@ const BookmarkForm = ({ sessionRecord }) => {
     react.useEffect(() => {
         if (!bookmarkRecord && initialFetchAttempted && currentTab) {
             const createBookmarkRecord = async () => {
-                const userId = sessionRecord?.userId ?? "";
                 const sessionToken = sessionRecord?.sessionToken ?? "";
                 const title = currentTab?.title ?? "";
                 const page_url = currentTab?.url ?? "";
@@ -3508,7 +3523,6 @@ const BookmarkForm = ({ sessionRecord }) => {
                 const excerpt = "";
                 const collection_name = "Unsorted";
                 const bookmarkCreateRequest = {
-                    userId: userId,
                     sessionToken: sessionToken,
                     title: title,
                     page_url: page_url,
@@ -3588,7 +3602,6 @@ const BookmarkForm = ({ sessionRecord }) => {
             const performDeletion = async () => {
                 // Remove this bookmark from DB
                 const deleteRequest = {
-                    userId: sessionRecord?.userId ?? "",
                     sessionToken: sessionRecord?.sessionToken ?? "",
                     id: bookmarkRecord?.id ?? "",
                 };

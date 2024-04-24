@@ -6,15 +6,15 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../libs/errors";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const deleteBookmark = async (
-  userId: string,
   sessionToken: string,
   id: string
 ): Promise<Bookmark> => {
-  if (!userId || !sessionToken || !id) {
+  if (!sessionToken || !id) {
     throw new BadRequestError(
-      "Error encountered during Bookmark deletion. Missing required fields (userId, sessionToken, id)"
+      "Error encountered during Bookmark deletion. Missing required fields (sessionToken, id)"
     );
   }
 
@@ -25,6 +25,8 @@ const deleteBookmark = async (
       "Error encountered during Bookmark deletion. Invalid or expired session."
     );
   }
+
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Check if the bookmark exists before deletion to handle not found error gracefully
   const bookmark = await prisma.bookmark.findUnique({

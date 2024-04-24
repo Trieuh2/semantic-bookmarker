@@ -16,9 +16,7 @@ const apiFetchBookmark = async (
   page_url: string
 ): Promise<APIResponse<Bookmark> | null> => {
   if (!sessionToken || !page_url) {
-    throw new Error(
-      "All parameters (sessionToken, page_url) are required"
-    );
+    throw new Error("All parameters (sessionToken, page_url) are required");
   }
 
   const base_url = "http://localhost:3000/api/bookmark";
@@ -29,9 +27,10 @@ const apiFetchBookmark = async (
   const url = `${base_url}?${queryString}`;
 
   const response = await fetch(url, {
+    method: "GET",
     headers: {
-      Authorization: `Bearer ${sessionToken}`
-    }
+      Authorization: `Bearer ${sessionToken}`,
+    },
   });
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -48,36 +47,17 @@ const apiFetchBookmark = async (
 const apiCreateBookmark = async (
   createRequest: BookmarkCreateRequest
 ): Promise<APIResponse<Bookmark> | null> => {
-  const {
-    userId,
-    sessionToken,
-    title,
-    page_url,
-    note,
-    excerpt,
-    collection_name,
-  } = createRequest;
-
-  if (!userId || !sessionToken || !title || !page_url) {
-    throw Error(
-      "Missing required fields (userId, sessionToken, title, page_url)."
-    );
+  const { sessionToken, ...postData } = createRequest;
+  if (!sessionToken || !postData.title || !postData.page_url) {
+    throw Error("Missing required fields (sessionToken, title, page_url).");
   }
 
-  const postData = {
-    userId: userId,
-    sessionToken: sessionToken,
-    title: title,
-    page_url: page_url,
-    note: note ?? "",
-    excerpt: excerpt ?? "",
-    collection_name: collection_name ?? "Unsorted",
-  };
   const url = "http://localhost:3000/api/bookmark";
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionToken}`,
     },
     body: JSON.stringify(postData),
   });
@@ -95,10 +75,9 @@ const apiCreateBookmark = async (
 };
 
 const apiUpdateBookmark = async (updateRequest: BookmarkUpdateRequest) => {
-  const { sessionToken, id } = updateRequest;
-
-  if (!sessionToken || !id) {
-    throw Error("Missing required fields (id, sessionToken)");
+  const { sessionToken, ...updateData } = updateRequest;
+  if (!sessionToken || !updateData.id) {
+    throw Error("Missing required fields (sessionToken, id)");
   }
 
   const url = "http://localhost:3000/api/bookmark";
@@ -106,8 +85,9 @@ const apiUpdateBookmark = async (updateRequest: BookmarkUpdateRequest) => {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionToken}`,
     },
-    body: JSON.stringify(updateRequest),
+    body: JSON.stringify(updateData),
   });
 
   if (!response.ok) {
@@ -123,12 +103,14 @@ const apiUpdateBookmark = async (updateRequest: BookmarkUpdateRequest) => {
 };
 
 const apiDeleteBookmark = async (deleteRequest: BookmarkDeleteRequest) => {
+  const { sessionToken, ...deleteData } = deleteRequest;
+
   return fetch("http://localhost:3000/api/bookmark", {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionToken}`,
     },
-    body: JSON.stringify(deleteRequest),
+    body: JSON.stringify(deleteData),
   });
 };
 

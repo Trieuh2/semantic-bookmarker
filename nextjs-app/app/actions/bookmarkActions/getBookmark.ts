@@ -3,7 +3,6 @@ import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import { Bookmark } from "@prisma/client";
 import {
   BadRequestError,
-  NotFoundError,
   UnauthorizedError,
 } from "../../libs/errors";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
@@ -40,12 +39,6 @@ const getBookmark = async (
       tagToBookmarks: true,
     },
   });
-
-  if (!bookmark) {
-    throw new NotFoundError(
-      "Error fetching Bookmark record. Bookmark not found."
-    );
-  }
 
   return bookmark;
 };

@@ -5,16 +5,13 @@ import {
   ConflictError,
   UnauthorizedError,
 } from "@/app/libs/errors";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
-const createTag = async (
-  userId: string,
-  sessionToken: string,
-  name: string
-) => {
+const createTag = async (sessionToken: string, name: string) => {
   // Validate request parameters
-  if (!userId || !sessionToken || !name) {
+  if (!sessionToken || !name) {
     throw new BadRequestError(
-      "Failed to create Tag. Missing required fields: userId, sessionToken, name"
+      "Failed to create Tag. Missing required fields: sessionToken, name"
     );
   }
 
@@ -26,6 +23,8 @@ const createTag = async (
       "Failed to create Tag. Session is invalid or expired"
     );
   }
+
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Check if Tag already exists for this user
   const existingTag = await prisma.tag.findFirst({

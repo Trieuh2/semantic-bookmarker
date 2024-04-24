@@ -7,9 +7,9 @@ import {
 } from "../../libs/errors";
 import { Bookmark } from "@prisma/client";
 import createOrFetchCollection from "../collectionActions/createOrFetchCollection";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const addBookmark = async (
-  userId: string,
   sessionToken: string,
   title: string,
   page_url: string,
@@ -18,17 +18,21 @@ const addBookmark = async (
   excerpt?: string
 ): Promise<Bookmark | null> => {
   // Validate session
-  const isSessionValid = await getIsSessionValid(sessionToken);
-  if (!isSessionValid) {
-    throw new UnauthorizedError("Error encountered during Bookmark creation. Invalid or expired session.");
+  if (!(await getIsSessionValid(sessionToken))) {
+    throw new UnauthorizedError(
+      "Error encountered during Bookmark creation. Invalid or expired session."
+    );
   }
 
   // Validate fields
-  if (!userId || !sessionToken || !title || !page_url) {
+  if (!sessionToken || !title || !page_url) {
     throw new BadRequestError(
-      "Error encountered during Bookmark creation. Missing required fields (userId, sessionToken, title, page_url, collection_name)."
+      "Error encountered during Bookmark creation. Missing required fields (sessionToken, title, page_url, collection_name)."
     );
   }
+
+  // Retrieve userId from sessionToken
+  const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Check if bookmark already exists for this url
   const existingBookmark = await prisma.bookmark.findFirst({
@@ -46,7 +50,7 @@ const addBookmark = async (
 
   // Create or fetch the collection
   const collection = await createOrFetchCollection(
-    userId,
+    sessionToken,
     collection_name ? collection_name : "Unsorted"
   );
   if (!collection) {

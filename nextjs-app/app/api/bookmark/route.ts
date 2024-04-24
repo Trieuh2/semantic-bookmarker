@@ -15,10 +15,7 @@ export async function fetchData(
   tagId: string
 ) {
   if (collection_name) {
-    return await getBookmarksFromCollection(
-      sessionToken,
-      collection_name
-    );
+    return await getBookmarksFromCollection(sessionToken, collection_name);
   } else if (page_url) {
     return await getBookmark(sessionToken, page_url);
   } else if (tagId) {
@@ -52,18 +49,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const {
-      userId,
-      sessionToken,
-      title,
-      page_url,
-      note,
-      excerpt,
-      collection_name,
-    } = body;
+    const { title, page_url, note, excerpt, collection_name } = body;
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
 
     const newBookmark = await addBookmark(
-      userId,
       sessionToken,
       title,
       page_url,
@@ -82,7 +72,6 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
     const {
-      sessionToken = "",
       id = "",
       title = "",
       note = "",
@@ -91,6 +80,8 @@ export async function PATCH(request: Request) {
       page_url = "",
       excerpt = "",
     } = body;
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
 
     const updatedBookmark = await updateBookmark(
       sessionToken,
@@ -102,7 +93,6 @@ export async function PATCH(request: Request) {
       page_url,
       excerpt
     );
-
     return NextResponse.json({ success: true, data: updatedBookmark });
   } catch (error) {
     return handleError(error as Error);
@@ -112,8 +102,11 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { userId, sessionToken, id } = body;
-    const deletedBookmark = await deleteBookmark(userId, sessionToken, id);
+    const { id } = body;
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+
+    const deletedBookmark = await deleteBookmark(sessionToken, id);
 
     return NextResponse.json({ success: true, data: deletedBookmark });
   } catch (error) {

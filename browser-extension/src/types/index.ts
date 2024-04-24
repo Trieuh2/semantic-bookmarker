@@ -25,7 +25,6 @@ export interface TagToBookmark {
 
 export interface Session {
   id: string;
-  userId: string;
   expires: number;
   sessionToken: string;
 }
@@ -38,7 +37,6 @@ export interface Collection {
 }
 
 export interface BookmarkCreateRequest {
-  userId: string;
   sessionToken: string;
   title: string;
   page_url: string;
@@ -60,6 +58,5 @@ export interface BookmarkUpdateRequest {
 
 export interface BookmarkDeleteRequest {
   sessionToken: string;
-  userId: string;
   id: string;
 }

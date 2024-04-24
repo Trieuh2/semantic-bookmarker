@@ -1,4 +1,4 @@
-import apiFetchSession from "./apiActions/sessionAPI";
+import { apiFetchSession, apiDeleteSession } from "./apiActions/sessionAPI";
 
 const fetchSession = async (sessionToken: string) => {
   try {
@@ -19,28 +19,18 @@ const fetchSession = async (sessionToken: string) => {
 
 const deleteSession = async (sessionToken: string) => {
   try {
-    const url = "http://localhost:3000/api/session";
-    const postData = {
-      sessionToken: sessionToken,
-    };
-    const response = await fetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    const response = await apiDeleteSession(sessionToken);
+    if (response && response.success) {
+      return response.data;
+    } else {
+      return null;
     }
-
-    // Parse the JSON response
-    const data = await response.json();
-    return data;
   } catch (error) {
-    console.error("Failed to sign out of current session:", error);
-    throw error;
+    console.error(
+      "Error deleting session record:",
+      error instanceof Error ? error.message : "An unexpected error occurred"
+    );
+    return null;
   }
 };
 

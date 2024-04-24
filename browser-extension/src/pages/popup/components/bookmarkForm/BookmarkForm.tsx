@@ -142,7 +142,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
   useEffect(() => {
     if (!bookmarkRecord && initialFetchAttempted && currentTab) {
       const createBookmarkRecord = async () => {
-        const userId = sessionRecord?.userId ?? "";
         const sessionToken = sessionRecord?.sessionToken ?? "";
         const title = currentTab?.title ?? "";
         const page_url = currentTab?.url ?? "";
@@ -151,7 +150,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
         const collection_name = "Unsorted";
 
         const bookmarkCreateRequest = {
-          userId: userId,
           sessionToken: sessionToken,
           title: title,
           page_url: page_url,
@@ -250,7 +248,6 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
       const performDeletion = async () => {
         // Remove this bookmark from DB
         const deleteRequest = {
-          userId: sessionRecord?.userId ?? "",
           sessionToken: sessionRecord?.sessionToken ?? "",
           id: bookmarkRecord?.id ?? "",
         };

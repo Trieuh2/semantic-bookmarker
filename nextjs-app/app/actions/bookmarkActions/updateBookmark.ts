@@ -80,8 +80,7 @@ const updateBookmark = async (
 
   // Ensure the collection is also created
   if (collection_name) {
-    const userId = await getUserIdFromSessionToken(sessionToken);
-    await createOrFetchCollection(userId, collection_name ?? "Unsorted");
+    await createOrFetchCollection(sessionToken, collection_name ?? "Unsorted");
   }
   const updatedBookmark = await prisma.bookmark.update({
     where: { id },

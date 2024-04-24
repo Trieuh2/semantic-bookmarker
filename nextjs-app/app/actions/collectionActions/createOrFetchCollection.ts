@@ -1,18 +1,20 @@
 import prisma from "@/app/libs/prismadb";
 import { Collection } from "@prisma/client";
 import { BadRequestError } from "../../libs/errors";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const createOrFetchCollection = async (
-  userId: string,
+  sessionToken: string,
   collection_name: string
 ): Promise<Collection> => {
-  if (!userId || !collection_name) {
+  if (!sessionToken || !collection_name) {
     throw new BadRequestError(
-      "Error creating or fetching collection. Missing required userId or collection_name."
+      "Error creating or fetching collection. Missing required sessionToken or collection_name."
     );
   }
 
-  // Fetch existing collection
+  const userId = await getUserIdFromSessionToken(sessionToken);
+  
   const collection = await prisma.collection.findFirst({
     where: {
       userId,
@@ -23,7 +25,6 @@ const createOrFetchCollection = async (
     return collection;
   }
 
-  // Create new collection
   const newCollection = await prisma.collection.create({
     data: {
       userId,

@@ -18,8 +18,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, sessionToken, name } = body;
-    const tag = createTag(userId, sessionToken, name);
+    const { name } = body;
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+    const tag = createTag(sessionToken, name);
 
     return NextResponse.json({ success: true, data: tag });
   } catch (error) {

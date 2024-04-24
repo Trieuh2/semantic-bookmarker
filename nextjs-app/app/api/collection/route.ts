@@ -5,7 +5,6 @@ import { createCollection } from "@/app/actions/collectionActions/createCollecti
 
 export async function GET(request: Request) {
   try {
-    // Retrieve sessionToken from the Authorization header
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
     const collections = await getAllCollections(sessionToken);
@@ -19,7 +18,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { sessionToken, name } = body;
+    const { name } = body;
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
     const collection = createCollection(sessionToken, name);
 
     return NextResponse.json({ success: true, data: collection });
