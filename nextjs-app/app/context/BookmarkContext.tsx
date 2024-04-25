@@ -11,6 +11,8 @@ import React, {
 import { useAuth } from "./AuthContext";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 import { fetchResource } from "../libs/resourceActions";
+import { usePathname, useRouter } from "next/navigation";
+import { rerouteIfInvalidDynamicRoute } from "../utils/routeHelper";
 
 interface BookmarkContextType {
   collections: CollectionWithBookmarkCount[];
@@ -31,6 +33,8 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [tags, setTags] = useState<TagWithBookmarkCount[]>([]);
   const { sessionToken } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const fetchCollections = useCallback(async () => {
     if (sessionToken) {
@@ -58,6 +62,10 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchCollections();
     fetchTags();
   }, [fetchCollections, fetchTags]);
+
+  useEffect(() => {
+    rerouteIfInvalidDynamicRoute(pathname, router, collections, tags);
+  }, [pathname, router, collections, tags]);
 
   const value = useMemo(
     () => ({

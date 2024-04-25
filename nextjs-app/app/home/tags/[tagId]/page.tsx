@@ -12,14 +12,13 @@ interface TagsDetailedPageProps {}
 
 const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
   const [initialItems, setInitialItems] = useState<FullBookmarkType[]>();
-  const { userId, sessionToken } = useAuth();
+  const { sessionToken } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const { tags } = useBookmarks();
 
-  // Fetch the Bookmark records
+  // Fetch the Bookmark records related to this Tag
   useEffect(() => {
-    if (userId && sessionToken) {
+    if (sessionToken) {
       const fetchBookmarks = async (tagId: string) => {
         const params = {
           tagId: tagId,
@@ -30,17 +29,11 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
 
       const tagId = pathname.split("/").pop() ?? "";
 
-      // Redirect if the tagId is not found
-      if (!tags.some((tag) => tag.id === tagId)) {
-        router.push("/home/bookmarks");
-        return;
-      }
-
-      if (userId && sessionToken && tagId) {
+      if (sessionToken && tagId) {
         fetchBookmarks(tagId);
       }
     }
-  }, [userId, sessionToken, pathname, tags, router]);
+  }, [sessionToken, pathname, tags]);
 
   return (
     <>
