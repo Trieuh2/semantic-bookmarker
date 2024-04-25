@@ -2,8 +2,9 @@
 
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
+import { useBookmarks } from "@/app/context/BookmarkContext";
 import { FullBookmarkType } from "@/app/types";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface CollectionsDetailedPageProps {}
@@ -14,39 +15,38 @@ const CollectionsDetailedPage: React.FC<
   const [initialItems, setInitialItems] = useState<FullBookmarkType[]>();
   const { userId, sessionToken } = useAuth();
   const pathname = usePathname();
-
+  const router = useRouter();
+  const { collections } = useBookmarks();
 
   // Fetch the Bookmark records
   useEffect(() => {
-    if (userId && sessionToken) {
-      const fetchCollectionIdFromPath = () => {
-        const splitPathname = pathname.split("/");
-        const collectionId = splitPathname[splitPathname.length - 1];
-        return collectionId;
-      };
+    const fetchBookmarks = async (collectionId: string) => {
+      const base_url = "http://localhost:3000/api/bookmark";
+      const params = { collectionId };
+      const queryString = new URLSearchParams(params).toString();
+      const url = `${base_url}?${queryString}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${sessionToken}` },
+      });
 
-      const fetchBookmarks = async () => {
-        const base_url = "http://localhost:3000/api/bookmark";
-        const collectionId = fetchCollectionIdFromPath();
-        const params = {
-          collectionId,
-        };
-        const queryString = new URLSearchParams(params).toString();
-        const url = `${base_url}?${queryString}`;
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        });
+      if (response.status === 200) {
+        const responseBody = await response.json();
+        setInitialItems(responseBody.data);
+      }
+    };
 
-        if (response.status === 200) {
-          const responseBody = await response.json();
-          setInitialItems(responseBody.data);
-        }
-      };
-      fetchBookmarks();
+    const collectionId = pathname.split("/").pop();
+
+    // Redirect if the collection ID is not found
+    if (!collections.some((collection) => collection.id === collectionId)) {
+      router.push("/home/bookmarks");
+      return;
     }
-  }, [userId, sessionToken]);
+
+    if (userId && sessionToken && collectionId) {
+      fetchBookmarks(collectionId);
+    }
+  }, [userId, sessionToken, pathname, collections, router]);
 
   return (
     <>

@@ -133,7 +133,7 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
           >
             <span className="flex gap-2 items-center">
               <IoIosFolder />
-              {data.collection?.name}
+              {data.collection?.name ?? "Unsorted"}
             </span>
           </Link>
           <span>·</span>

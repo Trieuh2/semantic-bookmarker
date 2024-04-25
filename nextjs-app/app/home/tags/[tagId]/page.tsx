@@ -2,8 +2,9 @@
 
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
+import { useBookmarks } from "@/app/context/BookmarkContext";
 import { FullBookmarkType } from "@/app/types";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface TagsDetailedPageProps {}
@@ -12,19 +13,14 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
   const [initialItems, setInitialItems] = useState<FullBookmarkType[]>();
   const { userId, sessionToken } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+  const { tags } = useBookmarks();
 
   // Fetch the Bookmark records
   useEffect(() => {
     if (userId && sessionToken) {
-      const fetchTagIdFromPath = () => {
-        const splitPathname = pathname.split("/");
-        const tagId = splitPathname[splitPathname.length - 1];
-        return tagId;
-      };
-
-      const fetchBookmarks = async () => {
+      const fetchBookmarks = async (tagId: string) => {
         const base_url = "http://localhost:3000/api/bookmark";
-        const tagId = fetchTagIdFromPath();
         const params = {
           tagId: tagId,
         };
@@ -41,9 +37,20 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
           setInitialItems(responseBody.data);
         }
       };
-      fetchBookmarks();
+
+      const tagId = pathname.split("/").pop() ?? "";
+
+      // Redirect if the tagId is not found
+      if (!tags.some((tag) => tag.id === tagId)) {
+        router.push("/home/bookmarks");
+        return;
+      }
+
+      if (userId && sessionToken && tagId) {
+        fetchBookmarks(tagId);
+      }
     }
-  }, [userId, sessionToken]);
+  }, [userId, sessionToken, pathname, tags, router]);
 
   return (
     <>

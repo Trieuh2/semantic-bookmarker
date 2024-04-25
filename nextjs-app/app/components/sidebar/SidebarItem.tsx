@@ -14,6 +14,9 @@ import clsx from "clsx";
 import OverflowMenuButton from "../OverflowMenuButton";
 import OverflowMenu from "../OverflowMenu";
 import axios from "axios";
+import { useAuth } from "@/app/context/AuthContext";
+import { useBookmarks } from "@/app/context/BookmarkContext";
+import { deleteResource } from "@/app/libs/resourceActions";
 
 interface SidebarItemProps {
   href: string;
@@ -21,26 +24,8 @@ interface SidebarItemProps {
   icon?: IconType;
   count?: number | null;
   type?: string;
-  identifier?: string; // collection_name or tagId
+  identifier?: string; // collectionId or tagId
 }
-
-const renameCollection = (type: string, identifier: string) => {
-  console.log("renameCollection");
-};
-
-const deleteCollection = (type: string, identifier: string) => {
-  console.log("deleteCollection");
-};
-
-const getMenuOptions = (type: string, identifier: string) => {
-  switch (type) {
-    case "collection":
-      return [
-        { label: "Rename", action: () => renameCollection(type, identifier) },
-        { label: "Delete", action: () => deleteCollection(type, identifier) },
-      ];
-  }
-};
 
 const SidebarItem: React.FC<SidebarItemProps> = React.memo(
   ({ href, label, icon: Icon, count, type, identifier }) => {
@@ -49,10 +34,13 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       useState<boolean>(false);
     const overflowMenuRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
+    const { sessionToken } = useAuth();
+    const { collections, setCollections, tags, setTags } = useBookmarks();
     const isActive = pathname === href;
 
     // Side effect to close overflow menu when clicking outside of the menu
     useEffect(() => {
+      // Function to handle clicks outside the menu
       const handleClickOutside = (event: MouseEvent) => {
         if (
           overflowMenuRef.current &&
@@ -62,13 +50,23 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
         }
       };
 
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mouseup", handleClickOutside);
+
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("mouseup", handleClickOutside);
       };
-    }, []);
+    }, [isOverflowMenuOpened]);
 
     const menuOptions = useMemo(() => {
+      const getMenuOptions = (type: string, identifier: string) => {
+        return [
+          {
+            label: `Delete ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+            // action: () => deleteResource(type, identifier),
+            action: () => handleDelete(type, identifier),
+          },
+        ];
+      };
       if (type && identifier) {
         return getMenuOptions(type, identifier);
       }
@@ -84,7 +82,23 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
 
     const closeMenu = useCallback(() => {
       setIsOverflowMenuOpened(false);
-    }, []);
+    }, [isOverflowMenuOpened]);
+
+    const handleDelete = (type: string, identifier: string) => {
+      const onSuccess = (type: string, identifier: string) => {
+        if (type === "collection") {
+          setCollections(collections.filter((collection) => collection.id !== identifier));
+        } else if (type === "tag") {
+          setTags(tags.filter((tag) => tag.id !== identifier));
+        }
+      };
+
+      const onError = (error: any) => {
+        console.error(`Error deleting type ${type}:`, error)
+      }
+
+      deleteResource(type, identifier, sessionToken, onSuccess, onError)
+    };
 
     const linkContainerClasses = clsx(
       `

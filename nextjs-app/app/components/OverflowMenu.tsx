@@ -26,6 +26,7 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
       bg-stone-800
       border
       border-stone-700
+      shadow-md
       transition-opacity
       duration-300
       ease-in-out`,
@@ -52,7 +53,7 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
             <li
               key={index}
               className={listItemClasses}
-              onClick={(event) => {
+              onMouseUp={(event) => {
                 event.preventDefault();
                 option.action();
                 closeMenu();

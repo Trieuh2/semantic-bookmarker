@@ -17,15 +17,15 @@ const Sidebar: React.FC = React.memo(() => {
       collections.map((collection) => (
         <SidebarItem
           key={collection.id}
-          href={`/home/collections/${encodeURIComponent(collection.name)}`}
+          href={`/home/collections/${collection.id}`}
           label={collection.name}
           icon={IoIosFolder}
           count={collection._count.bookmarks}
           type="collection"
-          identifier={collection.name}
+          identifier={collection.id}
         />
       )),
-    [collections]
+    [collections, collections.length]
   );
 
   const tagItems = useMemo(
@@ -41,7 +41,7 @@ const Sidebar: React.FC = React.memo(() => {
           identifier={tag.id}
         />
       )),
-    [tags]
+    [tags, tags.length]
   );
 
   const scrollbarClasses = `
@@ -66,7 +66,6 @@ const Sidebar: React.FC = React.memo(() => {
     `,
     scrollbarClasses
   );
-
   return (
     <div className={sidebarClasses}>
       {/* Static SidebarItems */}
@@ -76,7 +75,7 @@ const Sidebar: React.FC = React.memo(() => {
         icon={IoIosBookmarks}
       />
       <SidebarItem
-        href="/home/collections/Unsorted"
+        href={`/home/collections/unsorted`}
         label="Unsorted"
         icon={FaBoxArchive}
       />
