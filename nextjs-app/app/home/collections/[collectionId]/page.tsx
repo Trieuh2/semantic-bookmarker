@@ -15,21 +15,21 @@ const CollectionsDetailedPage: React.FC<
   const { userId, sessionToken } = useAuth();
   const pathname = usePathname();
 
+
   // Fetch the Bookmark records
   useEffect(() => {
     if (userId && sessionToken) {
-      const fetchCollectionNameFromPath = () => {
+      const fetchCollectionIdFromPath = () => {
         const splitPathname = pathname.split("/");
-        const encodedCollectionName = splitPathname[splitPathname.length - 1];
-        const decodedCollectionName = decodeURIComponent(encodedCollectionName);
-        return decodedCollectionName;
+        const collectionId = splitPathname[splitPathname.length - 1];
+        return collectionId;
       };
 
       const fetchBookmarks = async () => {
         const base_url = "http://localhost:3000/api/bookmark";
-        const collection_name = fetchCollectionNameFromPath();
+        const collectionId = fetchCollectionIdFromPath();
         const params = {
-          collection_name: collection_name,
+          collectionId,
         };
         const queryString = new URLSearchParams(params).toString();
         const url = `${base_url}?${queryString}`;

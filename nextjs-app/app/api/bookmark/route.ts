@@ -11,11 +11,11 @@ import getBookmarksFromTagId from "@/app/actions/bookmarkActions/getBookmarksFro
 export async function fetchData(
   sessionToken: string,
   page_url: string,
-  collection_name: string,
+  collectionId: string,
   tagId: string
 ) {
-  if (collection_name) {
-    return await getBookmarksFromCollection(sessionToken, collection_name);
+  if (collectionId) {
+    return await getBookmarksFromCollection(sessionToken, collectionId);
   } else if (page_url) {
     return await getBookmark(sessionToken, page_url);
   } else if (tagId) {
@@ -30,13 +30,13 @@ export async function GET(request: Request) {
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
     const page_url = url.searchParams.get("page_url") ?? "";
-    const collection_name = url.searchParams.get("collection_name") ?? "";
+    const collectionId = url.searchParams.get("collectionId") ?? "";
     const tagId = url.searchParams.get("tagId") ?? "";
 
     const data = await fetchData(
       sessionToken,
       page_url,
-      collection_name,
+      collectionId,
       tagId
     );
 
