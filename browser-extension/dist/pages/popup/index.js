@@ -3481,7 +3481,7 @@ const BookmarkForm = ({ sessionRecord }) => {
                         note: bookmark.note,
                         page_url: bookmark.page_url,
                     });
-                    setCollectionName(bookmark?.collection_name ?? "Unsorted");
+                    setCollectionName(bookmark?.collection?.name ?? "Unsorted");
                     const initialTags = bookmark.tagToBookmarks
                         .map((record) => record.tag_name)
                         .filter((tag_name) => tag_name !== "");

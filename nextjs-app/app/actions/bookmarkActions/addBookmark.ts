@@ -66,7 +66,7 @@ const addBookmark = async (
       note: note ?? "",
       excerpt: excerpt ?? "",
       userId: userId,
-      collection_name: collection.name,
+      collectionId: collection.id,
     },
   });
 

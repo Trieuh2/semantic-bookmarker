@@ -1,16 +1,13 @@
 import prisma from "@/app/libs/prismadb";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
-import { Bookmark } from "@prisma/client";
-import {
-  BadRequestError,
-  UnauthorizedError,
-} from "../../libs/errors";
+import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
+import { FullBookmarkType } from "@/app/types";
 
 const getBookmark = async (
   sessionToken: string,
   page_url: string
-): Promise<Bookmark | null> => {
+): Promise<FullBookmarkType | null> => {
   // Validate fields
   if (!sessionToken || !page_url) {
     throw new BadRequestError(
@@ -37,10 +34,21 @@ const getBookmark = async (
     },
     include: {
       tagToBookmarks: true,
+      collection: true,
     },
   });
 
-  return bookmark;
+  if (!bookmark) {
+    return null;
+  }
+
+  const fullBookmark = {
+    ...bookmark,
+    tagToBookmarks: bookmark?.tagToBookmarks || undefined,
+    collection: bookmark?.collection || undefined,
+  };
+
+  return fullBookmark;
 };
 
 export default getBookmark;

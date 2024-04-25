@@ -9,6 +9,14 @@ import {
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import createOrFetchCollection from "../collectionActions/createOrFetchCollection";
 
+interface Updates {
+  [key: string]: string | undefined;
+  title?: string;
+  note?: string;
+  page_url?: string;
+  excerpt?: string;
+}
+
 const updateBookmark = async (
   sessionToken: string,
   id: string,
@@ -20,7 +28,9 @@ const updateBookmark = async (
   excerpt?: string
 ): Promise<Bookmark> => {
   if (!sessionToken || !id) {
-    throw new BadRequestError("Error updating Bookmark record. Missing required fields (sessionToken, id)");
+    throw new BadRequestError(
+      "Error updating Bookmark record. Missing required fields (sessionToken, id)"
+    );
   }
 
   // Validate session
@@ -31,36 +41,23 @@ const updateBookmark = async (
   }
 
   // Check if the bookmark exists before deletion to handle not found error gracefully
-  const bookmark = await prisma.bookmark.findUnique({
-    where: { id },
-  });
-
+  const bookmark = await prisma.bookmark.findUnique({ where: { id } });
   if (!bookmark) {
     throw new NotFoundError(
       "Error updating Bookmark record. Bookmark record not found."
     );
   }
 
-  // Check if there are any valid fields to update
-  const validFields: (keyof typeof potentialUpdates)[] = [
-    "title",
-    "note",
-    "collection_name",
-    "page_url",
-    "excerpt",
-  ];
-  const potentialUpdates: {
-    title?: string;
-    note?: string;
-    collection_name?: string;
-    page_url?: string;
-    excerpt?: string;
-  } = { title, note, collection_name, page_url, excerpt };
-  const updates = validFields
-    .filter((field) => potentialUpdates[field] != null)
+  const potentialUpdates: Updates = { title, note, page_url, excerpt };
+
+  let updates = Object.keys(potentialUpdates)
+    .filter((key) => potentialUpdates[key] !== undefined)
     .reduce(
-      (acc, field) => ({ ...acc, [field]: potentialUpdates[field] }),
-      {} as typeof potentialUpdates
+      (acc, key) => ({
+        ...acc,
+        [key]: potentialUpdates[key],
+      }),
+      {} as Updates
     );
 
   // Handle Tags and TagToBookmark updates
@@ -80,17 +77,21 @@ const updateBookmark = async (
 
   // Ensure the collection is also created
   if (collection_name) {
-    await createOrFetchCollection(sessionToken, collection_name ?? "Unsorted");
+    const collection = await createOrFetchCollection(
+      sessionToken,
+      collection_name ?? "Unsorted"
+    );
+    updates.collectionId = collection.id;
   }
+  delete updates.collection_name;
+
   const updatedBookmark = await prisma.bookmark.update({
     where: { id },
     data: { ...updates },
   });
 
   if (!updatedBookmark) {
-    throw new Error(
-      "Error updating Bookmark record. Internal Server Error."
-    );
+    throw new Error("Error updating Bookmark record. Internal Server Error.");
   }
 
   return updatedBookmark;

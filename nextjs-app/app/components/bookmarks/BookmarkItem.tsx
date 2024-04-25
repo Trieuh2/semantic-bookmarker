@@ -128,14 +128,12 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
         <div className={infoContainerClasses}>
           {/* Collection */}
           <Link
-            href={`/home/collections/${encodeURIComponent(
-              data.collection_name
-            )}`}
+            href={`/home/collections/${data.collectionId}`}
             className="hover:underline z-10"
           >
             <span className="flex gap-2 items-center">
               <IoIosFolder />
-              {data.collection_name}
+              {data.collection?.name}
             </span>
           </Link>
           <span>·</span>

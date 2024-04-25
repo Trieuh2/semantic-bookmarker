@@ -73,8 +73,8 @@ model Bookmark {
   note String?
   excerpt String?
 
-  collection Collection? @relation(fields: [collection_name, userId], references: [name, userId])
-  collection_name String
+  collectionId String? @db.ObjectId
+  collection Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
 
   tagToBookmarks TagToBookmark[]
 

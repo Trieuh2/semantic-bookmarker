@@ -96,7 +96,8 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
             page_url: bookmark.page_url,
           });
 
-          setCollectionName(bookmark?.collection_name ?? "Unsorted");
+          setCollectionName(bookmark?.collection?.name ?? "Unsorted");
+          
 
           const initialTags = bookmark.tagToBookmarks
             .map((record: TagToBookmark) => record.tag_name)

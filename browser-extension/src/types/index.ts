@@ -9,9 +9,10 @@ export interface Bookmark {
   page_url: string;
   note: string;
   excerpt: string;
-  collection_name: string;
+  collectionId: string;
   createdAt: string | null;
   tagToBookmarks: TagToBookmark[];
+  collection: Collection;
 }
 
 export interface TagToBookmark {

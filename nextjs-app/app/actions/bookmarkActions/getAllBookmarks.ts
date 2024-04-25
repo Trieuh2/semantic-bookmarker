@@ -1,12 +1,12 @@
 import prisma from "@/app/libs/prismadb";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
-import { Bookmark } from "@prisma/client";
 import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
+import { FullBookmarkType } from "@/app/types";
 
 const getAllBookmarks = async (
   sessionToken: string
-): Promise<Bookmark[] | null> => {
+): Promise<FullBookmarkType[] | null> => {
   // Validate fields
   if (!sessionToken) {
     throw new BadRequestError(
@@ -32,13 +32,18 @@ const getAllBookmarks = async (
     },
     include: {
       tagToBookmarks: true,
+      collection: true,
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return bookmarks;
+  return bookmarks.map((bookmark) => ({
+    ...bookmark,
+    tagToBookmarks: bookmark.tagToBookmarks || undefined,
+    collection: bookmark.collection || undefined,
+  }));
 };
 
 export default getAllBookmarks;

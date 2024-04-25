@@ -46,9 +46,11 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         if (axiosResponse.status === 200) {
           const apiData = axiosResponse.data
             .data as CollectionWithBookmarkCount[];
-          setCollections(
-            apiData.filter((collection) => collection.name != "Unsorted")
+
+          const filteredCollections = apiData.filter(
+            (collection) => collection.name != "Unsorted"
           );
+          setCollections(filteredCollections);
         }
       } catch (error) {
         console.log(error);

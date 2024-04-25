@@ -37,10 +37,15 @@ const getBookmarksFromTagId = async (
     },
     include: {
       tagToBookmarks: true,
+      collection: true,
     },
   });
 
-  return bookmarks;
+  return bookmarks.map((bookmark) => ({
+    ...bookmark,
+    tagToBookmarks: bookmark.tagToBookmarks || undefined,
+    collection: bookmark.collection || undefined,
+  }));
 };
 
 export default getBookmarksFromTagId;

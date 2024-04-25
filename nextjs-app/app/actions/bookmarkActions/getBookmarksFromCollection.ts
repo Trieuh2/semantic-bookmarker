@@ -6,12 +6,12 @@ import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionTok
 
 const getBookmarksFromCollection = async (
   sessionToken: string,
-  collection_name: string
+  id: string
 ): Promise<FullBookmarkType[] | null> => {
   // Validate fields
-  if (!sessionToken || !collection_name) {
+  if (!sessionToken || !id) {
     throw new BadRequestError(
-      "Error fetching Bookmark records. Missing required fields (sessionToken, collection_name)"
+      "Error fetching Bookmark records. Missing required fields (sessionToken, id)"
     );
   }
 
@@ -26,23 +26,26 @@ const getBookmarksFromCollection = async (
   // Retrieve userId from sessionToken
   const userId = await getUserIdFromSessionToken(sessionToken);
 
-  const decodedCollectionName = decodeURIComponent(collection_name);
-
   // Fetch Bookmark
   const bookmarks = await prisma.bookmark.findMany({
     where: {
       userId,
-      collection_name: decodedCollectionName,
+      collectionId: id,
     },
     include: {
       tagToBookmarks: true,
+      collection: true,
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return bookmarks;
+  return bookmarks.map((bookmark) => ({
+    ...bookmark,
+    tagToBookmarks: bookmark.tagToBookmarks || undefined,
+    collection: bookmark.collection || undefined,
+  }));
 };
 
 export default getBookmarksFromCollection;
