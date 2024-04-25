@@ -3,6 +3,7 @@
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
+import { fetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -21,18 +22,11 @@ const CollectionsDetailedPage: React.FC<
   // Fetch the Bookmark records
   useEffect(() => {
     const fetchBookmarks = async (collectionId: string) => {
-      const base_url = "http://localhost:3000/api/bookmark";
-      const params = { collectionId };
-      const queryString = new URLSearchParams(params).toString();
-      const url = `${base_url}?${queryString}`;
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${sessionToken}` },
-      });
-
-      if (response.status === 200) {
-        const responseBody = await response.json();
-        setInitialItems(responseBody.data);
-      }
+      const params = {
+        collectionId,
+      };
+      const bookmarks = await fetchResource("bookmark", sessionToken, params);
+      setInitialItems(bookmarks);
     };
 
     const collectionId = pathname.split("/").pop();

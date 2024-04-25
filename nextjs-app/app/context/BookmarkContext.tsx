@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import React, {
   createContext,
   useCallback,
@@ -11,6 +10,7 @@ import React, {
 } from "react";
 import { useAuth } from "./AuthContext";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
+import { fetchResource } from "../libs/resourceActions";
 
 interface BookmarkContextType {
   collections: CollectionWithBookmarkCount[];
@@ -34,47 +34,23 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchCollections = useCallback(async () => {
     if (sessionToken) {
-      try {
-        const axiosResponse = await axios.get(
-          "http://localhost:3000/api/collection/",
-          {
-            headers: {
-              Authorization: `Bearer ${sessionToken}`,
-            },
-          }
-        );
-        if (axiosResponse.status === 200) {
-          const apiData = axiosResponse.data
-            .data as CollectionWithBookmarkCount[];
-
-          const filteredCollections = apiData.filter(
-            (collection) => collection.name != "Unsorted"
-          );
-          setCollections(filteredCollections);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      const fetchedCollections = await fetchResource(
+        "collection",
+        sessionToken
+      );
+      setCollections(
+        fetchedCollections.filter(
+          (collection: CollectionWithBookmarkCount) =>
+            collection.name != "Unsorted"
+        )
+      );
     }
   }, [sessionToken]);
 
   const fetchTags = useCallback(async () => {
     if (sessionToken) {
-      try {
-        const axiosResponse = await axios.get(
-          "http://localhost:3000/api/tag/",
-          {
-            headers: {
-              Authorization: `Bearer ${sessionToken}`,
-            },
-          }
-        );
-        if (axiosResponse.status === 200) {
-          setTags(axiosResponse.data.data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      const fetchedTags = await fetchResource("tag", sessionToken);
+      setTags(fetchedTags);
     }
   }, [sessionToken]);
 

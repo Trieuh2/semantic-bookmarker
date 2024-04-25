@@ -2,6 +2,7 @@
 
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
+import { fetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
 import React, { useEffect, useState } from "react";
 
@@ -17,18 +18,8 @@ const BookmarksPage: React.FC<BookmarksPageProps> = () => {
   useEffect(() => {
     if (sessionToken) {
       const fetchBookmarks = async () => {
-        const url = "http://localhost:3000/api/bookmark";
-
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        });
-
-        if (response.status === 200) {
-          const responseBody = await response.json();
-          setInitialItems(responseBody.data);
-        }
+        const bookmarks = await fetchResource("bookmark", sessionToken);
+        setInitialItems(bookmarks);
       };
       fetchBookmarks();
     }
