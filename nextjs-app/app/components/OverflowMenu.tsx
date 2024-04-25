@@ -58,6 +58,9 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
                 option.action();
                 closeMenu();
               }}
+              onClick={(event) => {
+                event.preventDefault();
+              }}
             >
               {option.label}
             </li>
