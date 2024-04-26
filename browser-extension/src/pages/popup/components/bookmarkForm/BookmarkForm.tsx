@@ -97,11 +97,11 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
           });
 
           setCollectionName(bookmark?.collection?.name ?? "Unsorted");
-          
 
-          const initialTags = bookmark.tagToBookmarks
-            .map((record: TagToBookmark) => record.tag_name)
-            .filter((tag_name: string) => tag_name !== "");
+          const initialTags =
+            bookmark.tagToBookmarks
+              ?.map((tagToBookmark) => tagToBookmark.tag?.name)
+              .filter((tag_name) => tag_name) || [];
           setTagSet(new Set(initialTags));
         }
 
@@ -116,9 +116,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
     if (sessionRecord) {
       const fetchCollectionOptions = async () => {
         try {
-          const response = await fetchCollections(
-            sessionRecord.sessionToken
-          );
+          const response = await fetchCollections(sessionRecord.sessionToken);
 
           if (response) {
             const collectionNames = response

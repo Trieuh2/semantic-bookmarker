@@ -26,7 +26,9 @@ const TagSection: React.FC<TagSectionProps> = ({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               const newTag = tagFieldValue.trim();
-              setTagSet(new Set([...tagSet, newTag]));
+              if (newTag !== "") {
+                setTagSet(new Set([...tagSet, newTag]));
+              }
               setTagFieldValue("");
               event.preventDefault();
             }

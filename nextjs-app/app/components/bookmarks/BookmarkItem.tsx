@@ -93,11 +93,7 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
         hover:cursor-pointer
       "
     >
-      <a
-        className="absolute inset-0"
-        href={data.page_url}
-        target="_blank"
-      />
+      <a className="absolute inset-0" href={data.page_url} target="_blank" />
 
       {/* Top Divider */}
       <div className={dividerClasses} />
@@ -117,7 +113,7 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
                   className="flex hover:underline items-center z-10"
                 >
                   <TbHash />
-                  {tagToBookmark.tag_name}
+                  {tagToBookmark.tag?.name}
                 </Link>
               );
             })}

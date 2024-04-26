@@ -31,7 +31,11 @@ const getAllBookmarks = async (
       userId,
     },
     include: {
-      tagToBookmarks: true,
+      tagToBookmarks: {
+        include: {
+          tag: true,
+        },
+      },
       collection: true,
     },
     orderBy: {

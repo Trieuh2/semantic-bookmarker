@@ -65,20 +65,14 @@ const getBookmarksFromSearch = async (
             },
           },
         },
-        {
-          tagToBookmarks: {
-            some: {
-              tag_name: {
-                contains: searchQuery,
-                mode: "insensitive", // Case-insensitive matching
-              },
-            },
-          },
-        },
       ],
     },
     include: {
-      tagToBookmarks: true,
+      tagToBookmarks: {
+        include: {
+          tag: true,
+        },
+      },
       collection: true,
     },
     orderBy: {

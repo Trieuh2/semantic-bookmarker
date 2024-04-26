@@ -33,7 +33,11 @@ const getBookmark = async (
       page_url,
     },
     include: {
-      tagToBookmarks: true,
+      tagToBookmarks: {
+        include: {
+          tag: true,
+        },
+      },
       collection: true,
     },
   });

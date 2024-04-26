@@ -205,7 +205,7 @@ const updateTagToBookmarks = async (
     const tagToBookmarks = await prisma.tagToBookmark.findMany({
       where: {
         userId,
-        page_url: bookmark?.page_url,
+        bookmarkId: bookmark?.id,
       },
     });
 
@@ -225,9 +225,7 @@ const updateTagToBookmarks = async (
       const newTagToBookmark = await prisma.tagToBookmark.create({
         data: {
           tagId: tagRecord.id,
-          tag_name: tagRecord.name,
           bookmarkId: id,
-          page_url: bookmark.page_url,
           userId,
         },
       });

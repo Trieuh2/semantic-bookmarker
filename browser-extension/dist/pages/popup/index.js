@@ -3351,7 +3351,9 @@ const TagSection = ({ tagFieldValue, setTagFieldValue, tagSet, setTagSet, }) => 
             react.createElement(Input, { id: "tags", value: tagFieldValue, onChange: (event) => setTagFieldValue(event.currentTarget.value), onKeyDown: (event) => {
                     if (event.key === "Enter") {
                         const newTag = tagFieldValue.trim();
-                        setTagSet(new Set([...tagSet, newTag]));
+                        if (newTag !== "") {
+                            setTagSet(new Set([...tagSet, newTag]));
+                        }
                         setTagFieldValue("");
                         event.preventDefault();
                     }
@@ -3483,8 +3485,8 @@ const BookmarkForm = ({ sessionRecord }) => {
                     });
                     setCollectionName(bookmark?.collection?.name ?? "Unsorted");
                     const initialTags = bookmark.tagToBookmarks
-                        .map((record) => record.tag_name)
-                        .filter((tag_name) => tag_name !== "");
+                        ?.map((tagToBookmark) => tagToBookmark.tag?.name)
+                        .filter((tag_name) => tag_name) || [];
                     setTagSet(new Set(initialTags));
                 }
                 setInitialFetchAttempted(true);

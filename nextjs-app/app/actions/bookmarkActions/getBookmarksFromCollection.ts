@@ -33,7 +33,11 @@ const getBookmarksFromCollection = async (
       collectionId: id,
     },
     include: {
-      tagToBookmarks: true,
+      tagToBookmarks: {
+        include: {
+          tag: true,
+        },
+      },
       collection: true,
     },
     orderBy: {

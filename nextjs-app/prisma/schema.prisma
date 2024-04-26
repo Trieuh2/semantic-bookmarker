@@ -103,16 +103,12 @@ model TagToBookmark {
 
   tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId String @db.ObjectId
-  tag_name String
 
   bookmark Bookmark @relation(fields: [bookmarkId], references:[id], onDelete:Cascade)
   bookmarkId String @db.ObjectId
-  page_url String
 
   userId String @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([tag_name, page_url, userId])
 }
 
 model Session {

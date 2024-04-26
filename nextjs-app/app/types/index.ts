@@ -13,6 +13,6 @@ export type TagWithBookmarkCount = Tag & {
 };
 
 export type FullBookmarkType = Bookmark & {
-  tagToBookmarks?: TagToBookmark[];
-  collection?: Collection
+  tagToBookmarks?: (TagToBookmark & { tag?: Tag })[];
+  collection?: Collection;
 };

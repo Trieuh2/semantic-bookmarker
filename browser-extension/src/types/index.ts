@@ -15,13 +15,19 @@ export interface Bookmark {
   collection: Collection;
 }
 
+export interface Tag {
+  id: string;
+  createdAt: string;
+  name: string;
+  userId: string;
+}
+
 export interface TagToBookmark {
   id: string;
   createdAt: string;
   tagId: string;
-  tag_name: string;
   bookmarkId: string;
-  page_url: string;
+  tag: Tag;
 }
 
 export interface Session {

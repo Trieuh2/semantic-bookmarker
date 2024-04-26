@@ -36,7 +36,11 @@ const getBookmarksFromTagId = async (
       },
     },
     include: {
-      tagToBookmarks: true,
+      tagToBookmarks: {
+        include: {
+          tag: true,
+        },
+      },
       collection: true,
     },
   });
