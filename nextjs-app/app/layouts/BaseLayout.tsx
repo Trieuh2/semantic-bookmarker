@@ -1,5 +1,6 @@
 "use client";
 
+import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";
 import { BookmarkProvider } from "../context/BookmarkContext";
 
@@ -12,7 +13,10 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
     <div className="h-full flex bg-zinc-800">
       <BookmarkProvider>
         <Sidebar />
-        {children}
+        <div className="flex flex-col w-full">
+          <Header />
+          {children}
+        </div>
       </BookmarkProvider>
     </div>
   );

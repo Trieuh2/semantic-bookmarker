@@ -7,12 +7,14 @@ import { updateBookmark } from "@/app/actions/bookmarkActions/updateBookmark";
 import getAllBookmarks from "@/app/actions/bookmarkActions/getAllBookmarks";
 import getBookmarksFromCollection from "@/app/actions/bookmarkActions/getBookmarksFromCollection";
 import getBookmarksFromTagId from "@/app/actions/bookmarkActions/getBookmarksFromTagId";
+import getBookmarksFromSearch from "@/app/actions/bookmarkActions/getBookmarksFromSearch";
 
 export async function fetchData(
   sessionToken: string,
   page_url: string,
   collectionId: string,
-  tagId: string
+  tagId: string,
+  searchQuery: string
 ) {
   if (collectionId) {
     return await getBookmarksFromCollection(sessionToken, collectionId);
@@ -20,6 +22,8 @@ export async function fetchData(
     return await getBookmark(sessionToken, page_url);
   } else if (tagId) {
     return await getBookmarksFromTagId(sessionToken, tagId);
+  } else if (searchQuery) {
+    return await getBookmarksFromSearch(sessionToken, searchQuery);
   }
   return await getAllBookmarks(sessionToken);
 }
@@ -32,12 +36,14 @@ export async function GET(request: Request) {
     const page_url = url.searchParams.get("page_url") ?? "";
     const collectionId = url.searchParams.get("collectionId") ?? "";
     const tagId = url.searchParams.get("tagId") ?? "";
+    const searchQuery = url.searchParams.get("searchQuery") ?? "";
 
     const data = await fetchData(
       sessionToken,
       page_url,
       collectionId,
-      tagId
+      tagId,
+      searchQuery
     );
 
     return NextResponse.json({ success: true, data: data });

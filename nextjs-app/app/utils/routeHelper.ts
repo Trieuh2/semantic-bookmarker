@@ -30,5 +30,8 @@ export const isValidDynamicRoute = (
   if (resourceType === "tags" && tags) {
     return tags.some((tag) => tag.id === resourceIdentifier);
   }
+  if (resourceType === "bookmarks" && resourceIdentifier === "search") {
+    return true;
+  }
   return false;
 };
