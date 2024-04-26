@@ -11,7 +11,7 @@ export const handleRerouting = (
 ) => {
   if (!session || session?.status === "unauthenticated") {
     router.push("/");
-  } else if (!isValidDynamicRoute(pathname, collections, tags)) {
+  } else if (session && session?.status === "authenticated" && !isValidDynamicRoute(pathname, collections, tags)) {
     router.push("/home/bookmarks");
   }
 };
