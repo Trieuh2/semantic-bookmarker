@@ -5,7 +5,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 import { fetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface TagsDetailedPageProps {}

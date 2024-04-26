@@ -19,6 +19,7 @@ interface BookmarkContextType {
   setCollections: (collections: CollectionWithBookmarkCount[]) => void;
   tags: TagWithBookmarkCount[];
   setTags: (tags: TagWithBookmarkCount[]) => void;
+  filterResourceState: (type: string, identifier: string) => void;
 }
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
@@ -67,12 +68,23 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     rerouteIfInvalidDynamicRoute(pathname, router, collections, tags);
   }, [pathname, router, collections, tags]);
 
+  const filterResourceState = (type: string, identifier: string): void => {
+    if (type === "collection") {
+      setCollections((prevCollections) =>
+        prevCollections.filter((collection) => collection.id !== identifier)
+      );
+    } else if (type === "tag") {
+      setTags((prevTags) => prevTags.filter((tag) => tag.id !== identifier));
+    }
+  };
+
   const value = useMemo(
     () => ({
       collections,
       setCollections,
       tags,
       setTags,
+      filterResourceState,
     }),
     [collections, tags]
   );
