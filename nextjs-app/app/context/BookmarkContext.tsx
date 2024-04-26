@@ -12,7 +12,8 @@ import { useAuth } from "./AuthContext";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 import { fetchResource } from "../libs/resourceActions";
 import { usePathname, useRouter } from "next/navigation";
-import { rerouteIfInvalidDynamicRoute } from "../utils/routeHelper";
+import { handleRerouting } from "../utils/routeHelper";
+import { useSession } from "next-auth/react";
 
 interface BookmarkContextType {
   collections: CollectionWithBookmarkCount[];
@@ -36,6 +37,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   const { sessionToken } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const session = useSession();
 
   const fetchCollections = useCallback(async () => {
     if (sessionToken) {
@@ -65,8 +67,9 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [fetchCollections, fetchTags]);
 
   useEffect(() => {
-    rerouteIfInvalidDynamicRoute(pathname, router, collections, tags);
-  }, [pathname, router, collections, tags]);
+    console.log(session)
+    handleRerouting(pathname, router, collections, tags, session);
+  }, [pathname, router, collections, tags, session]);
 
   const filterResourceState = (type: string, identifier: string): void => {
     if (type === "collection") {

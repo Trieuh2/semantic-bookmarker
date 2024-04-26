@@ -1,13 +1,17 @@
+import { SessionContextValue } from "next-auth/react";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export const rerouteIfInvalidDynamicRoute = (
+export const handleRerouting = (
   pathname: string,
   router: AppRouterInstance,
   collections: CollectionWithBookmarkCount[],
-  tags: TagWithBookmarkCount[]
+  tags: TagWithBookmarkCount[],
+  session: SessionContextValue
 ) => {
-  if (!isValidDynamicRoute(pathname, collections, tags)) {
+  if (!session || session?.status === "unauthenticated") {
+    router.push("/");
+  } else if (!isValidDynamicRoute(pathname, collections, tags)) {
     router.push("/home/bookmarks");
   }
 };
