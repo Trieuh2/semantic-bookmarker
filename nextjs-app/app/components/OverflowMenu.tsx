@@ -51,7 +51,7 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
         <ul>
           {menuOptions.map((option, index) => (
             <li
-              key={index}
+              key={`overflowmenu-${option.label}-${index}`}
               className={listItemClasses}
               onMouseUp={(event) => {
                 event.preventDefault();

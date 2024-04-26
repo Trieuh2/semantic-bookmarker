@@ -31,8 +31,8 @@ const BookmarkList: React.FC<BookmarkListProps> = ({ initialItems }) => {
 
   return (
     <div className={bookmarkListClasses}>
-      {initialItems.map((bookmark) => {
-        return <BookmarkItem key={bookmark.id} data={bookmark} />;
+      {initialItems.map((bookmark, index) => {
+        return <BookmarkItem key={`bookmark-${bookmark.id}-${index}`} data={bookmark} />;
       })}
     </div>
   );

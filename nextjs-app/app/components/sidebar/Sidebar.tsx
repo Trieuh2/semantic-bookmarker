@@ -16,7 +16,7 @@ const Sidebar: React.FC = React.memo(() => {
     () =>
       collections.map((collection) => (
         <SidebarItem
-          key={collection.id}
+          key={`collection-${collection.id}`}
           href={`/home/collections/${collection.id}`}
           label={collection.name}
           icon={IoIosFolder}
@@ -32,7 +32,7 @@ const Sidebar: React.FC = React.memo(() => {
     () =>
       tags.map((tag) => (
         <SidebarItem
-          key={tag.id}
+          key={`tag-${tag.id}`}
           href={`/home/tags/${tag.id}`}
           label={tag.name}
           icon={HiHashtag}

@@ -108,11 +108,11 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
         {/* Tags */}
         {data.tagToBookmarks && (
           <div className={tagsClasses}>
-            {data.tagToBookmarks.map((tagToBookmark) => {
+            {data.tagToBookmarks.map((tagToBookmark, index) => {
               const tagLink = "/home/tags/" + tagToBookmark.tagId;
               return (
                 <Link
-                  key={tagToBookmark.tagId}
+                  key={`tagToBookmark-${tagToBookmark.tagId}-${index}`}
                   href={tagLink}
                   className="flex hover:underline items-center z-10"
                 >
