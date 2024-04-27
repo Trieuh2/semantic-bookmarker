@@ -20,7 +20,12 @@ interface BookmarkContextType {
   setCollections: (collections: CollectionWithBookmarkCount[]) => void;
   tags: TagWithBookmarkCount[];
   setTags: (tags: TagWithBookmarkCount[]) => void;
-  filterResourceState: (type: string, identifier: string) => void;
+  filterClientResourceState: (type: string, identifier: string) => void;
+  updateClientResourceName: (
+    type: string,
+    identifier: string,
+    name: string
+  ) => void;
 }
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
@@ -67,11 +72,13 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [fetchCollections, fetchTags]);
 
   useEffect(() => {
-    console.log(session)
     handleRerouting(pathname, router, collections, tags, session);
   }, [pathname, router, collections, tags, session]);
 
-  const filterResourceState = (type: string, identifier: string): void => {
+  const filterClientResourceState = (
+    type: string,
+    identifier: string
+  ): void => {
     if (type === "collection") {
       setCollections((prevCollections) =>
         prevCollections.filter((collection) => collection.id !== identifier)
@@ -81,13 +88,42 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateClientResourceName = (
+    type: string,
+    identifier: string,
+    name: string
+  ): void => {
+    if (type === "collection") {
+      setCollections((prevCollections) =>
+        prevCollections.map((collection) => {
+          if (collection.id === identifier) {
+            return { ...collection, name: name };
+          } else {
+            return collection;
+          }
+        })
+      );
+    } else if (type === "tag") {
+      setTags((prevTags) =>
+        prevTags.map((tag) => {
+          if (tag.id === identifier) {
+            return { ...tag, name: name };
+          } else {
+            return tag;
+          }
+        })
+      );
+    }
+  };
+
   const value = useMemo(
     () => ({
       collections,
       setCollections,
       tags,
       setTags,
-      filterResourceState,
+      filterClientResourceState,
+      updateClientResourceName,
     }),
     [collections, tags]
   );

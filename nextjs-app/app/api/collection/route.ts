@@ -3,6 +3,7 @@ import { handleError } from "@/app/utils/errorHandler";
 import getAllCollections from "@/app/actions/collectionActions/getAllCollections";
 import { createCollection } from "@/app/actions/collectionActions/createCollection";
 import deleteCollection from "@/app/actions/collectionActions/deleteCollection";
+import updateCollection from "@/app/actions/collectionActions/updateCollection";
 
 export async function GET(request: Request) {
   try {
@@ -41,5 +42,21 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, data: deletedCollection });
   } catch (error) {
     return handleError(error as Error);
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, name } = body;
+
+    const sessionToken =
+      request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+
+    const updatedCollection = await updateCollection(sessionToken, id, name);
+
+    return NextResponse.json({ success: true, data: updatedCollection });
+  } catch (error) {
+    handleError(error as Error);
   }
 }

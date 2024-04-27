@@ -45,3 +45,23 @@ export const deleteResource = async (
     onError(error);
   }
 };
+
+export const updateResource = async (
+  endpoint: string,
+  data: Record<string, any> = {},
+  sessionToken: string,
+  onSuccess: () => void,
+  onError: (error: any) => void
+) => {
+  try {
+    await axios.patch(`/api/${endpoint}`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    });
+    onSuccess();
+  } catch (error) {
+    onError(error);
+  }
+};
