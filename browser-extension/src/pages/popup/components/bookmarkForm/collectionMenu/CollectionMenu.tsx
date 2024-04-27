@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import CollectionMenuOption from "./CollectionMenuOption";
 import CollectionButton from "./CollectionButton";
 import clsx from "clsx";
 import NewCollectionButton from "./NewCollectionButton";
 import Input from "../Input";
+import CollectionMenuOption from "./CollectionMenuOption";
 
 interface CollectionMenuProps {
+  setCollectionOptions: (values: Set<string>) => void;
   collectionOptions: Set<string>;
   selectedCollection: string;
   setCollectionName: (value: string) => void;
 }
 
 const CollectionMenu: React.FC<CollectionMenuProps> = ({
+  setCollectionOptions,
   collectionOptions,
   selectedCollection,
   setCollectionName,
@@ -56,13 +58,14 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     left-0
     top-0
     z-20
+    max-h-[180px]
     mx-2
     rounded-md
-    max-h-[180px]
+    drop-shadow
     transition-opacity
     duration-200
     `,
-    scrollbarClasses,
+    collectionOptions.size >= 7 && scrollbarClasses,
     isCollectionMenuOpen
       ? "ring-2 ring-orange-300 opacity-100"
       : "ring-2 ring-transparent opacity-0 pointer-events-none"
@@ -99,6 +102,11 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
                     const newCollectionName = inputFieldValue.trim();
                     if (newCollectionName) {
                       setCollectionName(newCollectionName);
+
+                      // Update options
+                      const updatedOptions = new Set(collectionOptions);
+                      updatedOptions.add(newCollectionName);
+                      setCollectionOptions(updatedOptions);
                     }
                     setInputFieldValue("");
                     setIsInputFieldOpen(false);
@@ -124,6 +132,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
             />
           </div>
 
+          {/* Collection Options to select from */}
           <div ref={collectionMenuRef} className={collectionMenuClasses}>
             <ul>
               <CollectionMenuOption

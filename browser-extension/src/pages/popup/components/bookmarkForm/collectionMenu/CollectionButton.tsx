@@ -27,7 +27,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     hover:bg-zinc-800
     hover:border-orange-300
     transition-opacity
-    duration-50`,
+    duration-75`,
     isInputFieldOpen ? "opacity-0" : "opacity-100 z-10"
   );
 

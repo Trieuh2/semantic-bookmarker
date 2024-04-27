@@ -16,13 +16,7 @@ import {
 import { fetchCollections } from "../../../../actions/collectionActions";
 
 // Type imports
-import {
-  Bookmark,
-  ChromeTab,
-  Collection,
-  Session,
-  TagToBookmark,
-} from "../../../../types";
+import { Bookmark, ChromeTab, Collection, Session } from "../../../../types";
 
 interface BookmarkFormProps {
   sessionRecord: Session | null;
@@ -321,6 +315,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = ({ sessionRecord }) => {
       </div>
 
       <CollectionMenu
+        setCollectionOptions={setCollectionOptions}
         collectionOptions={collectionOptions}
         selectedCollection={selectedCollection}
         setCollectionName={(value) => setCollectionName(value)}

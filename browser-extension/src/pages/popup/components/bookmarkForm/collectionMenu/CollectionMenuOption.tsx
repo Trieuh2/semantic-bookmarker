@@ -3,14 +3,14 @@ import React from "react";
 import { FaBoxArchive } from "react-icons/fa6";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-interface CollectionMenuOption {
+interface CollectionMenuOptionProps {
   name: string;
   onMouseUp: () => void;
   isFirst?: boolean;
   isLast?: boolean;
 }
 
-const CollectionMenuOption: React.FC<CollectionMenuOption> = ({
+const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
   name,
   onMouseUp,
   isFirst = false,
@@ -28,8 +28,8 @@ const CollectionMenuOption: React.FC<CollectionMenuOption> = ({
     transition
     ease-in-out
     `,
-    isFirst && "rounded-tl-md",
-    isLast && "rounded-bl-md"
+    isFirst && "rounded-t-md",
+    isLast && "rounded-b-md"
   );
 
   const iconClasses = `
