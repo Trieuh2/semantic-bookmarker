@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { collections } = useBookmarks();
+  const { state, dispatch } = useBookmarks();
 
   // Initialize labels, buttons, and search state
   useEffect(() => {
@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
         return;
       }
 
-      const collection = collections.filter(
+      const collection = state.collections.filter(
         (collection) => collection.id === urlInfo.id
       )[0];
       setHeaderTitle(collection?.name ?? "");
@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
     searchQuery,
     router,
     headerTitle,
-    collections,
+    state.collections,
     collectionName,
     collectionId,
   ]);

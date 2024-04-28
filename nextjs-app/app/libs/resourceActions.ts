@@ -2,7 +2,7 @@ import axios from "axios";
 
 const validEndpoints = ["bookmark", "collection", "tag"];
 
-export const fetchResource = async (
+export const axiosFetchResource = async (
   endpoint: string,
   sessionToken: string,
   params: Record<string, any> = {}
@@ -25,7 +25,7 @@ export const fetchResource = async (
   }
 };
 
-export const deleteResource = async (
+export const axiosDeleteResource = async (
   endpoint: string,
   identifier: string,
   sessionToken: string,
@@ -46,7 +46,7 @@ export const deleteResource = async (
   }
 };
 
-export const updateResource = async (
+export const axiosUpdateResource = async (
   endpoint: string,
   data: Record<string, any> = {},
   sessionToken: string,

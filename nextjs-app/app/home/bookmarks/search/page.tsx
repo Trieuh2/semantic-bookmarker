@@ -2,7 +2,7 @@
 
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
-import { fetchResource } from "@/app/libs/resourceActions";
+import { axiosFetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -24,7 +24,11 @@ const BookmarksSearchPage: React.FC<BookmarksSearchPageProps> = () => {
         const params = {
           searchQuery,
         };
-        const bookmarks = await fetchResource("bookmark", sessionToken, params);
+        const bookmarks = await axiosFetchResource(
+          "bookmark",
+          sessionToken,
+          params
+        );
         setInitialItems(bookmarks);
       };
       fetchBookmarks();

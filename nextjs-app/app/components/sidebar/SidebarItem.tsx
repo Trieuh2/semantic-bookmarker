@@ -9,20 +9,24 @@ import React, {
 } from "react";
 import Link from "next/link";
 import { IconType } from "react-icons";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import OverflowMenuButton from "./OverflowMenuButton";
 import OverflowMenu from "./OverflowMenu";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
-import { deleteResource, updateResource } from "@/app/libs/resourceActions";
+import {
+  axiosDeleteResource,
+  axiosUpdateResource,
+} from "@/app/libs/resourceActions";
+import { getUrlInfo } from "@/app/utils/urlActions";
 
 interface SidebarItemProps {
   href: string;
   label: string;
   icon?: IconType;
   count?: number | null;
-  type?: string;
+  resourceType?: string;
   identifier?: string; // collectionId or tagId
 }
 
@@ -31,7 +35,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   label,
   icon: Icon,
   count,
-  type,
+  resourceType,
   identifier,
 }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -47,8 +51,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   const pathname = usePathname();
   const { sessionToken } = useAuth();
-  const { filterClientResourceState, updateClientResourceName } =
-    useBookmarks();
+  const { dispatch } = useBookmarks();
   const [isActive, setIsActive] = useState<boolean>(false);
 
   const handleEllipsesClick = useCallback(
@@ -71,17 +74,22 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   }, []);
 
   const handleRename = useCallback(
-    (type: string, identifier: string, name: string) => {
+    (resourceType: string, identifier: string, name: string) => {
       const trimmedName = name.trim();
       if (trimmedName && trimmedName !== initialLabel) {
-        const previousLabel = initialLabel;
+        const prevName = initialLabel;
 
         const onSuccess = () => {};
 
         const onError = (error: any) => {
           // Undo optimistic update
-          setInitialLabel(previousLabel);
-          updateClientResourceName(type, identifier, previousLabel);
+          setInitialLabel(prevName);
+          dispatch({
+            type: "UPDATE_RESOURCE_NAME",
+            resource: resourceType as "collection" | "tag",
+            identifier,
+            name: prevName,
+          });
         };
 
         const data = {
@@ -91,28 +99,49 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
         // Optimistic update
         setInitialLabel(trimmedName);
-        updateClientResourceName(type, identifier, trimmedName);
-        updateResource(type, data, sessionToken, onSuccess, onError);
+        dispatch({
+          type: "UPDATE_RESOURCE_NAME",
+          resource: resourceType as "collection" | "tag",
+          identifier,
+          name: trimmedName,
+        });
+        axiosUpdateResource(
+          resourceType,
+          data,
+          sessionToken,
+          onSuccess,
+          onError
+        );
       } else if (!trimmedName) {
         setRenameValue(initialLabel);
       }
     },
-    [initialLabel, sessionToken, updateClientResourceName]
+    [initialLabel, sessionToken, dispatch]
   );
 
   const handleDelete = useCallback(
-    (type: string, identifier: string) => {
-      const onSuccess = (type: string, identifier: string) => {
-        filterClientResourceState(type, identifier);
+    (resourceType: string, identifier: string) => {
+      const onSuccess = (resourceType: string, identifier: string) => {
+        dispatch({
+          type: "FILTER_RESOURCE",
+          resource: resourceType as "collection" | "tag",
+          identifier,
+        });
       };
 
       const onError = (error: any) => {
-        console.error(`Error deleting type ${type}:`, error);
+        console.error(`Error deleting type ${resourceType}:`, error);
       };
 
-      deleteResource(type, identifier, sessionToken, onSuccess, onError);
+      axiosDeleteResource(
+        resourceType,
+        identifier,
+        sessionToken,
+        onSuccess,
+        onError
+      );
     },
-    [filterClientResourceState, sessionToken]
+    [sessionToken, dispatch]
   );
 
   // Side effect to close overflow menu and rename field
@@ -128,13 +157,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
       // Rename input field
       if (
-        type &&
+        resourceType &&
         identifier &&
         renameInputRef.current &&
         !renameInputRef.current.contains(event.target as Node)
       ) {
         if (renameValue.trim() !== "" && renameValue.trim() !== initialLabel) {
-          handleRename(type, identifier, renameValue);
+          handleRename(resourceType, identifier, renameValue);
         } else {
           setRenameValue(initialLabel); // Reset to initial label if input field was empty
         }
@@ -153,7 +182,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     renameValue,
     isRenameOpened,
     handleRename,
-    type,
+    resourceType,
     identifier,
   ]);
 
@@ -171,28 +200,32 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       }
     };
     fetchIsActive();
-  }, [pathname]);
+  }, [pathname, href, label]);
 
   // Overflow menu options for renaming/deleting a tag or collection.
   const menuOptions = useMemo(() => {
-    const getMenuOptions = (type: string, identifier: string) => {
+    const getMenuOptions = (resourceType: string, identifier: string) => {
       return [
         {
-          label: `Rename ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+          label: `Rename ${
+            resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
+          }`,
           action: () => {
             handleRenameOptionClick();
           },
         },
         {
-          label: `Delete ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-          action: () => handleDelete(type, identifier),
+          label: `Delete ${
+            resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
+          }`,
+          action: () => handleDelete(resourceType, identifier),
         },
       ];
     };
-    if (type && identifier) {
-      return getMenuOptions(type, identifier);
+    if (resourceType && identifier) {
+      return getMenuOptions(resourceType, identifier);
     }
-  }, [type, identifier, handleDelete, handleRenameOptionClick]);
+  }, [resourceType, identifier, handleDelete, handleRenameOptionClick]);
 
   const linkContainerClasses = clsx(
     `
@@ -261,7 +294,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
             menuOptions={menuOptions}
           />
         )}
-        {type && identifier && (
+        {resourceType && identifier && (
           <input
             className={renameInputClasses}
             ref={renameInputRef}
@@ -271,7 +304,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 setIsRenameOpened(false);
-                handleRename(type, identifier, renameValue);
+                handleRename(resourceType, identifier, renameValue);
               }
             }}
           ></input>

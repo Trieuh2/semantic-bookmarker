@@ -10,16 +10,18 @@ import SidebarGroup from "./SidebarGroup";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 
 const Sidebar: React.FC = React.memo(() => {
-  const { collections, tags } = useBookmarks();
+  const { state, dispatch } = useBookmarks();
 
   const unsortedCollection = useMemo(() => {
-    const collection = collections.find((collection) => collection.isDefault);
+    const collection = state.collections.find(
+      (collection) => collection.isDefault
+    );
     return collection;
-  }, [collections]);
+  }, [state.collections]);
 
   const collectionItems = useMemo(
     () =>
-      collections
+      state.collections
         .filter((collection) => !collection.isDefault)
         .map((collection) => (
           <SidebarItem
@@ -28,27 +30,27 @@ const Sidebar: React.FC = React.memo(() => {
             label={collection.name}
             icon={IoIosFolder}
             count={collection._count.bookmarks}
-            type="collection"
+            resourceType="collection"
             identifier={collection.id}
           />
         )),
-    [collections]
+    [state.collections]
   );
 
   const tagItems = useMemo(
     () =>
-      tags.map((tag) => (
+      state.tags.map((tag) => (
         <SidebarItem
           key={`tag-${tag.id}`}
           href={`/home/tags/${tag.id}`}
           label={tag.name}
           icon={HiHashtag}
           count={tag._count.tagToBookmarks}
-          type="tag"
+          resourceType="tag"
           identifier={tag.id}
         />
       )),
-    [tags]
+    [state.tags]
   );
 
   const scrollbarClasses = `
@@ -92,13 +94,13 @@ const Sidebar: React.FC = React.memo(() => {
       {/* Subtract 1 from count due to "Unsorted" being a collection */}
       <SidebarGroup
         name="Collections"
-        count={Math.max(collections.length - 1, 0)}
+        count={Math.max(state.collections.length - 1, 0)}
       >
         <div>{collectionItems}</div>
       </SidebarGroup>
 
       {/* Tags */}
-      <SidebarGroup name="Tags" count={tags.length}>
+      <SidebarGroup name="Tags" count={state.tags.length}>
         <div>{tagItems}</div>
       </SidebarGroup>
     </div>

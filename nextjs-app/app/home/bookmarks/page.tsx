@@ -2,7 +2,7 @@
 
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
-import { fetchResource } from "@/app/libs/resourceActions";
+import { axiosFetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
 import React, { useEffect, useState } from "react";
 
@@ -18,7 +18,7 @@ const BookmarksPage: React.FC<BookmarksPageProps> = () => {
   useEffect(() => {
     if (sessionToken) {
       const fetchBookmarks = async () => {
-        const bookmarks = await fetchResource("bookmark", sessionToken);
+        const bookmarks = await axiosFetchResource("bookmark", sessionToken);
         setInitialItems(bookmarks);
       };
       fetchBookmarks();

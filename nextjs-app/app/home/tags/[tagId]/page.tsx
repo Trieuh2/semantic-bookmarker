@@ -3,8 +3,9 @@
 import BookmarkList from "@/app/components/bookmarks/BookmarksList";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
-import { fetchResource } from "@/app/libs/resourceActions";
+import { axiosFetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
+import { getUrlInfo } from "@/app/utils/urlActions";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -14,7 +15,8 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
   const [initialItems, setInitialItems] = useState<FullBookmarkType[]>();
   const { sessionToken } = useAuth();
   const pathname = usePathname();
-  const { tags } = useBookmarks();
+  const { state } = useBookmarks();
+  const urlInfo = getUrlInfo(pathname);
 
   // Fetch the Bookmark records related to this Tag
   useEffect(() => {
@@ -23,17 +25,21 @@ const TagsDetailedPage: React.FC<TagsDetailedPageProps> = ({}) => {
         const params = {
           tagId: tagId,
         };
-        const bookmarks = await fetchResource("bookmark", sessionToken, params)
-        setInitialItems(bookmarks)
+        const bookmarks = await axiosFetchResource(
+          "bookmark",
+          sessionToken,
+          params
+        );
+        setInitialItems(bookmarks);
       };
 
-      const tagId = pathname.split("/").pop() ?? "";
+      const tagId = urlInfo.id;
 
       if (sessionToken && tagId) {
         fetchBookmarks(tagId);
       }
     }
-  }, [sessionToken, pathname, tags]);
+  }, [sessionToken, pathname, state.tags, urlInfo.id]);
 
   return (
     <>

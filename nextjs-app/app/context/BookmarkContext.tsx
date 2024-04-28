@@ -1,129 +1,121 @@
 "use client";
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { useAuth } from "./AuthContext";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
-import { fetchResource } from "../libs/resourceActions";
+import { axiosFetchResource } from "../libs/resourceActions";
 import { usePathname, useRouter } from "next/navigation";
 import { handleRerouting } from "../utils/routeHelper";
 import { useSession } from "next-auth/react";
 
-interface BookmarkContextType {
+// State structure
+interface BookmarkState {
   collections: CollectionWithBookmarkCount[];
-  setCollections: (collections: CollectionWithBookmarkCount[]) => void;
   tags: TagWithBookmarkCount[];
-  setTags: (tags: TagWithBookmarkCount[]) => void;
-  filterClientResourceState: (type: string, identifier: string) => void;
-  updateClientResourceName: (
-    type: string,
-    identifier: string,
-    name: string
-  ) => void;
+}
+
+// Define actions
+type Action =
+  | { type: "SET_COLLECTIONS"; payload: CollectionWithBookmarkCount[] }
+  | { type: "SET_TAGS"; payload: TagWithBookmarkCount[] }
+  | {
+      type: "FILTER_RESOURCE";
+      resource: "collection" | "tag";
+      identifier: string;
+    }
+  | {
+      type: "UPDATE_RESOURCE_NAME";
+      resource: "collection" | "tag";
+      identifier: string;
+      name: string;
+    };
+
+interface BookmarkContextType {
+  state: BookmarkState;
+  dispatch: React.Dispatch<Action>;
 }
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
   undefined
 );
 
+const initialState = {
+  collections: [],
+  tags: [],
+};
+
+function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
+  let resourceType;
+
+  switch (action.type) {
+    case "SET_COLLECTIONS":
+      return { ...state, collections: action.payload };
+    case "SET_TAGS":
+      return { ...state, tags: action.payload };
+    case "FILTER_RESOURCE":
+      if (action.resource === "collection") {
+        resourceType = "collections";
+      } else if (action.resource === "tag") {
+        resourceType = "tags";
+      }
+      return {
+        ...state,
+        [resourceType as "collections" | "tags"]: state[
+          resourceType as "collections" | "tags"
+        ].filter((item) => item.id !== action.identifier),
+      };
+    case "UPDATE_RESOURCE_NAME":
+      if (action.resource === "collection") {
+        resourceType = "collections";
+      } else if (action.resource === "tag") {
+        resourceType = "tags";
+      }
+      return {
+        ...state,
+        [resourceType as "collections" | "tags"]: state[
+          resourceType as "collections" | "tags"
+        ].map((item) =>
+          item.id === action.identifier ? { ...item, name: action.name } : item
+        ),
+      };
+    default:
+      return state;
+  }
+}
+
 export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [collections, setCollections] = useState<CollectionWithBookmarkCount[]>(
-    []
-  );
-  const [tags, setTags] = useState<TagWithBookmarkCount[]>([]);
+  const [state, dispatch] = useReducer(bookmarkReducer, initialState);
   const { sessionToken } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const session = useSession();
 
-  const fetchCollections = useCallback(async () => {
-    if (sessionToken) {
-      const fetchedCollections = await fetchResource(
-        "collection",
-        sessionToken
-      );
-      setCollections(fetchedCollections);
-    }
-  }, [sessionToken]);
-
-  const fetchTags = useCallback(async () => {
-    if (sessionToken) {
-      const fetchedTags = await fetchResource("tag", sessionToken);
-      setTags(fetchedTags);
-    }
-  }, [sessionToken]);
-
   useEffect(() => {
-    fetchCollections();
-    fetchTags();
-  }, [fetchCollections, fetchTags]);
+    const fetchData = async (resourceType: "collection" | "tag") => {
+      if (sessionToken) {
+        const fetchedData = await axiosFetchResource(
+          resourceType,
+          sessionToken
+        );
+        const actionType = `SET_${(resourceType + "s").toUpperCase()}` as
+          | "SET_COLLECTIONS"
+          | "SET_TAGS";
+        dispatch({ type: actionType, payload: fetchedData });
+      }
+    };
+    fetchData("collection");
+    fetchData("tag");
+  }, [sessionToken]);
 
   useEffect(() => {
     if (session) {
-      handleRerouting(pathname, router, collections, tags, session);
+      handleRerouting(pathname, router, state.collections, state.tags, session);
     }
-  }, [pathname, router, collections, tags, session]);
+  }, [pathname, router, session, state.collections, state.tags]);
 
-  const filterClientResourceState = (
-    type: string,
-    identifier: string
-  ): void => {
-    if (type === "collection") {
-      setCollections((prevCollections) =>
-        prevCollections.filter((collection) => collection.id !== identifier)
-      );
-    } else if (type === "tag") {
-      setTags((prevTags) => prevTags.filter((tag) => tag.id !== identifier));
-    }
-  };
-
-  const updateClientResourceName = (
-    type: string,
-    identifier: string,
-    name: string
-  ): void => {
-    if (type === "collection") {
-      setCollections((prevCollections) =>
-        prevCollections.map((collection) => {
-          if (collection.id === identifier) {
-            return { ...collection, name: name };
-          } else {
-            return collection;
-          }
-        })
-      );
-    } else if (type === "tag") {
-      setTags((prevTags) =>
-        prevTags.map((tag) => {
-          if (tag.id === identifier) {
-            return { ...tag, name: name };
-          } else {
-            return tag;
-          }
-        })
-      );
-    }
-  };
-
-  const value = useMemo(
-    () => ({
-      collections,
-      setCollections,
-      tags,
-      setTags,
-      filterClientResourceState,
-      updateClientResourceName,
-    }),
-    [collections, tags]
-  );
+  const value = { state, dispatch };
 
   return (
     <BookmarkContext.Provider value={value}>
