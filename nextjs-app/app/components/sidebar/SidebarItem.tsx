@@ -19,14 +19,13 @@ import {
   axiosDeleteResource,
   axiosUpdateResource,
 } from "@/app/libs/resourceActions";
-import { getUrlInfo } from "@/app/utils/urlActions";
 
 interface SidebarItemProps {
   href: string;
   label: string;
   icon?: IconType;
   count?: number | null;
-  resourceType?: string;
+  resourceType?: "collection" | "tag";
   identifier?: string; // collectionId or tagId
 }
 
@@ -51,7 +50,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   const pathname = usePathname();
   const { sessionToken } = useAuth();
-  const { dispatch } = useBookmarks();
+  const { state, dispatch } = useBookmarks();
   const [isActive, setIsActive] = useState<boolean>(false);
 
   const handleEllipsesClick = useCallback(
@@ -74,19 +73,20 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   }, []);
 
   const handleRename = useCallback(
-    (resourceType: string, identifier: string, name: string) => {
+    (resourceType: "collection" | "tag", identifier: string, name: string) => {
+      const prevName = initialLabel;
       const trimmedName = name.trim();
-      if (trimmedName && trimmedName !== initialLabel) {
-        const prevName = initialLabel;
 
+      if (trimmedName && trimmedName !== initialLabel) {
         const onSuccess = () => {};
 
         const onError = (error: any) => {
-          // Undo optimistic update
+          // Dispatch an action to revert to the previous state if there's an error
           setInitialLabel(prevName);
+          setRenameValue(prevName);
           dispatch({
             type: "UPDATE_RESOURCE_NAME",
-            resource: resourceType as "collection" | "tag",
+            resource: resourceType,
             identifier,
             name: prevName,
           });
@@ -101,7 +101,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         setInitialLabel(trimmedName);
         dispatch({
           type: "UPDATE_RESOURCE_NAME",
-          resource: resourceType as "collection" | "tag",
+          resource: resourceType,
           identifier,
           name: trimmedName,
         });
@@ -120,19 +120,28 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   );
 
   const handleDelete = useCallback(
-    (resourceType: string, identifier: string) => {
-      const onSuccess = (resourceType: string, identifier: string) => {
+    (resourceType: "collection" | "tag", identifier: string) => {
+      const stateResourceType = resourceType + "s";
+      const previousResources =
+        state[stateResourceType as "collections" | "tags"];
+
+      const onSuccess = () => {};
+      const onError = (error: any) => {
+        console.error(`Error deleting type ${resourceType}:`, error);
+
+        // Dispatch an action to revert to the previous state if there's an error
         dispatch({
-          type: "FILTER_RESOURCE",
+          type: "SET_RESOURCES",
           resource: resourceType as "collection" | "tag",
-          identifier,
+          payload: previousResources,
         });
       };
 
-      const onError = (error: any) => {
-        console.error(`Error deleting type ${resourceType}:`, error);
-      };
-
+      dispatch({
+        type: "FILTER_RESOURCE",
+        resource: resourceType,
+        identifier,
+      });
       axiosDeleteResource(
         resourceType,
         identifier,
@@ -141,7 +150,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         onError
       );
     },
-    [sessionToken, dispatch]
+    [sessionToken, state, dispatch]
   );
 
   // Side effect to close overflow menu and rename field
@@ -204,7 +213,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   // Overflow menu options for renaming/deleting a tag or collection.
   const menuOptions = useMemo(() => {
-    const getMenuOptions = (resourceType: string, identifier: string) => {
+    const getMenuOptions = (
+      resourceType: "collection" | "tag",
+      identifier: string
+    ) => {
       return [
         {
           label: `Rename ${

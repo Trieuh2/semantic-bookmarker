@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { state, dispatch } = useBookmarks();
+  const { state } = useBookmarks();
 
   // Initialize labels, buttons, and search state
   useEffect(() => {

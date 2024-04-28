@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+} from "react";
+import { debounce } from "lodash";
 import { useAuth } from "./AuthContext";
 import {
   CollectionWithBookmarkCount,
@@ -22,9 +29,6 @@ interface BookmarkState {
 
 // Define actions
 type Action =
-  | { type: "SET_COLLECTIONS"; payload: CollectionWithBookmarkCount[] }
-  | { type: "SET_TAGS"; payload: TagWithBookmarkCount[] }
-  | { type: "SET_BOOKMARKS"; payload: FullBookmarkType[] }
   | {
       type: "FILTER_RESOURCE";
       resource: "collection" | "tag";
@@ -35,6 +39,14 @@ type Action =
       resource: "collection" | "tag";
       identifier: string;
       name: string;
+    }
+  | {
+      type: "SET_RESOURCES";
+      resource: "collection" | "tag" | "bookmark";
+      payload:
+        | CollectionWithBookmarkCount[]
+        | TagWithBookmarkCount[]
+        | FullBookmarkType[];
     };
 
 interface BookmarkContextType {
@@ -54,39 +66,99 @@ const initialState = {
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
   let resourceType;
+  let updatedResources;
+  let updatedBookmarks;
+  let updatedTagToBookmarks;
 
   switch (action.type) {
-    case "SET_COLLECTIONS":
-      return { ...state, collections: action.payload };
-    case "SET_TAGS":
-      return { ...state, tags: action.payload };
-    case "SET_BOOKMARKS":
-      return { ...state, bookmarks: action.payload };
     case "FILTER_RESOURCE":
-      if (action.resource === "collection") {
-        resourceType = "collections";
-      } else if (action.resource === "tag") {
-        resourceType = "tags";
-      }
+      resourceType = action.resource === "collection" ? "collections" : "tags";
+
+      updatedResources = state[resourceType as "collections" | "tags"].filter(
+        (item) => item.id !== action.identifier
+      );
+
+      // Update bookmarks to align with updated resources
+      updatedBookmarks = state.bookmarks.map((bookmark) => {
+        // Update bookmarks to filter removed tag if necessary
+        updatedTagToBookmarks =
+          bookmark.tagToBookmarks && action.resource === "tag"
+            ? bookmark.tagToBookmarks?.filter(
+                (ttb) => ttb.tag?.id !== action.identifier
+              )
+            : bookmark.tagToBookmarks;
+
+        // Find the "Unsorted" collection with all its properties
+        let updatedCollection = bookmark.collection;
+        if (
+          action.resource === "collection" &&
+          bookmark.collection?.id === action.identifier
+        ) {
+          const unsortedCollection = state.collections.find(
+            (collection) => collection.name === "Unsorted"
+          );
+          updatedCollection = unsortedCollection;
+        }
+        return {
+          ...bookmark,
+          tagToBookmarks: updatedTagToBookmarks,
+          collection: updatedCollection,
+        };
+      });
       return {
         ...state,
-        [resourceType as "collections" | "tags"]: state[
-          resourceType as "collections" | "tags"
-        ].filter((item) => item.id !== action.identifier),
+        [resourceType]: updatedResources,
+        bookmarks: updatedBookmarks,
       };
     case "UPDATE_RESOURCE_NAME":
+      resourceType = action.resource === "collection" ? "collections" : "tags";
+      updatedResources = state[resourceType as "collections" | "tags"].map(
+        (item) =>
+          item.id === action.identifier ? { ...item, name: action.name } : item
+      );
+
+      // Update bookmarks for nested tag or collection names
+      updatedBookmarks = state.bookmarks.map((bookmark) => {
+        // Update tags if necessary
+        updatedTagToBookmarks = bookmark.tagToBookmarks?.map((ttb) => {
+          if (ttb.tag?.id === action.identifier && action.resource === "tag") {
+            return { ...ttb, tag: { ...ttb.tag, name: action.name } };
+          }
+          return ttb;
+        });
+
+        // Update collection if necessary
+        let updatedCollection = bookmark.collection;
+        if (
+          bookmark.collection &&
+          bookmark.collection.id === action.identifier &&
+          action.resource === "collection"
+        ) {
+          updatedCollection = { ...bookmark.collection, name: action.name };
+        }
+
+        return {
+          ...bookmark,
+          tagToBookmarks: updatedTagToBookmarks,
+          collection: updatedCollection,
+        };
+      });
+      return {
+        ...state,
+        [resourceType]: updatedResources,
+        bookmarks: updatedBookmarks,
+      };
+    case "SET_RESOURCES":
       if (action.resource === "collection") {
         resourceType = "collections";
       } else if (action.resource === "tag") {
         resourceType = "tags";
+      } else if (action.resource === "bookmark") {
+        resourceType = "bookmarks";
       }
       return {
         ...state,
-        [resourceType as "collections" | "tags"]: state[
-          resourceType as "collections" | "tags"
-        ].map((item) =>
-          item.id === action.identifier ? { ...item, name: action.name } : item
-        ),
+        [resourceType as "collections" | "tags" | "bookmarks"]: action.payload,
       };
     default:
       return state;
@@ -103,49 +175,47 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   const session = useSession();
   const searchParams = useSearchParams();
 
+  const fetchParameters = useMemo(() => {
+    const urlInfo = getUrlInfo(pathname);
+    const { directory, subdirectory, id } = urlInfo;
+
+    let params = {} as Record<string, any>;
+    const searchQuery = searchParams.get("q");
+
+    if (directory === "collections" && id) {
+      params["collectionId"] = id;
+    } else if (directory === "tags" && id) {
+      params["tagId"] = id;
+    }
+
+    if (subdirectory === "search" && searchQuery) {
+      params["searchQuery"] = searchQuery;
+    }
+
+    return params;
+  }, [pathname, searchParams]);
+
   // Fetch bookmarks as the page route changes or state changes
   useEffect(() => {
     if (sessionToken) {
-      const fetchParameters = () => {
-        const urlInfo = getUrlInfo(pathname);
-        const { directory, subdirectory, id } = urlInfo;
-
-        let params = {} as Record<string, any>;
-        const searchQuery = searchParams.get("q");
-
-        if (directory === "collections" && id) {
-          params["collectionId"] = id;
-        } else if (directory === "tags" && id) {
-          params["tagId"] = id;
-        }
-
-        if (subdirectory === "search" && searchQuery) {
-          params["searchQuery"] = searchQuery;
-        }
-
-        return params;
-      };
-
-      const fetchBookmarks = async () => {
-        // Set url parameters
-        const params = fetchParameters();
-
+      const debouncedFetchBookmarks = debounce(async () => {
         // Perform fetch
         const bookmarks = await axiosFetchResource(
           "bookmark",
           sessionToken,
-          params
+          fetchParameters
         );
         if (JSON.stringify(bookmarks) !== JSON.stringify(state.bookmarks)) {
           dispatch({
-            type: "SET_BOOKMARKS",
+            type: "SET_RESOURCES",
+            resource: "bookmark",
             payload: bookmarks,
           });
         }
-      };
-      fetchBookmarks();
+      }, 300);
+      debouncedFetchBookmarks();
     }
-  }, [sessionToken, pathname, state.collections, state.tags, state.bookmarks]);
+  }, [sessionToken, pathname, searchParams, state.bookmarks, fetchParameters]);
 
   // Fetch collection and tag data
   useEffect(() => {
@@ -155,10 +225,11 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
           resourceType,
           sessionToken
         );
-        const actionType = `SET_${(resourceType + "s").toUpperCase()}` as
-          | "SET_COLLECTIONS"
-          | "SET_TAGS";
-        dispatch({ type: actionType, payload: fetchedData });
+        dispatch({
+          type: "SET_RESOURCES",
+          resource: resourceType,
+          payload: fetchedData,
+        });
       }
     };
     fetchData("collection");
