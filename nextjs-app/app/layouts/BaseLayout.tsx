@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";
 import { AuthProvider } from "../context/AuthContext";
@@ -12,15 +13,17 @@ interface BaseLayoutProps {
 const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
   return (
     <div className="h-full flex bg-zinc-800">
-      <AuthProvider>
-        <BookmarkProvider>
-          <Sidebar />
-          <div className="flex flex-col w-full">
-            <Header />
-            {children}
-          </div>
-        </BookmarkProvider>
-      </AuthProvider>
+      <Suspense>
+        <AuthProvider>
+          <BookmarkProvider>
+            <Sidebar />
+            <div className="flex flex-col w-full">
+              <Header />
+              {children}
+            </div>
+          </BookmarkProvider>
+        </AuthProvider>
+      </Suspense>
     </div>
   );
 };

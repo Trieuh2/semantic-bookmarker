@@ -25,7 +25,7 @@ const Sidebar: React.FC = React.memo(() => {
           identifier={collection.id}
         />
       )),
-    [collections, collections.length]
+    [collections]
   );
 
   const tagItems = useMemo(
@@ -41,7 +41,7 @@ const Sidebar: React.FC = React.memo(() => {
           identifier={tag.id}
         />
       )),
-    [tags, tags.length]
+    [tags]
   );
 
   const scrollbarClasses = `
@@ -93,4 +93,5 @@ const Sidebar: React.FC = React.memo(() => {
   );
 });
 
+Sidebar.displayName = "Sidebar";
 export default Sidebar;

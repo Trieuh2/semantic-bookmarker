@@ -45,4 +45,5 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
   }
 );
 
+SidebarGroup.displayName = "SidebarGroup";
 export default SidebarGroup;

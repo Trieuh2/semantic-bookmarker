@@ -51,6 +51,70 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     useBookmarks();
   const isActive = pathname === href;
 
+  const handleEllipsesClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      event.preventDefault(); // Prevent click from propagating to SidebarItem components
+      setIsOverflowMenuOpened((prev) => !prev);
+    },
+    []
+  );
+
+  const handleRenameOptionClick = useCallback(() => {
+    if (renameInputRef) {
+      setIsRenameOpened(true);
+      renameInputRef.current?.focus();
+    }
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setIsOverflowMenuOpened(false);
+  }, []);
+
+  const handleRename = useCallback(
+    (type: string, identifier: string, name: string) => {
+      const trimmedName = name.trim();
+      if (trimmedName && trimmedName !== initialLabel) {
+        const previousLabel = initialLabel;
+
+        const onSuccess = () => {};
+
+        const onError = (error: any) => {
+          // Undo optimistic update
+          setInitialLabel(previousLabel);
+          updateClientResourceName(type, identifier, previousLabel);
+        };
+
+        const data = {
+          id: identifier,
+          name,
+        };
+
+        // Optimistic update
+        setInitialLabel(trimmedName);
+        updateClientResourceName(type, identifier, trimmedName);
+        updateResource(type, data, sessionToken, onSuccess, onError);
+      } else if (!trimmedName) {
+        setRenameValue(initialLabel);
+      }
+    },
+    [initialLabel, sessionToken, updateClientResourceName]
+  );
+
+  const handleDelete = useCallback(
+    (type: string, identifier: string) => {
+      const onSuccess = (type: string, identifier: string) => {
+        filterClientResourceState(type, identifier);
+      };
+
+      const onError = (error: any) => {
+        console.error(`Error deleting type ${type}:`, error);
+      };
+
+      deleteResource(type, identifier, sessionToken, onSuccess, onError);
+    },
+    [filterClientResourceState, sessionToken]
+  );
+
   // Side effect to close overflow menu and rename field
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -83,7 +147,15 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     return () => {
       document.removeEventListener("mouseup", handleClickOutside);
     };
-  }, [isOverflowMenuOpened, initialLabel, renameValue, isRenameOpened]);
+  }, [
+    isOverflowMenuOpened,
+    initialLabel,
+    renameValue,
+    isRenameOpened,
+    handleRename,
+    type,
+    identifier,
+  ]);
 
   // Overflow menu options for renaming/deleting a tag or collection.
   const menuOptions = useMemo(() => {
@@ -104,69 +176,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     if (type && identifier) {
       return getMenuOptions(type, identifier);
     }
-  }, [type, identifier]);
-
-  const handleEllipsesClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      event.preventDefault(); // Prevent click from propagating to SidebarItem components
-      setIsOverflowMenuOpened((prev) => !prev);
-    },
-    []
-  );
-
-  const handleRenameOptionClick = useCallback(() => {
-    if (renameInputRef) {
-      setIsRenameOpened(true);
-      renameInputRef.current?.focus();
-    }
-  }, []);
-
-  const closeMenu = useCallback(() => {
-    setIsOverflowMenuOpened(false);
-  }, [isOverflowMenuOpened]);
-
-  const handleRename = useCallback(
-    (type: string, identifier: string, name: string) => {
-      const trimmedName = name.trim();
-      if (trimmedName && trimmedName !== initialLabel) {
-        const previousLabel = initialLabel;
-
-        const onSuccess = () => {};
-
-        const onError = (error: any) => {
-          // Undo optimistic update
-          setInitialLabel(previousLabel);
-          updateClientResourceName(type, identifier, previousLabel);
-        };
-
-        const data = {
-          id: identifier,
-          name,
-        };
-
-        // Optimistic update
-        setInitialLabel(trimmedName);
-        updateClientResourceName(type, identifier, trimmedName);
-        updateResource(type, data, sessionToken, onSuccess, onError);
-      } else if (!trimmedName) {
-        setRenameValue(initialLabel);
-      }
-    },
-    [initialLabel, sessionToken]
-  );
-
-  const handleDelete = useCallback((type: string, identifier: string) => {
-
-    const onSuccess = (type: string, identifier: string) => {
-      filterClientResourceState(type, identifier);
-    };
-
-    const onError = (error: any) => {
-      console.error(`Error deleting type ${type}:`, error);
-    };
-
-    deleteResource(type, identifier, sessionToken, onSuccess, onError);
-  }, []);
+  }, [type, identifier, handleDelete, handleRenameOptionClick]);
 
   const linkContainerClasses = clsx(
     `

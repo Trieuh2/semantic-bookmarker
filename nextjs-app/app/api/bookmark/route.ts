@@ -8,14 +8,15 @@ import getAllBookmarks from "@/app/actions/bookmarkActions/getAllBookmarks";
 import getBookmarksFromCollection from "@/app/actions/bookmarkActions/getBookmarksFromCollection";
 import getBookmarksFromTagId from "@/app/actions/bookmarkActions/getBookmarksFromTagId";
 import getBookmarksFromSearch from "@/app/actions/bookmarkActions/getBookmarksFromSearch";
+import { FullBookmarkType } from "@/app/types";
 
-export async function fetchData(
+async function fetchData(
   sessionToken: string,
   page_url: string,
   collectionId: string,
   tagId: string,
   searchQuery: string
-) {
+): Promise<FullBookmarkType | FullBookmarkType[] | null> {
   if (collectionId) {
     return await getBookmarksFromCollection(sessionToken, collectionId);
   } else if (page_url) {

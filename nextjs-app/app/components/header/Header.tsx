@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
       setHeaderTitle(collection?.name ?? "");
     };
     fetchHeaderTitle();
-  }, [pathname, router, headerTitle]);
+  }, [pathname, router, headerTitle, collections]);
 
   const divClasses = `
     flex
@@ -65,4 +65,6 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
   );
 });
 
+
+Header.displayName = "Header";
 export default Header;
