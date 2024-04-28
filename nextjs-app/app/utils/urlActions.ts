@@ -1,9 +1,20 @@
-export const getUrlInfo = (pathname: string) => {
+interface UrlInfo {
+  directory: "bookmarks" | "collections" | "tags";
+  subdirectory: "" | "search" | any;
+  id: string;
+}
+
+export const getUrlInfo = (pathname: string): UrlInfo => {
   const pathSegments = pathname.split("/");
-  const directory = pathSegments[2];
+  const directory = pathSegments[2] as "bookmarks" | "collections" | "tags";
 
   if (directory === "bookmarks") {
-    const subdirectory = pathSegments[3]; // collectionId, tagId, or 'search (from '/home/bookmarks/search')'
+    // Example:
+    // pathname = "/home/bookmarks/search"
+    //    directory     = "bookmarks"
+    //    subdirectory  = "search"
+    //    id            = ""
+    const subdirectory = pathSegments[3];
 
     return {
       directory,
@@ -11,7 +22,12 @@ export const getUrlInfo = (pathname: string) => {
       id: "",
     };
   } else {
-    const id = pathSegments[3]; // collectionId, tagId
+    // Example:
+    // pathname = "/home/tags/662e9483ac493a92b89240c8"
+    //    directory     = "tags"
+    //    subdirectory  = "search"
+    //    id            = "662e9483ac493a92b89240c8"
+    const id = pathSegments[3];
     const subdirectory = pathSegments[4] ?? "";
     return {
       directory,

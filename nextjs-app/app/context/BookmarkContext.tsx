@@ -2,22 +2,29 @@
 
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { useAuth } from "./AuthContext";
-import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
+import {
+  CollectionWithBookmarkCount,
+  FullBookmarkType,
+  TagWithBookmarkCount,
+} from "../types";
 import { axiosFetchResource } from "../libs/resourceActions";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { handleRerouting } from "../utils/routeHelper";
 import { useSession } from "next-auth/react";
+import { getUrlInfo } from "../utils/urlActions";
 
 // State structure
 interface BookmarkState {
   collections: CollectionWithBookmarkCount[];
   tags: TagWithBookmarkCount[];
+  bookmarks: FullBookmarkType[];
 }
 
 // Define actions
 type Action =
   | { type: "SET_COLLECTIONS"; payload: CollectionWithBookmarkCount[] }
   | { type: "SET_TAGS"; payload: TagWithBookmarkCount[] }
+  | { type: "SET_BOOKMARKS"; payload: FullBookmarkType[] }
   | {
       type: "FILTER_RESOURCE";
       resource: "collection" | "tag";
@@ -42,6 +49,7 @@ const BookmarkContext = createContext<BookmarkContextType | undefined>(
 const initialState = {
   collections: [],
   tags: [],
+  bookmarks: [],
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -52,6 +60,8 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
       return { ...state, collections: action.payload };
     case "SET_TAGS":
       return { ...state, tags: action.payload };
+    case "SET_BOOKMARKS":
+      return { ...state, bookmarks: action.payload };
     case "FILTER_RESOURCE":
       if (action.resource === "collection") {
         resourceType = "collections";
@@ -91,7 +101,53 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter();
   const pathname = usePathname();
   const session = useSession();
+  const searchParams = useSearchParams();
 
+  // Fetch bookmarks as the page route changes or state changes
+  useEffect(() => {
+    if (sessionToken) {
+      const fetchParameters = () => {
+        const urlInfo = getUrlInfo(pathname);
+        const { directory, subdirectory, id } = urlInfo;
+
+        let params = {} as Record<string, any>;
+        const searchQuery = searchParams.get("q");
+
+        if (directory === "collections" && id) {
+          params["collectionId"] = id;
+        } else if (directory === "tags" && id) {
+          params["tagId"] = id;
+        }
+
+        if (subdirectory === "search" && searchQuery) {
+          params["searchQuery"] = searchQuery;
+        }
+
+        return params;
+      };
+
+      const fetchBookmarks = async () => {
+        // Set url parameters
+        const params = fetchParameters();
+
+        // Perform fetch
+        const bookmarks = await axiosFetchResource(
+          "bookmark",
+          sessionToken,
+          params
+        );
+        if (JSON.stringify(bookmarks) !== JSON.stringify(state.bookmarks)) {
+          dispatch({
+            type: "SET_BOOKMARKS",
+            payload: bookmarks,
+          });
+        }
+      };
+      fetchBookmarks();
+    }
+  }, [sessionToken, pathname, state.collections, state.tags, state.bookmarks]);
+
+  // Fetch collection and tag data
   useEffect(() => {
     const fetchData = async (resourceType: "collection" | "tag") => {
       if (sessionToken) {
@@ -109,11 +165,19 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchData("tag");
   }, [sessionToken]);
 
+  // Handle rerouting
   useEffect(() => {
     if (session) {
       handleRerouting(pathname, router, state.collections, state.tags, session);
     }
-  }, [pathname, router, session, state.collections, state.tags]);
+  }, [
+    pathname,
+    router,
+    session,
+    state.collections,
+    state.tags,
+    state.bookmarks,
+  ]);
 
   const value = { state, dispatch };
 

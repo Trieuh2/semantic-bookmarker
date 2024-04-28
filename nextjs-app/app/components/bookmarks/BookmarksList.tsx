@@ -2,14 +2,24 @@
 
 import { FullBookmarkType } from "@/app/types";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BookmarkItem from "./BookmarkItem";
+import { useBookmarks } from "@/app/context/BookmarkContext";
+import { useAuth } from "@/app/context/AuthContext";
 
-interface BookmarkListProps {
-  initialItems: FullBookmarkType[];
-}
+interface BookmarkListProps {}
 
-const BookmarkList: React.FC<BookmarkListProps> = ({ initialItems }) => {
+const BookmarkList: React.FC<BookmarkListProps> = () => {
+  const sessionToken = useAuth();
+  const { state } = useBookmarks();
+  const [initialItems, setInitialItems] = useState<FullBookmarkType[]>([]);
+
+  useEffect(() => {
+    if (sessionToken) {
+      setInitialItems(state.bookmarks);
+    }
+  }, [sessionToken, state.collections, state.tags, state.bookmarks]);
+
   const scrollbarClasses = `
     overflow-y-scroll
     overflow-x-hidden
@@ -32,7 +42,12 @@ const BookmarkList: React.FC<BookmarkListProps> = ({ initialItems }) => {
   return (
     <div className={bookmarkListClasses}>
       {initialItems.map((bookmark, index) => {
-        return <BookmarkItem key={`bookmark-${bookmark.id}-${index}`} data={bookmark} />;
+        return (
+          <BookmarkItem
+            key={`bookmark-${bookmark.id}-${index}`}
+            data={bookmark}
+          />
+        );
       })}
     </div>
   );
