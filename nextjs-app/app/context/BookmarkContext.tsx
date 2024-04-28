@@ -212,7 +212,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
             payload: bookmarks,
           });
         }
-      }, 300);
+      }, 110);
       debouncedFetchBookmarks();
     }
   }, [sessionToken, pathname, searchParams, state.bookmarks, fetchParameters]);
