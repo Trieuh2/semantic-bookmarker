@@ -39,11 +39,23 @@ const deleteCollection = async (
     );
   }
 
-  // If bookmark exists, proceed with deletion
+  // Set all associated Bookmark's collectionId to the Unsorted collection
+  const unsortedCollection = await getOrCreateUnsortedCollection(userId);
+  await prisma.bookmark.updateMany({
+    where: {
+      userId,
+      collectionId: collection.id,
+    },
+    data: {
+      collectionId: unsortedCollection.id,
+    },
+  });
+
+  // Proceed with deletion
   const deletedCollection = await prisma.collection.delete({
     where: {
       userId,
-      id,
+      id: collection.id,
     },
   });
 
@@ -53,6 +65,37 @@ const deleteCollection = async (
     );
   }
   return deletedCollection;
+};
+
+const getOrCreateUnsortedCollection = async (
+  userId: string
+): Promise<Collection> => {
+  if (!userId) {
+    throw new BadRequestError(
+      "Failed to get or create unsorted collection. Missing required field: userId."
+    );
+  }
+
+  const unsortedCollection = await prisma.collection.findFirst({
+    where: {
+      userId,
+      isDefault: true,
+    },
+  });
+
+  if (unsortedCollection) {
+    return unsortedCollection;
+  }
+
+  const newUnsortedCollection = await prisma.collection.create({
+    data: {
+      userId,
+      isDefault: true,
+      name: "Unsorted",
+    },
+  });
+
+  return newUnsortedCollection;
 };
 
 export default deleteCollection;

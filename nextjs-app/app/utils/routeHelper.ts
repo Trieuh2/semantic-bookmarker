@@ -27,7 +27,6 @@ export const isValidDynamicRoute = (
   tags: TagWithBookmarkCount[]
 ): boolean => {
   const urlInfo = getUrlInfo(pathname);
-
   if (
     urlInfo.directory === "collections" &&
     collections &&

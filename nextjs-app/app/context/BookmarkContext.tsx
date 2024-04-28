@@ -50,12 +50,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         "collection",
         sessionToken
       );
-      setCollections(
-        fetchedCollections.filter(
-          (collection: CollectionWithBookmarkCount) =>
-            collection.name != "Unsorted"
-        )
-      );
+      setCollections(fetchedCollections);
     }
   }, [sessionToken]);
 
@@ -72,7 +67,9 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [fetchCollections, fetchTags]);
 
   useEffect(() => {
-    handleRerouting(pathname, router, collections, tags, session);
+    if (session) {
+      handleRerouting(pathname, router, collections, tags, session);
+    }
   }, [pathname, router, collections, tags, session]);
 
   const filterClientResourceState = (

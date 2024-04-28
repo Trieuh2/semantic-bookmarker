@@ -12,19 +12,26 @@ import { useBookmarks } from "@/app/context/BookmarkContext";
 const Sidebar: React.FC = React.memo(() => {
   const { collections, tags } = useBookmarks();
 
+  const unsortedCollection = useMemo(() => {
+    const collection = collections.find((collection) => collection.isDefault);
+    return collection;
+  }, [collections]);
+
   const collectionItems = useMemo(
     () =>
-      collections.map((collection) => (
-        <SidebarItem
-          key={`collection-${collection.id}`}
-          href={`/home/collections/${collection.id}`}
-          label={collection.name}
-          icon={IoIosFolder}
-          count={collection._count.bookmarks}
-          type="collection"
-          identifier={collection.id}
-        />
-      )),
+      collections
+        .filter((collection) => !collection.isDefault)
+        .map((collection) => (
+          <SidebarItem
+            key={`collection-${collection.id}`}
+            href={`/home/collections/${collection.id}`}
+            label={collection.name}
+            icon={IoIosFolder}
+            count={collection._count.bookmarks}
+            type="collection"
+            identifier={collection.id}
+          />
+        )),
     [collections]
   );
 
@@ -75,13 +82,18 @@ const Sidebar: React.FC = React.memo(() => {
         icon={IoIosBookmarks}
       />
       <SidebarItem
-        href={`/home/collections/unsorted`}
+        href={`/home/collections/${unsortedCollection?.id}`}
+        count={unsortedCollection?._count.bookmarks}
         label="Unsorted"
         icon={FaBoxArchive}
       />
 
       {/* Collections */}
-      <SidebarGroup name="Collections" count={collections.length}>
+      {/* Subtract 1 from count due to "Unsorted" being a collection */}
+      <SidebarGroup
+        name="Collections"
+        count={Math.max(collections.length - 1, 0)}
+      >
         <div>{collectionItems}</div>
       </SidebarGroup>
 

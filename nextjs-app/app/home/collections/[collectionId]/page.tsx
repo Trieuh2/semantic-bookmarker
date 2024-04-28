@@ -5,6 +5,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 import { fetchResource } from "@/app/libs/resourceActions";
 import { FullBookmarkType } from "@/app/types";
+import { getUrlInfo } from "@/app/utils/urlActions";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -20,7 +21,10 @@ const CollectionsDetailedPage: React.FC<
 
   // Fetch the Bookmark records related to this Collection
   useEffect(() => {
-    const fetchBookmarks = async (collectionId: string) => {
+    const fetchBookmarks = async () => {
+      const urlInfo = getUrlInfo(pathname);
+      const collectionId = urlInfo.id
+      
       const params = {
         collectionId,
       };
@@ -28,10 +32,8 @@ const CollectionsDetailedPage: React.FC<
       setInitialItems(bookmarks);
     };
 
-    const collectionId = pathname.split("/").pop();
-
-    if (sessionToken && collectionId) {
-      fetchBookmarks(collectionId);
+    if (sessionToken) {
+      fetchBookmarks();
     }
   }, [sessionToken, pathname, collections]);
 
