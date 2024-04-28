@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import Link from "next/link";
 import { IconType } from "react-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import OverflowMenuButton from "./OverflowMenuButton";
 import OverflowMenu from "./OverflowMenu";
@@ -49,7 +49,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   const { sessionToken } = useAuth();
   const { filterClientResourceState, updateClientResourceName } =
     useBookmarks();
-  const isActive = pathname === href;
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const handleEllipsesClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -156,6 +156,22 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     type,
     identifier,
   ]);
+
+  // Side effect to set active state
+  useEffect(() => {
+    const fetchIsActive = () => {
+      if (
+        pathname.startsWith(href) ||
+        (pathname.startsWith("/home/bookmarks") && label === "All bookmarks")
+      ) {
+        setIsActive(true);
+        return;
+      } else {
+        return setIsActive(false);
+      }
+    };
+    fetchIsActive();
+  }, [pathname]);
 
   // Overflow menu options for renaming/deleting a tag or collection.
   const menuOptions = useMemo(() => {

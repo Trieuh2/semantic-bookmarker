@@ -17,14 +17,18 @@ async function fetchData(
   tagId: string,
   searchQuery: string
 ): Promise<FullBookmarkType | FullBookmarkType[] | null> {
-  if (collectionId) {
+  if (collectionId && !searchQuery) {
     return await getBookmarksFromCollection(sessionToken, collectionId);
   } else if (page_url) {
     return await getBookmark(sessionToken, page_url);
   } else if (tagId) {
     return await getBookmarksFromTagId(sessionToken, tagId);
   } else if (searchQuery) {
-    return await getBookmarksFromSearch(sessionToken, searchQuery);
+    return await getBookmarksFromSearch(
+      sessionToken,
+      searchQuery,
+      collectionId
+    );
   }
   return await getAllBookmarks(sessionToken);
 }

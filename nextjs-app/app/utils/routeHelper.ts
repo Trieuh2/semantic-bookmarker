@@ -1,6 +1,7 @@
 import { SessionContextValue } from "next-auth/react";
 import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { getUrlInfo } from "./urlActions";
 
 export const handleRerouting = (
   pathname: string,
@@ -11,7 +12,11 @@ export const handleRerouting = (
 ) => {
   if (!session || session?.status === "unauthenticated") {
     router.push("/");
-  } else if (session && session?.status === "authenticated" && !isValidDynamicRoute(pathname, collections, tags)) {
+  } else if (
+    session &&
+    session?.status === "authenticated" &&
+    !isValidDynamicRoute(pathname, collections, tags)
+  ) {
     router.push("/home/bookmarks");
   }
 };
@@ -21,20 +26,19 @@ export const isValidDynamicRoute = (
   collections: CollectionWithBookmarkCount[],
   tags: TagWithBookmarkCount[]
 ): boolean => {
-  // Get type of resource (collection or tag)
-  const pathSegments = pathname.split("/");
-  const resourceType = pathSegments[2];
-  const resourceIdentifier = pathSegments[3];
+  const urlInfo = getUrlInfo(pathname);
 
-  if (resourceType === "collections" && collections && collections.length) {
-    return collections.some(
-      (collection) => collection.id === resourceIdentifier
-    );
+  if (
+    urlInfo.directory === "collections" &&
+    collections &&
+    collections.length
+  ) {
+    return collections.some((collection) => collection.id === urlInfo.id);
   }
-  if (resourceType === "tags" && tags) {
-    return tags.some((tag) => tag.id === resourceIdentifier);
+  if (urlInfo.directory === "tags" && tags) {
+    return tags.some((tag) => tag.id === urlInfo.id);
   }
-  if (resourceType === "bookmarks" && resourceIdentifier === "search") {
+  if (urlInfo.directory === "bookmarks" && urlInfo.subdirectory === "search") {
     return true;
   }
   return false;

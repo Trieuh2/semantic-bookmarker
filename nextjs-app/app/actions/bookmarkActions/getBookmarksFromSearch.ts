@@ -4,9 +4,15 @@ import { BadRequestError, UnauthorizedError } from "../../libs/errors";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 import { FullBookmarkType } from "@/app/types";
 
+interface QueryParameters {
+  userId: string;
+  collectionId?: string;
+}
+
 const getBookmarksFromSearch = async (
   sessionToken: string,
-  searchQuery: string
+  searchQuery: string,
+  collectionId?: string
 ): Promise<FullBookmarkType[] | null> => {
   // Validate fields
   if (!sessionToken || !searchQuery) {
@@ -27,9 +33,17 @@ const getBookmarksFromSearch = async (
   const userId = await getUserIdFromSessionToken(sessionToken);
 
   // Fetch Bookmark
+  const queryParameters: QueryParameters = {
+    userId,
+  };
+
+  if (collectionId) {
+    queryParameters.collectionId = collectionId;
+  }
+
   const bookmarks = await prisma.bookmark.findMany({
     where: {
-      userId,
+      ...queryParameters,
       OR: [
         {
           title: {
