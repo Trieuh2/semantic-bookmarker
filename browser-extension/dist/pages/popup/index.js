@@ -3271,6 +3271,34 @@ const fetchCollections = async (sessionToken) => {
     }
 };
 
+const apiUploadImage = async (sessionToken, bookmarkId, imageSrc, imageType) => {
+    if (!sessionToken || !bookmarkId || !imageSrc || !imageType) {
+        throw new Error("Error fetching collections. Missing required fields: sessionToken, bookmarkId, imageSrc, imageType");
+    }
+    const postData = {
+        bookmarkId,
+        imageSrc,
+        imageType,
+    };
+    const url = "http://localhost:3000/api/image";
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(postData),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    if (!data.success) {
+        throw new Error(data.error || "Unknown error occurred");
+    }
+    return data;
+};
+
 const BookmarkContext = react.createContext(undefined);
 const initialState = {
     bookmarkServerRecord: null,
@@ -3306,18 +3334,34 @@ function bookmarkReducer(state, action) {
 const BookmarkProvider = ({ children, }) => {
     const [state, dispatch] = react.useReducer(bookmarkReducer, initialState);
     const [currentTab, setCurrentTab] = react.useState(null);
+    const [tabStatus, setTabStatus] = react.useState("loading");
     const [initialFetchAttempted, setInitialFetchAttempted] = react.useState(false);
     const { sessionRecord } = useSession();
     // Side effect to parse the page to preload popup fields and gather information for DB queries
     react.useEffect(() => {
-        if (sessionRecord) {
+        if (tabStatus === "loading") {
+            // Ensures the current tab is loaded before trying to parse data
+            const fetchTabStatus = async () => {
+                let queryOptions = {
+                    active: true,
+                    lastFocusedWindow: true,
+                };
+                const activeTab = (await chrome.tabs.query(queryOptions))[0];
+                setTabStatus(activeTab?.status);
+            };
+            fetchTabStatus();
+        }
+        if (sessionRecord && tabStatus === "complete") {
             dispatch({
                 type: "SET_STATE",
                 variable: "sessionToken",
                 payload: sessionRecord?.sessionToken,
             });
             const fetchCurrentTab = async () => {
-                let queryOptions = { active: true, lastFocusedWindow: true };
+                let queryOptions = {
+                    active: true,
+                    lastFocusedWindow: true,
+                };
                 try {
                     const activeTab = (await chrome.tabs.query(queryOptions))[0];
                     setCurrentTab(activeTab);
@@ -3337,7 +3381,7 @@ const BookmarkProvider = ({ children, }) => {
             };
             fetchCurrentTab();
         }
-    }, [sessionRecord]);
+    }, [sessionRecord, tabStatus]);
     // Fetch Bookmark data from DB on popup
     react.useEffect(() => {
         if (!state.bookmarkServerRecord &&
@@ -3446,7 +3490,16 @@ const BookmarkProvider = ({ children, }) => {
             createBookmarkRecord();
         }
     }, [initialFetchAttempted, state.sessionToken]);
-    // TODO: Handle updates to 'excerpt' field
+    react.useEffect(() => {
+        const uploadFavIcon = async () => {
+            if (state.sessionToken &&
+                currentTab?.favIconUrl &&
+                state.bookmarkServerRecord) {
+                await apiUploadImage(state.sessionToken, state.bookmarkServerRecord?.id ?? "", currentTab.favIconUrl, "favIcon");
+            }
+        };
+        uploadFavIcon();
+    }, [state.sessionToken, currentTab, state.bookmarkServerRecord]);
     // Side effect to send a message to background service worker for updating the Bookmark record data
     react.useEffect(() => {
         const haveRequiredFields = () => {

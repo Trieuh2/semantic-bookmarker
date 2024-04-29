@@ -1,6 +1,5 @@
 import React from "react";
 
-// Component imports
 import Footer from "../Footer";
 import TextArea from "./TextArea";
 import CollectionMenu from "./collectionMenu/CollectionMenu";
@@ -8,7 +7,6 @@ import RemoveBookmarkButton from "./RemoveBookmarkButton";
 import BookmarkFormHeader from "./BookmarkFormHeader";
 import TagSection from "./tagSection/TagSection";
 
-// Type imports
 import { useBookmarks } from "../../../../context/BookmarkContext";
 
 interface BookmarkFormProps {}

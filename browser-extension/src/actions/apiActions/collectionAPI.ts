@@ -1,15 +1,4 @@
-interface Collection {
-  id: string;
-  createdAt: string;
-  name: string;
-  userId: string;
-}
-
-interface APIResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
+import { APIResponse, Collection } from "../../types";
 
 const apiFetchCollections = async (
   sessionToken: string

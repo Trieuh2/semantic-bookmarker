@@ -1,15 +1,10 @@
 import {
+  APIResponse,
   Bookmark,
   BookmarkCreateRequest,
   BookmarkDeleteRequest,
   BookmarkUpdateRequest,
 } from "../../types";
-
-interface APIResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 const apiFetchBookmark = async (
   sessionToken: string,

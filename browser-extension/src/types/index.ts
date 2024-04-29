@@ -1,6 +1,7 @@
 export interface ChromeTab {
   title?: string;
   url?: string;
+  favIconUrl?: string;
 }
 
 export interface Bookmark {
@@ -66,4 +67,10 @@ export interface BookmarkUpdateRequest {
 export interface BookmarkDeleteRequest {
   sessionToken: string;
   id: string;
+}
+
+export interface APIResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }

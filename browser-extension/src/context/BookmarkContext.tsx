@@ -4,6 +4,7 @@ import { Bookmark, ChromeTab, Collection, Tag } from "../types";
 import { addBookmark, fetchBookmark } from "../actions/bookmarkActions";
 import { fetchCollections } from "../actions/collectionActions";
 import { useSession } from "./SessionContext";
+import apiUploadImage from "../actions/apiActions/imageAPI";
 
 interface BookmarkState {
   bookmarkServerRecord: Bookmark | null;
@@ -101,13 +102,27 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(bookmarkReducer, initialState);
   const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
+  const [tabStatus, setTabStatus] = useState<string | undefined>("loading");
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
   const { sessionRecord } = useSession();
 
   // Side effect to parse the page to preload popup fields and gather information for DB queries
   useEffect(() => {
-    if (sessionRecord) {
+    if (tabStatus === "loading") {
+      // Ensures the current tab is loaded before trying to parse data
+      const fetchTabStatus = async () => {
+        let queryOptions = {
+          active: true,
+          lastFocusedWindow: true,
+        };
+        const activeTab = (await chrome.tabs.query(queryOptions))[0];
+        setTabStatus(activeTab?.status);
+      };
+      fetchTabStatus();
+    }
+
+    if (sessionRecord && tabStatus === "complete") {
       dispatch({
         type: "SET_STATE",
         variable: "sessionToken",
@@ -115,7 +130,10 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const fetchCurrentTab = async () => {
-        let queryOptions = { active: true, lastFocusedWindow: true };
+        let queryOptions = {
+          active: true,
+          lastFocusedWindow: true,
+        };
         try {
           const activeTab = (await chrome.tabs.query(queryOptions))[0];
           setCurrentTab(activeTab);
@@ -138,7 +156,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       fetchCurrentTab();
     }
-  }, [sessionRecord]);
+  }, [sessionRecord, tabStatus]);
 
   // Fetch Bookmark data from DB on popup
   useEffect(() => {
@@ -265,11 +283,29 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
           });
         }
       };
+
       createBookmarkRecord();
     }
   }, [initialFetchAttempted, state.sessionToken]);
 
-  // TODO: Handle updates to 'excerpt' field
+  useEffect(() => {
+    const uploadFavIcon = async () => {
+      if (
+        state.sessionToken &&
+        currentTab?.favIconUrl &&
+        state.bookmarkServerRecord
+      ) {
+        const uploadedFavIcon = await apiUploadImage(
+          state.sessionToken,
+          state.bookmarkServerRecord?.id ?? "",
+          currentTab.favIconUrl,
+          "favIcon"
+        );
+      }
+    };
+    uploadFavIcon();
+  }, [state.sessionToken, currentTab, state.bookmarkServerRecord]);
+
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
     const haveRequiredFields = () => {
