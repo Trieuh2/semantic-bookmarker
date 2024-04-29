@@ -4,20 +4,12 @@ import clsx from "clsx";
 import NewCollectionButton from "./NewCollectionButton";
 import Input from "../Input";
 import CollectionMenuOption from "./CollectionMenuOption";
+import { useBookmarks } from "../../../../../context/BookmarkContext";
 
-interface CollectionMenuProps {
-  setCollectionOptions: (values: Set<string>) => void;
-  collectionOptions: Set<string>;
-  selectedCollection: string;
-  setCollectionName: (value: string) => void;
-}
+interface CollectionMenuProps {}
 
-const CollectionMenu: React.FC<CollectionMenuProps> = ({
-  setCollectionOptions,
-  collectionOptions,
-  selectedCollection,
-  setCollectionName,
-}) => {
+const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
+  const { state, dispatch } = useBookmarks();
   const collectionMenuRef = useRef<HTMLDivElement>(null);
   const [isCollectionMenuOpen, setIsCollectionMenuOpen] =
     useState<boolean>(false);
@@ -43,6 +35,43 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     };
   }, []);
 
+  const handleInputOnKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Enter") {
+      const newCollectionName = inputFieldValue.trim();
+      if (newCollectionName) {
+        dispatch({
+          type: "SET_STATE",
+          variable: "selectedCollection",
+          payload: newCollectionName,
+        });
+
+        // Update collection options state
+        const updatedOptions = new Set(state.collectionOptions);
+        updatedOptions.add(newCollectionName);
+
+        dispatch({
+          type: "SET_STATE",
+          variable: "collectionOptions",
+          payload: updatedOptions,
+        });
+      }
+      setInputFieldValue("");
+      setIsInputFieldOpen(false);
+      event.preventDefault();
+    }
+  };
+
+  const handleOptionBtnOnMouseUp = () => {
+    dispatch({
+      type: "SET_STATE",
+      variable: "selectedCollection",
+      payload: state.selectedCollection,
+    });
+    setIsCollectionMenuOpen(false);
+  };
+
   const scrollbarClasses = `
     scrollbar-thin
     scrollbar-thumb-rounded-md
@@ -65,7 +94,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
     transition-opacity
     duration-200
     `,
-    collectionOptions.size >= 7 && scrollbarClasses,
+    state.collectionOptions.size >= 7 && scrollbarClasses,
     isCollectionMenuOpen
       ? "ring-2 ring-orange-300 opacity-100"
       : "ring-2 ring-transparent opacity-0 pointer-events-none"
@@ -79,7 +108,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
           {/* Input field for a new Collection name */}
           <div className="flex w-full relative" ref={inputFieldParentRef}>
             <CollectionButton
-              name={selectedCollection}
+              name={state.selectedCollection}
               onMouseUp={() => {
                 setIsCollectionMenuOpen(true);
               }}
@@ -98,20 +127,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
                   setInputFieldValue(event.currentTarget.value)
                 }
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    const newCollectionName = inputFieldValue.trim();
-                    if (newCollectionName) {
-                      setCollectionName(newCollectionName);
-
-                      // Update options
-                      const updatedOptions = new Set(collectionOptions);
-                      updatedOptions.add(newCollectionName);
-                      setCollectionOptions(updatedOptions);
-                    }
-                    setInputFieldValue("");
-                    setIsInputFieldOpen(false);
-                    event.preventDefault();
-                  }
+                  handleInputOnKeyDown(event);
                 }}
                 onBlur={() => {
                   setIsInputFieldOpen(false);
@@ -136,24 +152,25 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({
           <div ref={collectionMenuRef} className={collectionMenuClasses}>
             <ul>
               <CollectionMenuOption
-                key={selectedCollection}
-                name={selectedCollection}
+                key={state.selectedCollection}
+                name={state.selectedCollection}
                 isFirst={true}
-                onMouseUp={() => {
-                  setCollectionName(selectedCollection);
-                  setIsCollectionMenuOpen(false);
-                }}
+                onMouseUp={() => handleOptionBtnOnMouseUp()}
               />
-              {Array.from(collectionOptions)
-                .filter((name) => name !== selectedCollection)
+              {Array.from(state.collectionOptions)
+                .filter((name) => name !== state.selectedCollection)
                 .map((name, index) => {
                   return (
                     <CollectionMenuOption
                       key={name}
                       name={name}
-                      isLast={collectionOptions.size - 2 === index}
+                      isLast={state.collectionOptions.size - 2 === index}
                       onMouseUp={() => {
-                        setCollectionName(name);
+                        dispatch({
+                          type: "SET_STATE",
+                          variable: "selectedCollection",
+                          payload: name,
+                        });
                         setIsCollectionMenuOpen(false);
                       }}
                     />

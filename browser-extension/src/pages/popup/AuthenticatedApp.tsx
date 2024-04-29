@@ -2,6 +2,7 @@ import React from "react";
 import { useSession } from "../../context/SessionContext";
 import BookmarkForm from "./components/bookmarkForm/BookmarkForm";
 import AuthForm from "./components/authForm/AuthForm";
+import { BookmarkProvider } from "../../context/BookmarkContext";
 
 const AuthenticatedApp: React.FC = () => {
   const session = useSession();
@@ -9,7 +10,9 @@ const AuthenticatedApp: React.FC = () => {
   return (
     <div>
       {session.isAuthenticated ? (
-        <BookmarkForm sessionRecord={session.sessionRecord} />
+        <BookmarkProvider>
+          <BookmarkForm />
+        </BookmarkProvider>
       ) : (
         <AuthForm />
       )}

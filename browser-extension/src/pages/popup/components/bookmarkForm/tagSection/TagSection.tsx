@@ -1,53 +1,71 @@
 import React from "react";
 import Input from "../Input";
 import TagButton from "./TagButton";
+import { useBookmarks } from "../../../../../context/BookmarkContext";
 
-interface TagSectionProps {
-  tagFieldValue: string;
-  setTagFieldValue: (value: string) => void;
-  tagSet: Set<string>;
-  setTagSet: (tagSet: Set<string>) => void;
-}
+interface TagSectionProps {}
 
-const TagSection: React.FC<TagSectionProps> = ({
-  tagFieldValue,
-  setTagFieldValue,
-  tagSet,
-  setTagSet,
-}) => {
+const TagSection: React.FC<TagSectionProps> = ({}) => {
+  const { state, dispatch } = useBookmarks();
+
+  const handleInputOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({
+      type: "SET_STATE",
+      variable: "tagFieldValue",
+      payload: event.currentTarget.value,
+    });
+  };
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      const newTag = state.tagFieldValue.trim();
+      if (newTag !== "") {
+        dispatch({
+          type: "SET_STATE",
+          variable: "tagSet",
+          payload: new Set([...state.tagSet, newTag]),
+        });
+      }
+
+      dispatch({
+        type: "SET_STATE",
+        variable: "tagFieldValue",
+        payload: "",
+      });
+      event.preventDefault();
+    }
+  };
+
+  const handleTagBtnOnClick = (name: string) => {
+    const updatedTagSet = new Set(state.tagSet);
+    updatedTagSet.delete(name);
+    dispatch({
+      type: "SET_STATE",
+      variable: "tagSet",
+      payload: updatedTagSet,
+    });
+  };
+
   return (
     <div className="w-full flex bg-zinc-800">
       <div className="min-w-20 p-2 text-end bg-zinc-800">Tags</div>
       <div className="w-full flex flex-col mx-2">
         <Input
           id="tags"
-          value={tagFieldValue}
-          onChange={(event) => setTagFieldValue(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              const newTag = tagFieldValue.trim();
-              if (newTag !== "") {
-                setTagSet(new Set([...tagSet, newTag]));
-              }
-              setTagFieldValue("");
-              event.preventDefault();
-            }
-          }}
+          value={state.tagFieldValue}
+          onChange={(event) => handleInputOnChange(event)}
+          onKeyDown={(event) => handleInputKeyDown(event)}
         />
 
         {/* Tag buttons */}
-        {tagSet && tagSet.size > 0 && (
+        {state.tagSet && state.tagSet.size > 0 && (
           <div className="flex flex-wrap w-full gap-1 mt-2">
-            {Array.from(tagSet).map((tagName, index) => {
+            {Array.from(state.tagSet).map((tagName, index) => {
               return (
                 <TagButton
                   key={index}
                   name={tagName}
-                  onClick={(name) => {
-                    const updatedTagSet = new Set(tagSet);
-                    updatedTagSet.delete(name);
-                    setTagSet(updatedTagSet);
-                  }}
+                  onClick={(name) => handleTagBtnOnClick(name)}
                 />
               );
             })}

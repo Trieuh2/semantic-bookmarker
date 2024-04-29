@@ -7,10 +7,7 @@ interface TagButtonProps {
   onClick: (name: string) => void;
 }
 
-const TagButton: React.FC<TagButtonProps> = ({
-  name,
-  onClick,
-}) => {
+const TagButton: React.FC<TagButtonProps> = ({ name, onClick }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const handleMouseEnter = () => {
@@ -38,7 +35,7 @@ const TagButton: React.FC<TagButtonProps> = ({
     transition-colors
     duration-150
     flex
-    items-center`,
+    items-center`
   );
 
   const divClasses = "h-full inline-flex justify-end items-center";
