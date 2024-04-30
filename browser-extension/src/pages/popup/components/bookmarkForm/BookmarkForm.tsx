@@ -8,37 +8,12 @@ import BookmarkFormHeader from "./BookmarkFormHeader";
 import TagSection from "./tagSection/TagSection";
 
 import { useBookmarks } from "../../../../context/BookmarkContext";
+import TitleSection from "./titleSection/TitleSection";
 
 interface BookmarkFormProps {}
 
 const BookmarkForm: React.FC<BookmarkFormProps> = () => {
-  const { state, dispatch } = useBookmarks();
-
-  const handleTextAreaOnChange = (
-    field: "title" | "page_url" | "note",
-    value: string
-  ) => {
-    dispatch({
-      type: "SET_STATE",
-      variable: field as "title" | "note" | "page_url",
-      payload: value,
-    });
-  };
-
-  // Reset the textArea to initial values if the field becomes empty
-  const handleTextAreaOnBlur = (field: "title" | "page_url" | "note") => {
-    if (
-      (field === "title" || field === "page_url") &&
-      !state[field] &&
-      state.initialValues
-    ) {
-      dispatch({
-        type: "SET_STATE",
-        variable: field,
-        payload: state.initialValues[field],
-      });
-    }
-  };
+  const { state } = useBookmarks();
 
   const formatDate = (date: string): string => {
     const dateObj = new Date(date);
@@ -65,37 +40,16 @@ const BookmarkForm: React.FC<BookmarkFormProps> = () => {
         items-start
         text-start
         bg-zinc-800
-        gap-1.5
+        gap-1
       "
     >
       <BookmarkFormHeader />
-
-      {/* Title */}
-      <div className="w-full flex bg-zinc-800">
-        <div className="min-w-20 p-2 text-end bg-zinc-800">Title</div>
-        <div className="w-full h-full font-bold text-sm bg-zinc-800">
-          <TextArea
-            value={state.title}
-            useUnderline
-            onTextChange={(value) => {
-              handleTextAreaOnChange("title", value);
-            }}
-            onBlur={() => handleTextAreaOnBlur("title")}
-          />
-        </div>
-      </div>
+      <TitleSection />
 
       {/* Note */}
       <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">Note</div>
-        <TextArea
-          value={state.note}
-          useBackground
-          onTextChange={(value) => {
-            handleTextAreaOnChange("note", value);
-          }}
-          onBlur={() => handleTextAreaOnBlur("note")}
-        />
+        <TextArea field="note" useBackground />
       </div>
 
       <CollectionMenu />
@@ -104,14 +58,7 @@ const BookmarkForm: React.FC<BookmarkFormProps> = () => {
       {/* URL */}
       <div className="w-full flex bg-zinc-800">
         <div className="min-w-20 p-2 text-end bg-zinc-800">URL</div>
-        <TextArea
-          value={state.page_url}
-          useBackground
-          onTextChange={(value) => {
-            handleTextAreaOnChange("page_url", value);
-          }}
-          onBlur={() => handleTextAreaOnBlur("page_url")}
-        />
+        <TextArea field="page_url" useBackground />
       </div>
 
       {/* Created At */}

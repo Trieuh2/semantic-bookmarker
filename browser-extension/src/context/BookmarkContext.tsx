@@ -17,6 +17,7 @@ interface BookmarkState {
   collectionOptions: Set<string>;
   tagFieldValue: string;
   tagSet: Set<string>;
+  currentTab: ChromeTab | null;
 }
 
 // Define actions
@@ -33,8 +34,16 @@ type Action =
         | "selectedCollection"
         | "collectionOptions"
         | "tagFieldValue"
-        | "tagSet";
-      payload: Bookmark | Tag[] | string | Set<string> | string[] | null;
+        | "tagSet"
+        | "currentTab";
+      payload:
+        | Bookmark
+        | Tag[]
+        | string
+        | Set<string>
+        | string[]
+        | ChromeTab
+        | null;
     }
   | {
       type: "SET_TEXTAREA_STATES";
@@ -66,6 +75,7 @@ const initialState = {
   collectionOptions: new Set([]),
   tagFieldValue: "",
   tagSet: new Set([]),
+  currentTab: null,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -82,7 +92,8 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           | "selectedCollection"
           | "collectionOptions"
           | "tagFieldValue"
-          | "tagSet"]: action.payload,
+          | "tagSet"
+          | "currentTab"]: action.payload,
       };
     case "SET_TEXTAREA_STATES":
       const { title, note, page_url } = action.payload;
@@ -101,7 +112,6 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(bookmarkReducer, initialState);
-  const [currentTab, setCurrentTab] = useState<ChromeTab | null>(null);
   const [tabStatus, setTabStatus] = useState<string | undefined>("loading");
   const [initialFetchAttempted, setInitialFetchAttempted] =
     useState<boolean>(false);
@@ -136,9 +146,14 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         };
         try {
           const activeTab = (await chrome.tabs.query(queryOptions))[0];
-          setCurrentTab(activeTab);
+          // Set current tab
+          dispatch({
+            type: "SET_STATE",
+            variable: "currentTab",
+            payload: activeTab,
+          });
 
-          // set text area states
+          // Set text area states
           dispatch({
             type: "SET_TEXTAREA_STATES",
             payload: {
@@ -163,11 +178,11 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     if (
       !state.bookmarkServerRecord &&
       !initialFetchAttempted &&
-      currentTab &&
+      state.currentTab &&
       state.sessionToken
     ) {
       const fetchBookmarkRecord = async () => {
-        const page_url = currentTab?.url ?? "";
+        const page_url = state.currentTab?.url ?? "";
         const bookmark = await fetchBookmark(state.sessionToken, page_url);
 
         if (bookmark) {
@@ -211,7 +226,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       fetchBookmarkRecord();
     }
-  }, [currentTab, state.sessionToken]);
+  }, [state.currentTab, state.sessionToken]);
 
   // Fetch collection options
   useEffect(() => {
@@ -249,14 +264,14 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     if (
       !state.bookmarkServerRecord &&
       initialFetchAttempted &&
-      currentTab &&
+      state.currentTab &&
       state.sessionToken
     ) {
       const createBookmarkRecord = async () => {
         const bookmarkCreateRequest = {
           sessionToken: state.sessionToken,
-          title: currentTab?.title ?? "",
-          page_url: currentTab?.url ?? "",
+          title: state.currentTab?.title ?? "",
+          page_url: state.currentTab?.url ?? "",
           note: "",
           excerpt: "",
           collection_name: "Unsorted",
@@ -292,19 +307,19 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     const uploadFavIcon = async () => {
       if (
         state.sessionToken &&
-        currentTab?.favIconUrl &&
+        state.currentTab?.favIconUrl &&
         state.bookmarkServerRecord
       ) {
-        const uploadedFavIcon = await apiUploadImage(
+        await apiUploadImage(
           state.sessionToken,
           state.bookmarkServerRecord?.id ?? "",
-          currentTab.favIconUrl,
+          state.currentTab.favIconUrl,
           "favIcon"
         );
       }
     };
     uploadFavIcon();
-  }, [state.sessionToken, currentTab, state.bookmarkServerRecord]);
+  }, [state.sessionToken, state.currentTab, state.bookmarkServerRecord]);
 
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
