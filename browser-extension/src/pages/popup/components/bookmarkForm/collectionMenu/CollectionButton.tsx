@@ -2,6 +2,7 @@ import React from "react";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FaBoxArchive } from "react-icons/fa6";
 import clsx from "clsx";
+import { useBookmarks } from "../../../../../context/BookmarkContext";
 
 interface CollectionButtonProps {
   name: string;
@@ -14,6 +15,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   onMouseUp,
   isInputFieldOpen,
 }) => {
+  const { state } = useBookmarks();
   const buttonClasses = clsx(
     `
     flex
@@ -28,7 +30,8 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     hover:border-orange-300
     transition-opacity
     duration-75`,
-    isInputFieldOpen ? "opacity-0" : "opacity-100 z-10"
+    isInputFieldOpen ? "opacity-0" : "opacity-100 z-10",
+    state.isLoading && "pointer-events-none opacity-25"
   );
 
   const iconClasses = `
@@ -37,7 +40,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   return (
     <button
       className={buttonClasses}
-      disabled={isInputFieldOpen}
+      disabled={isInputFieldOpen || state.isLoading}
       onMouseUp={() => onMouseUp()}
     >
       <FaBoxArchive className={iconClasses} />

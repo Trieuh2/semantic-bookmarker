@@ -19,6 +19,7 @@ interface BookmarkState {
   tagSet: Set<string>;
   currentTab: ChromeTab | null;
   favIconUrl: string;
+  isLoading: boolean;
 }
 
 // Define actions
@@ -37,7 +38,8 @@ type Action =
         | "tagFieldValue"
         | "tagSet"
         | "currentTab"
-        | "favIconUrl";
+        | "favIconUrl"
+        | "isLoading";
       payload:
         | Bookmark
         | Tag[]
@@ -45,7 +47,8 @@ type Action =
         | Set<string>
         | string[]
         | ChromeTab
-        | null;
+        | null
+        | boolean;
     }
   | {
       type: "SET_TEXTAREA_STATES";
@@ -79,6 +82,7 @@ const initialState = {
   tagSet: new Set([]),
   currentTab: null,
   favIconUrl: "",
+  isLoading: true,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -97,7 +101,8 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           | "tagFieldValue"
           | "tagSet"
           | "currentTab"
-          | "favIconUrl"]: action.payload,
+          | "favIconUrl"
+          | "isLoading"]: action.payload,
       };
     case "SET_TEXTAREA_STATES":
       const { title, note, page_url } = action.payload;
@@ -346,9 +351,24 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     uploadFavIcon();
   }, [state.sessionToken, state.currentTab, state.bookmarkServerRecord]);
 
+  // Side effect to mark loading complete
+  useEffect(() => {
+    if (
+      state.bookmarkServerRecord &&
+      state.initialValues &&
+      initialFetchAttempted
+    ) {
+      dispatch({
+        type: "SET_STATE",
+        variable: "isLoading",
+        payload: false,
+      });
+    }
+  }, [state.bookmarkServerRecord, state.initialValues, initialFetchAttempted]);
+
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
-    if (state.bookmarkServerRecord) {
+    if (state.bookmarkServerRecord && !state.isLoading) {
       const haveRequiredFields = () => {
         return (
           state.title &&
@@ -383,7 +403,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         );
       };
 
-      const performUpdate = () => {
+      const performUpdate = async () => {
         const updatePayload = {
           sessionToken: state.sessionToken,
           id: state.bookmarkServerRecord?.id,
@@ -397,7 +417,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         };
 
         try {
-          chrome.runtime.sendMessage({
+          await chrome.runtime.sendMessage({
             action: "updateBookmark",
             data: updatePayload,
           });

@@ -109,12 +109,14 @@ const TextArea: React.FC<TextAreaProps> = ({
     isTitle && "outline-none",
     !isTitle && "focus:ring-2 focus:ring-orange-300 focus:bg-transparent",
     !isTitle && !isFocused && "leading-relaxed",
-    !isTitle && isFocused && "leading-normal"
+    !isTitle && isFocused && "leading-normal",
+    state.isLoading && "opacity-25 pointer-events-none"
   );
 
   return (
     <div className={divContainerClasses}>
       <textarea
+        disabled={state.isLoading}
         ref={textareaRef}
         className={textAreaClasses}
         value={text}

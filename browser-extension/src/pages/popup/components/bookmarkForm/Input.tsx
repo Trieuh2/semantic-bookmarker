@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import clsx from "clsx";
+import { useBookmarks } from "../../../../context/BookmarkContext";
 
 interface InputProps {
   id: string;
@@ -8,8 +9,8 @@ interface InputProps {
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   value?: string;
-  disabled?: boolean;
   autoFocus?: boolean;
+  disabled?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -19,9 +20,10 @@ const Input: React.FC<InputProps> = ({
   onKeyDown,
   onBlur,
   value,
-  disabled = false,
   autoFocus = false,
+  disabled = false,
 }) => {
+  const { state } = useBookmarks();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const inputClasses = clsx(
@@ -44,7 +46,7 @@ const Input: React.FC<InputProps> = ({
     focus:ring-orange-300
     focus:bg-transparent
     transition`,
-    disabled && "pointer-events-none"
+    state.isLoading && "pointer-events-none opacity-25"
   );
 
   // Effect to handle focusing logic based on autoFocus prop
@@ -66,6 +68,7 @@ const Input: React.FC<InputProps> = ({
         onBlur={onBlur}
         value={value}
         autoFocus={autoFocus}
+        disabled={disabled || state.isLoading}
       ></input>
     </div>
   );

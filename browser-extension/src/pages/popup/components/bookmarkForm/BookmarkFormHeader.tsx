@@ -1,7 +1,10 @@
 import React from "react";
 import { useSession } from "../../../../context/SessionContext";
+import { useBookmarks } from "../../../../context/BookmarkContext";
+import { SyncLoader } from "react-spinners";
 
 const BookmarkFormHeader: React.FC = () => {
+  const { state } = useBookmarks();
   const { handleSignOut } = useSession();
 
   const handleRedirectToWebsite = () => {
@@ -41,7 +44,7 @@ const BookmarkFormHeader: React.FC = () => {
   return (
     <>
       <div className="w-full flex justify-between bg-zinc-800">
-        <div className="flex items-center">
+        <div className="flex justify-center items-center">
           <button
             className={websiteRedirectBtnClasses}
             onMouseUp={handleRedirectToWebsite}
@@ -53,7 +56,13 @@ const BookmarkFormHeader: React.FC = () => {
               height="24"
             />
           </button>
-          <span className={labelClasses}>Edit</span>
+          <div className="flex grow-0 shrink-0 h-full justify-center items-center">
+            {state.isLoading ? (
+              <SyncLoader color="#fdba74" size={7} />
+            ) : (
+              <span className={labelClasses}>Edit</span>
+            )}
+          </div>
         </div>
         <button className={signOutBtnClasses} onMouseUp={handleSignOut}>
           Log out
