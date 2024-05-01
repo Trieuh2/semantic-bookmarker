@@ -25,6 +25,7 @@ interface BookmarkState {
   collections: CollectionWithBookmarkCount[];
   tags: TagWithBookmarkCount[];
   bookmarks: FullBookmarkType[];
+  isLoading: boolean;
 }
 
 // Define actions
@@ -47,6 +48,10 @@ type Action =
         | CollectionWithBookmarkCount[]
         | TagWithBookmarkCount[]
         | FullBookmarkType[];
+    }
+  | {
+      type: "SET_LOADING_STATE";
+      payload: boolean;
     };
 
 interface BookmarkContextType {
@@ -62,6 +67,7 @@ const initialState = {
   collections: [],
   tags: [],
   bookmarks: [],
+  isLoading: true,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -160,6 +166,11 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         ...state,
         [resourceType as "collections" | "tags" | "bookmarks"]: action.payload,
       };
+    case "SET_LOADING_STATE":
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     default:
       return state;
   }
@@ -198,6 +209,8 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
   // Fetch bookmarks as the page route changes or state changes
   useEffect(() => {
     if (sessionToken) {
+      dispatch({ type: "SET_LOADING_STATE", payload: true });
+
       const debouncedFetchBookmarks = debounce(async () => {
         // Perform fetch
         const bookmarks = await axiosFetchResource(
@@ -214,6 +227,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }, 110);
       debouncedFetchBookmarks();
+      dispatch({ type: "SET_LOADING_STATE", payload: false });
     }
   }, [sessionToken, pathname, searchParams, state.bookmarks, fetchParameters]);
 

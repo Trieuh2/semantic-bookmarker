@@ -7,7 +7,6 @@ import {
   UnauthorizedError,
 } from "../../libs/errors";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
-import deleteImage from "../imageActions/deleteImage";
 
 const deleteBookmark = async (
   sessionToken: string,
@@ -38,13 +37,6 @@ const deleteBookmark = async (
     throw new NotFoundError(
       "Error encountered during Bookmark deletion. Bookmark not found."
     );
-  }
-  
-  // Attempt to delete associated image
-  try {
-    await deleteImage(sessionToken, id, "favIcon");
-  } catch (error) {
-    console.log("Error deleting image during Bookmark deletion.", error);
   }
 
   // If bookmark exists, proceed with deletion

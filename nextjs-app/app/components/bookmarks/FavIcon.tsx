@@ -3,6 +3,7 @@
 import { useAuth } from "@/app/context/AuthContext";
 import { AdvancedImage } from "@cloudinary/react";
 import { CloudConfig, URLConfig, CloudinaryImage } from "@cloudinary/url-gen";
+import { Transition } from "@headlessui/react";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { CgWebsite } from "react-icons/cg";
@@ -13,6 +14,7 @@ interface FavIconProps {
 
 const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
   const { userId } = useAuth();
+  const [isShowing, setIsShowing] = useState<boolean>(false);
   const [favIcon, setFavIcon] = useState<CloudinaryImage | null>(null);
 
   useEffect(() => {
@@ -23,27 +25,27 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
         cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME as string,
       });
       let urlConfig = new URLConfig({ secure: true });
-      try {
-        const image = new CloudinaryImage(
-          favIconPublicId,
-          cloudConfig,
-          urlConfig
-        );
-        // Here, simulate a validation check or use a real method provided by Cloudinary SDK
-        fetch(image.toURL()) // Hypothetical method to check the URL
-          .then((response) => {
-            if (response.ok) {
-              setFavIcon(image);
-            } else {
-              throw new Error(`Image not valid for ${domainName}`);
-            }
-          })
-          .catch((error) => {
-            setFavIcon(null);
-          });
-      } catch (error) {
-        setFavIcon(null);
-      }
+      const image = new CloudinaryImage(
+        favIconPublicId,
+        cloudConfig,
+        urlConfig
+      );
+      fetch(image.toURL())
+        .then((response) => {
+          if (response.ok) {
+            setFavIcon(image);
+          } else {
+            throw new Error(`Image not valid for ${domainName}`);
+          }
+        })
+        .catch((error) => {
+          setFavIcon(null);
+        })
+        .finally(() => {
+          setIsShowing(true);
+        });
+    } else {
+      setIsShowing(true);
     }
   }, [domainName, userId]);
 
@@ -53,6 +55,7 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
     shrink-0
     h-12
     w-12
+    ml-2
     justify-center
     items-center
     rounded-md
@@ -61,6 +64,8 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
     border
     border-neutral-700
     bg-stone-800
+    shadow-lg
+    relative
   `;
 
   const imgClasses = `
@@ -70,11 +75,20 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
 
   return (
     <div className={imgContainerClasses}>
-      {favIcon ? (
-        <AdvancedImage cldImg={favIcon} className={imgClasses} />
-      ) : (
-        <CgWebsite className={clsx(imgClasses, "fill-stone-500")}/>
-      )}
+      <Transition
+        show={isShowing}
+        enter="transition-opacity duration-500"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-500"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        {favIcon && <AdvancedImage cldImg={favIcon} className={imgClasses} />}
+        {!favIcon && (
+          <CgWebsite className={clsx(imgClasses, "fill-stone-500")} />
+        )}
+      </Transition>
     </div>
   );
 };

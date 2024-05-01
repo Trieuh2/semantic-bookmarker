@@ -30,6 +30,7 @@ const FavIcon: React.FC<FavIconProps> = ({}) => {
     border
     border-neutral-700
     bg-stone-800
+    drop-shadow-md
   `;
 
   const imgClasses = `
