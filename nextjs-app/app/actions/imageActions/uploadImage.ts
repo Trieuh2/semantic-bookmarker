@@ -5,16 +5,18 @@ import {
 } from "@/app/libs/errors";
 import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import cloudinary from "@/app/libs/cloudinarydb";
+import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const uploadImage = async (
   sessionToken: string,
-  bookmarkId: string,
   imageSrc: string,
-  imageType: "favIcon" | "screenshot"
+  imageType: "favIcon" | "screenshot",
+  domainName: string,
+  bookmarkId: string
 ) => {
-  if (!sessionToken || !bookmarkId || !imageSrc || !imageType) {
+  if (!sessionToken || !imageSrc || !imageType || !domainName || !bookmarkId) {
     throw new BadRequestError(
-      "Failed to upload Image. Missing required fields: sessionToken, bookmarkId, imageSrc, imageType."
+      "Failed to upload Image. Missing required fields: sessionToken, imageSrc, imageType, domainName, bookmarkId."
     );
   }
 
@@ -36,11 +38,13 @@ const uploadImage = async (
     );
   }
 
-  const public_id = `bookmark-${bookmarkId}-${imageType}`;
+  const userId = await getUserIdFromSessionToken(sessionToken);
+  const public_id = `${userId}-${domainName}-${imageType}`;
+
   const options = {
     public_id,
-    display_name: bookmark.title,
-    folder: "semantic-bookmarker",
+    display_name: domainName,
+    folder: process.env.NEXT_PUBLIC_CLOUDINARY_IMAGE_FOLDER,
     use_filename: false,
     unique_filename: false,
     overwrite: true,

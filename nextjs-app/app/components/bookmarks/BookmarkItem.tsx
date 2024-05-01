@@ -4,23 +4,15 @@ import { FullBookmarkType } from "@/app/types";
 import Link from "next/link";
 import { IoIosFolder } from "react-icons/io";
 import { TbHash } from "react-icons/tb";
+import FavIcon from "./FavIcon";
+import { getDomainNameFromPageUrl } from "@/app/utils/urlActions";
 
 interface BookmarkItemProps {
   data: FullBookmarkType;
 }
 
 const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
-  const formatPageUrl = (page_url: string) => {
-    try {
-      const url = new URL(page_url);
-      const urlHostName = url.hostname;
-      return urlHostName.replace("www.", "");
-    } catch (error) {
-      console.error("Error parsing hostName from page_url", error);
-      return "";
-    }
-  };
-
+  const domainName = getDomainNameFromPageUrl(data.page_url);
   const formatDate = (date: Date) => {
     const dateObj = new Date(date);
     const options: Intl.DateTimeFormatOptions = {
@@ -56,6 +48,9 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
   `;
 
   const titleClasses = `
+    inline-block
+    max-w-screen-lg
+    break-words
     text-white
     text-base
     font-bold
@@ -97,47 +92,50 @@ const BookmarkItem: React.FC<BookmarkItemProps> = ({ data }) => {
 
       {/* Top Divider */}
       <div className={dividerClasses} />
-      <div className={mainContainerClasses}>
-        {/* Title */}
-        <span className={titleClasses}>{data.title}</span>
+      <div className="flex pl-2 justify-start items-center">
+        <FavIcon domainName={domainName} />
+        <div className={mainContainerClasses}>
+          {/* Title */}
+          <span className={titleClasses}>{data.title}</span>
 
-        {/* Tags */}
-        {data.tagToBookmarks && (
-          <div className={tagsClasses}>
-            {data.tagToBookmarks.map((tagToBookmark, index) => {
-              const tagLink = "/home/tags/" + tagToBookmark.tagId;
-              return (
-                <Link
-                  key={`tagToBookmark-${tagToBookmark.tagId}-${index}`}
-                  href={tagLink}
-                  className="flex hover:underline items-center z-10"
-                >
-                  <TbHash />
-                  {tagToBookmark.tag?.name}
-                </Link>
-              );
-            })}
+          {/* Tags */}
+          {data.tagToBookmarks && (
+            <div className={tagsClasses}>
+              {data.tagToBookmarks.map((tagToBookmark, index) => {
+                const tagLink = "/home/tags/" + tagToBookmark.tagId;
+                return (
+                  <Link
+                    key={`tagToBookmark-${tagToBookmark.tagId}-${index}`}
+                    href={tagLink}
+                    className="flex hover:underline items-center z-10"
+                  >
+                    <TbHash />
+                    {tagToBookmark.tag?.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Information Container */}
+          <div className={infoContainerClasses}>
+            {/* Collection */}
+            <Link
+              href={`/home/collections/${data.collectionId}`}
+              className="hover:underline z-10"
+            >
+              <span className="flex gap-2 items-center">
+                <IoIosFolder />
+                {data.collection?.name ?? "Unsorted"}
+              </span>
+            </Link>
+            <span>·</span>
+            {/* Page URL */}
+            <span>{domainName}</span>
+            <span>·</span>
+            {/* Friendly Date */}
+            <span>{formatDate(data.createdAt)}</span>
           </div>
-        )}
-
-        {/* Information Container */}
-        <div className={infoContainerClasses}>
-          {/* Collection */}
-          <Link
-            href={`/home/collections/${data.collectionId}`}
-            className="hover:underline z-10"
-          >
-            <span className="flex gap-2 items-center">
-              <IoIosFolder />
-              {data.collection?.name ?? "Unsorted"}
-            </span>
-          </Link>
-          <span>·</span>
-          {/* Page URL */}
-          <span>{formatPageUrl(data.page_url)}</span>
-          <span>·</span>
-          {/* Friendly Date */}
-          <span>{formatDate(data.createdAt)}</span>
         </div>
       </div>
     </div>

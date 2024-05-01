@@ -4,7 +4,7 @@ import { Bookmark, ChromeTab, Collection, Tag } from "../types";
 import { addBookmark, fetchBookmark } from "../actions/bookmarkActions";
 import { fetchCollections } from "../actions/collectionActions";
 import { useSession } from "./SessionContext";
-import apiUploadImage from "../actions/apiActions/imageAPI";
+import apiUploadFavIcon from "../actions/apiActions/imageAPI";
 
 interface BookmarkState {
   bookmarkServerRecord: Bookmark | null;
@@ -18,6 +18,7 @@ interface BookmarkState {
   tagFieldValue: string;
   tagSet: Set<string>;
   currentTab: ChromeTab | null;
+  favIconUrl: string;
 }
 
 // Define actions
@@ -35,7 +36,8 @@ type Action =
         | "collectionOptions"
         | "tagFieldValue"
         | "tagSet"
-        | "currentTab";
+        | "currentTab"
+        | "favIconUrl";
       payload:
         | Bookmark
         | Tag[]
@@ -76,6 +78,7 @@ const initialState = {
   tagFieldValue: "",
   tagSet: new Set([]),
   currentTab: null,
+  favIconUrl: "",
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -93,7 +96,8 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           | "collectionOptions"
           | "tagFieldValue"
           | "tagSet"
-          | "currentTab"]: action.payload,
+          | "currentTab"
+          | "favIconUrl"]: action.payload,
       };
     case "SET_TEXTAREA_STATES":
       const { title, note, page_url } = action.payload;
@@ -303,6 +307,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [initialFetchAttempted, state.sessionToken]);
 
+  // Side effect to upload favIcon image and set the state of the favIconUrl
   useEffect(() => {
     const uploadFavIcon = async () => {
       if (
@@ -310,12 +315,32 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         state.currentTab?.favIconUrl &&
         state.bookmarkServerRecord
       ) {
-        await apiUploadImage(
+        const getDomainName = (page_url: string) => {
+          try {
+            const url = new URL(page_url);
+            const urlHostName = url.hostname;
+            return urlHostName.replace("www.", "");
+          } catch (error) {
+            console.error("Error parsing hostName from page_url", error);
+            return "";
+          }
+        };
+        const domainName = getDomainName(state.page_url);
+
+        const favIcon = await apiUploadFavIcon(
           state.sessionToken,
-          state.bookmarkServerRecord?.id ?? "",
           state.currentTab.favIconUrl,
-          "favIcon"
+          "favIcon",
+          domainName,
+          state.bookmarkServerRecord.id
         );
+
+        // Set the state for the favIconUrl
+        dispatch({
+          type: "SET_STATE",
+          variable: "favIconUrl",
+          payload: favIcon.data.url,
+        });
       }
     };
     uploadFavIcon();
@@ -323,17 +348,42 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
-    const haveRequiredFields = () => {
-      return (
-        state.title &&
-        state.page_url &&
-        state.bookmarkServerRecord?.id &&
-        state.sessionToken != ""
-      );
-    };
+    if (state.bookmarkServerRecord) {
+      const haveRequiredFields = () => {
+        return (
+          state.title &&
+          state.page_url &&
+          state.bookmarkServerRecord?.id &&
+          state.sessionToken != ""
+        );
+      };
 
-    const performUpdate = () => {
-      if (haveRequiredFields() && state.initialValues) {
+      const tagsHaveChanged = () => {
+        const bookmarkServerTags =
+          state.bookmarkServerRecord?.tagToBookmarks
+            ?.map((tagToBookmark) => tagToBookmark.tag?.name)
+            .filter((tag_name) => tag_name) || [];
+
+        const newServerTags = Array.from(state.tagSet).filter((tagName) => {
+          !bookmarkServerTags.includes(tagName);
+        });
+
+        return newServerTags.length !== 0;
+      };
+
+      const haveChangedValues = () => {
+        return (
+          state.title !== state.bookmarkServerRecord?.title ||
+          state.note !== state.bookmarkServerRecord.note ||
+          state.page_url !== state.bookmarkServerRecord.page_url ||
+          state.selectedCollection !==
+            state.bookmarkServerRecord.collection.name ||
+          !tagsHaveChanged() ||
+          state.favIconUrl !== state.bookmarkServerRecord.favIconUrl
+        );
+      };
+
+      const performUpdate = () => {
         const updatePayload = {
           sessionToken: state.sessionToken,
           id: state.bookmarkServerRecord?.id,
@@ -343,6 +393,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
           tags: Array.from(state.tagSet),
           page_url: state.page_url,
           excerpt: "",
+          favIconUrl: state.favIconUrl,
         };
 
         try {
@@ -356,10 +407,11 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
             error
           );
         }
+      };
+      if (haveRequiredFields() && state.initialValues && haveChangedValues()) {
+        performUpdate();
       }
-    };
-
-    performUpdate();
+    }
   }, [
     state.title,
     state.page_url,
@@ -367,6 +419,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     state.tagSet,
     state.selectedCollection,
     state.sessionToken,
+    state.favIconUrl,
   ]);
 
   // Store initial values

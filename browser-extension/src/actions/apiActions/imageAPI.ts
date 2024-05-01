@@ -1,19 +1,21 @@
-const apiUploadImage = async (
+const apiUploadFavIcon = async (
   sessionToken: string,
-  bookmarkId: string,
   imageSrc: string,
-  imageType: "favIcon" | "screenshot"
+  imageType: "favIcon" | "screenshot",
+  domainName: string,
+  bookmarkId: string
 ) => {
-  if (!sessionToken || !bookmarkId || !imageSrc || !imageType) {
+  if (!sessionToken || !imageSrc || !imageType || !domainName || !bookmarkId) {
     throw new Error(
-      "Error fetching collections. Missing required fields: sessionToken, bookmarkId, imageSrc, imageType"
+      "Failed to upload Image. Missing required fields: sessionToken, imageSrc, imageType, domainName, bookmarkId."
     );
   }
 
   const postData = {
-    bookmarkId,
     imageSrc,
     imageType,
+    domainName,
+    bookmarkId,
   };
 
   const url = "http://localhost:3000/api/image";
@@ -38,4 +40,4 @@ const apiUploadImage = async (
   return data;
 };
 
-export default apiUploadImage;
+export default apiUploadFavIcon;

@@ -25,7 +25,8 @@ const updateBookmark = async (
   collection_name?: string,
   tags?: string[],
   page_url?: string,
-  excerpt?: string
+  excerpt?: string,
+  favIconUrl?: string
 ): Promise<Bookmark> => {
   if (!sessionToken || !id) {
     throw new BadRequestError(
@@ -48,7 +49,7 @@ const updateBookmark = async (
     );
   }
 
-  const potentialUpdates: Updates = { title, note, page_url, excerpt };
+  const potentialUpdates: Updates = { title, note, page_url, excerpt, favIconUrl };
 
   let updates = Object.keys(potentialUpdates)
     .filter((key) => potentialUpdates[key] !== undefined)

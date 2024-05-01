@@ -36,3 +36,14 @@ export const getUrlInfo = (pathname: string): UrlInfo => {
     };
   }
 };
+
+export const getDomainNameFromPageUrl = (page_url: string) => {
+  try {
+    const url = new URL(page_url);
+    const urlHostName = url.hostname;
+    return urlHostName.replace("www.", "");
+  } catch (error) {
+    console.error("Error parsing hostName from page_url", error);
+    return "";
+  }
+};

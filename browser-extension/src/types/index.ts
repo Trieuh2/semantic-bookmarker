@@ -14,6 +14,7 @@ export interface Bookmark {
   createdAt: string | null;
   tagToBookmarks: TagToBookmark[];
   collection: Collection;
+  favIconUrl: string;
 }
 
 export interface Tag {

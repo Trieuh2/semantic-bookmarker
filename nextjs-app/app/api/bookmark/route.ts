@@ -50,7 +50,6 @@ export async function GET(request: Request) {
       tagId,
       searchQuery
     );
-
     return NextResponse.json({ success: true, data: data });
   } catch (error) {
     return handleError(error as Error);
@@ -72,7 +71,6 @@ export async function POST(request: Request) {
       excerpt,
       collection_name
     );
-
     return NextResponse.json({ success: true, data: newBookmark });
   } catch (error) {
     return handleError(error as Error);
@@ -90,6 +88,7 @@ export async function PATCH(request: Request) {
       tags = [],
       page_url = "",
       excerpt = "",
+      favIconUrl = "",
     } = body;
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
@@ -102,7 +101,8 @@ export async function PATCH(request: Request) {
       collection_name,
       tags,
       page_url,
-      excerpt
+      excerpt,
+      favIconUrl
     );
     return NextResponse.json({ success: true, data: updatedBookmark });
   } catch (error) {
