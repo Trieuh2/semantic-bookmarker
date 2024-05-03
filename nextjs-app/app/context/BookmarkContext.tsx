@@ -7,7 +7,6 @@ import React, {
   useMemo,
   useReducer,
 } from "react";
-import { debounce } from "lodash";
 import { useAuth } from "./AuthContext";
 import {
   CollectionWithBookmarkCount,
@@ -25,7 +24,7 @@ interface BookmarkState {
   collections: CollectionWithBookmarkCount[];
   tags: TagWithBookmarkCount[];
   bookmarks: FullBookmarkType[];
-  isLoading: boolean;
+  isBookmarksLoading: boolean;
 }
 
 // Define actions
@@ -50,7 +49,7 @@ type Action =
         | FullBookmarkType[];
     }
   | {
-      type: "SET_LOADING_STATE";
+      type: "SET_BOOKMARKS_LOADING_STATE";
       payload: boolean;
     };
 
@@ -67,7 +66,7 @@ const initialState = {
   collections: [],
   tags: [],
   bookmarks: [],
-  isLoading: true,
+  isBookmarksLoading: true,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -166,10 +165,10 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         ...state,
         [resourceType as "collections" | "tags" | "bookmarks"]: action.payload,
       };
-    case "SET_LOADING_STATE":
+    case "SET_BOOKMARKS_LOADING_STATE":
       return {
         ...state,
-        isLoading: action.payload,
+        isBookmarksLoading: action.payload,
       };
     default:
       return state;
@@ -206,65 +205,70 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     return params;
   }, [pathname, searchParams]);
 
-  // Fetch bookmarks as the page route changes or state changes
+  // Fetch bookmarks as the page route changes
   useEffect(() => {
-    if (sessionToken) {
-      dispatch({ type: "SET_LOADING_STATE", payload: true });
+    const fetchBookmarks = async () => {
+      dispatch({
+        type: "SET_BOOKMARKS_LOADING_STATE",
+        payload: true,
+      });
 
-      const debouncedFetchBookmarks = debounce(async () => {
-        // Perform fetch
-        const bookmarks = await axiosFetchResource(
-          "bookmark",
-          sessionToken,
-          fetchParameters
-        );
-        if (JSON.stringify(bookmarks) !== JSON.stringify(state.bookmarks)) {
-          dispatch({
-            type: "SET_RESOURCES",
-            resource: "bookmark",
-            payload: bookmarks,
-          });
-        }
-      }, 110);
-      debouncedFetchBookmarks();
-      dispatch({ type: "SET_LOADING_STATE", payload: false });
+      const bookmarks = await axiosFetchResource(
+        "bookmark",
+        sessionToken,
+        fetchParameters
+      );
+      if (JSON.stringify(bookmarks) !== JSON.stringify(state.bookmarks)) {
+        dispatch({
+          type: "SET_RESOURCES",
+          resource: "bookmark",
+          payload: bookmarks,
+        });
+        dispatch({
+          type: "SET_BOOKMARKS_LOADING_STATE",
+          payload: false,
+        });
+      } else {
+        dispatch({
+          type: "SET_BOOKMARKS_LOADING_STATE",
+          payload: false,
+        });
+      }
+    };
+
+    if (sessionToken) {
+      fetchBookmarks();
     }
-  }, [sessionToken, pathname, searchParams, state.bookmarks, fetchParameters]);
+  }, [sessionToken, pathname, searchParams, fetchParameters]);
 
   // Fetch collection and tag data
   useEffect(() => {
     const fetchData = async (resourceType: "collection" | "tag") => {
-      if (sessionToken) {
-        const fetchedData = await axiosFetchResource(
-          resourceType,
-          sessionToken
-        );
-        dispatch({
-          type: "SET_RESOURCES",
-          resource: resourceType,
-          payload: fetchedData,
-        });
-      }
+      const fetchedData = await axiosFetchResource(resourceType, sessionToken);
+      dispatch({
+        type: "SET_RESOURCES",
+        resource: resourceType,
+        payload: fetchedData,
+      });
     };
-    fetchData("collection");
-    fetchData("tag");
+
+    if (sessionToken) {
+      fetchData("collection");
+      fetchData("tag");
+    }
   }, [sessionToken]);
 
-  // Handle rerouting
+  // Handle routing validation
   useEffect(() => {
     if (session) {
       handleRerouting(pathname, router, state.collections, state.tags, session);
     }
-  }, [
-    pathname,
-    router,
-    session,
-    state.collections,
-    state.tags,
-    state.bookmarks,
-  ]);
+  }, [pathname, router, session, state.collections, state.tags]);
 
-  const value = { state, dispatch };
+  const value = {
+    state,
+    dispatch,
+  };
 
   return (
     <BookmarkContext.Provider value={value}>

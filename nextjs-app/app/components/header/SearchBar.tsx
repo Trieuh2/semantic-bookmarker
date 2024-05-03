@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { FaSearch } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface SearchBarProps {
   searchType: string;
@@ -14,6 +14,15 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
   ({ searchType, collectionId = "" }) => {
     const [searchValue, setSearchValue] = useState<string>("");
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Reset the search value when navigating to another page without search query parameters
+    useEffect(() => {
+      if (searchParams.size === 0) {
+        setSearchValue("");
+      }
+    }, [pathname, searchParams.size]);
 
     const divClasses = `
     relative
@@ -51,17 +60,28 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
 
     const handleKeyDown = (event: React.KeyboardEvent) => {
       if (event.key === "Enter") {
-        // Bookmarks
-        if (searchType === "bookmarks" && searchValue) {
-          router.push(`/home/${searchType}/search/?q=${searchValue}`);
-        } else if (searchType === "bookmarks" && !searchValue) {
-          router.push(`/home/${searchType}/`);
-        } else if (searchType === "collections" && searchValue) {
-          router.push(
-            `/home/${searchType}/${collectionId}/search/?q=${searchValue}`
-          );
-        } else {
-          router.push(`/home/${searchType}/${collectionId}/search/`);
+        let targetURL = ""; // Initialize target URL
+
+        // Construct URL based on the context
+        if (searchType === "bookmarks") {
+          targetURL = searchValue
+            ? `/home/${searchType}/search/?q=${searchValue}`
+            : `/home/${searchType}/`;
+        } else if (searchType === "collections") {
+          targetURL = searchValue
+            ? `/home/${searchType}/${collectionId}/search/?q=${searchValue}`
+            : `/home/${searchType}/${collectionId}/`;
+        }
+
+        // Construct current URL from pathname and searchParams
+        const queryString = searchParams.toString();
+        const currentURL = queryString
+          ? `${pathname}/?${queryString}`
+          : pathname;
+
+        // Check if the current full URL is the same as the target URL
+        if (currentURL !== targetURL) {
+          router.push(targetURL);
         }
       }
     };
@@ -70,15 +90,17 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
       <div className={divClasses}>
         <FaSearch className={iconClasses} />
         <input
+          id={"searchBarInput"}
           className={inputClasses}
           placeholder="Search"
           onKeyDown={(event) => handleKeyDown(event)}
           onChange={(event) => setSearchValue(event.currentTarget.value)}
+          value={searchValue}
         ></input>
       </div>
     );
   }
 );
 
-SearchBar.displayName = "SearchBar"
+SearchBar.displayName = "SearchBar";
 export default SearchBar;

@@ -31,6 +31,7 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({ onClick }) => {
       onMouseUp={onClick}
       onClick={(event) => {
         event.preventDefault();
+        event.stopPropagation();
       }}
     >
       <HiEllipsisHorizontal />

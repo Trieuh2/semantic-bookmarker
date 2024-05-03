@@ -9,8 +9,8 @@ import clsx from "clsx";
 import SidebarGroup from "./SidebarGroup";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 
-const Sidebar: React.FC = React.memo(() => {
-  const { state, dispatch } = useBookmarks();
+const Sidebar: React.FC = () => {
+  const { state } = useBookmarks();
 
   const unsortedCollection = useMemo(() => {
     const collection = state.collections.find(
@@ -105,7 +105,7 @@ const Sidebar: React.FC = React.memo(() => {
       </SidebarGroup>
     </div>
   );
-});
+};
 
 Sidebar.displayName = "Sidebar";
 export default Sidebar;

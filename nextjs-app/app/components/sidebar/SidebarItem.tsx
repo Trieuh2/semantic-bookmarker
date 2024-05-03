@@ -29,218 +29,218 @@ interface SidebarItemProps {
   identifier?: string; // collectionId or tagId
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({
-  href,
-  label,
-  icon: Icon,
-  count,
-  resourceType,
-  identifier,
-}) => {
-  const [isHovered, setIsHovered] = useState<boolean>(false);
+const SidebarItem: React.FC<SidebarItemProps> = React.memo(
+  ({ href, label, icon: Icon, count, resourceType, identifier }) => {
+    const { state, dispatch } = useBookmarks();
+    const pathname = usePathname();
+    const { sessionToken } = useAuth();
 
-  const [isOverflowMenuOpened, setIsOverflowMenuOpened] =
-    useState<boolean>(false);
-  const overflowMenuRef = useRef<HTMLDivElement>(null);
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  const [initialLabel, setInitialLabel] = useState<string>(label);
-  const [isRenameOpened, setIsRenameOpened] = useState<boolean>(false);
-  const [renameValue, setRenameValue] = useState<string>(label);
-  const renameInputRef = useRef<HTMLInputElement>(null);
+    const [isOverflowMenuOpened, setIsOverflowMenuOpened] =
+      useState<boolean>(false);
+    const overflowMenuRef = useRef<HTMLDivElement>(null);
 
-  const pathname = usePathname();
-  const { sessionToken } = useAuth();
-  const { state, dispatch } = useBookmarks();
-  const [isActive, setIsActive] = useState<boolean>(false);
+    const [initialLabel, setInitialLabel] = useState<string>(label);
+    const [isRenameOpened, setIsRenameOpened] = useState<boolean>(false);
+    const [renameValue, setRenameValue] = useState<string>(label);
+    const renameInputRef = useRef<HTMLInputElement>(null);
 
-  const handleEllipsesClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      event.preventDefault(); // Prevent click from propagating to SidebarItem components
-      setIsOverflowMenuOpened((prev) => !prev);
-    },
-    []
-  );
+    const handleEllipsesClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.preventDefault(); // Prevent click from propagating to SidebarItem components
+        setIsOverflowMenuOpened((prev) => !prev);
+      },
+      []
+    );
 
-  const handleRenameOptionClick = useCallback(() => {
-    if (renameInputRef) {
-      setIsRenameOpened(true);
-      renameInputRef.current?.focus();
-    }
-  }, []);
+    const handleRenameOptionClick = useCallback(() => {
+      if (renameInputRef) {
+        setIsRenameOpened(true);
+        renameInputRef.current?.focus();
+      }
+    }, []);
 
-  const closeMenu = useCallback(() => {
-    setIsOverflowMenuOpened(false);
-  }, []);
+    const closeMenu = useCallback(() => {
+      setIsOverflowMenuOpened(false);
+    }, []);
 
-  const handleRename = useCallback(
-    (resourceType: "collection" | "tag", identifier: string, name: string) => {
-      const prevName = initialLabel;
-      const trimmedName = name.trim();
+    const handleRename = useCallback(
+      (
+        resourceType: "collection" | "tag",
+        identifier: string,
+        name: string
+      ) => {
+        const prevName = initialLabel;
+        const trimmedName = name.trim();
 
-      if (trimmedName && trimmedName !== initialLabel) {
-        const onSuccess = () => {};
+        if (trimmedName && trimmedName !== initialLabel) {
+          const onSuccess = () => {};
 
-        const onError = (error: any) => {
-          // Dispatch an action to revert to the previous state if there's an error
-          setInitialLabel(prevName);
-          setRenameValue(prevName);
+          const onError = (error: any) => {
+            // Dispatch an action to revert to the previous state if there's an error
+            setInitialLabel(prevName);
+            setRenameValue(prevName);
+            dispatch({
+              type: "UPDATE_RESOURCE_NAME",
+              resource: resourceType,
+              identifier,
+              name: prevName,
+            });
+          };
+
+          const data = {
+            id: identifier,
+            name,
+          };
+
+          // Optimistic update
+          setInitialLabel(trimmedName);
           dispatch({
             type: "UPDATE_RESOURCE_NAME",
             resource: resourceType,
             identifier,
-            name: prevName,
+            name: trimmedName,
+          });
+          axiosUpdateResource(
+            resourceType,
+            data,
+            sessionToken,
+            onSuccess,
+            onError
+          );
+        } else if (!trimmedName) {
+          setRenameValue(initialLabel);
+        }
+      },
+      [initialLabel, sessionToken, dispatch]
+    );
+
+    const handleDelete = useCallback(
+      (resourceType: "collection" | "tag", identifier: string) => {
+        const stateResourceType = resourceType + "s";
+        const previousResources =
+          state[stateResourceType as "collections" | "tags"];
+
+        const onSuccess = () => {};
+        const onError = (error: any) => {
+          console.error(`Error deleting type ${resourceType}:`, error);
+
+          // Dispatch an action to revert to the previous state if there's an error
+          dispatch({
+            type: "SET_RESOURCES",
+            resource: resourceType as "collection" | "tag",
+            payload: previousResources,
           });
         };
 
-        const data = {
-          id: identifier,
-          name,
-        };
-
-        // Optimistic update
-        setInitialLabel(trimmedName);
         dispatch({
-          type: "UPDATE_RESOURCE_NAME",
+          type: "FILTER_RESOURCE",
           resource: resourceType,
           identifier,
-          name: trimmedName,
         });
-        axiosUpdateResource(
+        axiosDeleteResource(
           resourceType,
-          data,
+          identifier,
           sessionToken,
           onSuccess,
           onError
         );
-      } else if (!trimmedName) {
-        setRenameValue(initialLabel);
-      }
-    },
-    [initialLabel, sessionToken, dispatch]
-  );
+      },
+      [sessionToken, state, dispatch]
+    );
 
-  const handleDelete = useCallback(
-    (resourceType: "collection" | "tag", identifier: string) => {
-      const stateResourceType = resourceType + "s";
-      const previousResources =
-        state[stateResourceType as "collections" | "tags"];
+    // Side effect to close overflow menu and rename field
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        // Overflow menu
+        if (
+          overflowMenuRef.current &&
+          !overflowMenuRef.current.contains(event.target as Node)
+        ) {
+          setIsOverflowMenuOpened(false);
+        }
 
-      const onSuccess = () => {};
-      const onError = (error: any) => {
-        console.error(`Error deleting type ${resourceType}:`, error);
-
-        // Dispatch an action to revert to the previous state if there's an error
-        dispatch({
-          type: "SET_RESOURCES",
-          resource: resourceType as "collection" | "tag",
-          payload: previousResources,
-        });
+        // Rename input field
+        if (
+          resourceType &&
+          identifier &&
+          renameInputRef.current &&
+          !renameInputRef.current.contains(event.target as Node)
+        ) {
+          if (
+            renameValue.trim() !== "" &&
+            renameValue.trim() !== initialLabel
+          ) {
+            handleRename(resourceType, identifier, renameValue);
+          } else {
+            setRenameValue(initialLabel); // Reset to initial label if input field was empty
+          }
+          setIsRenameOpened(false);
+        }
       };
 
-      dispatch({
-        type: "FILTER_RESOURCE",
-        resource: resourceType,
-        identifier,
-      });
-      axiosDeleteResource(
-        resourceType,
-        identifier,
-        sessionToken,
-        onSuccess,
-        onError
-      );
-    },
-    [sessionToken, state, dispatch]
-  );
+      document.addEventListener("mouseup", handleClickOutside);
 
-  // Side effect to close overflow menu and rename field
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Overflow menu
-      if (
-        overflowMenuRef.current &&
-        !overflowMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsOverflowMenuOpened(false);
-      }
+      return () => {
+        document.removeEventListener("mouseup", handleClickOutside);
+      };
+    }, [
+      isOverflowMenuOpened,
+      initialLabel,
+      renameValue,
+      isRenameOpened,
+      handleRename,
+      resourceType,
+      identifier,
+    ]);
 
-      // Rename input field
-      if (
-        resourceType &&
-        identifier &&
-        renameInputRef.current &&
-        !renameInputRef.current.contains(event.target as Node)
-      ) {
-        if (renameValue.trim() !== "" && renameValue.trim() !== initialLabel) {
-          handleRename(resourceType, identifier, renameValue);
+    // Side effect to set active state
+    useEffect(() => {
+      const fetchIsActive = () => {
+        if (
+          pathname.startsWith(href) ||
+          (pathname.startsWith("/home/bookmarks") && label === "All bookmarks")
+        ) {
+          setIsActive(true);
         } else {
-          setRenameValue(initialLabel); // Reset to initial label if input field was empty
+          setIsActive(false);
         }
-        setIsRenameOpened(false);
-      }
-    };
+      };
+      fetchIsActive();
+    }, [pathname, href, label]);
 
-    document.addEventListener("mouseup", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mouseup", handleClickOutside);
-    };
-  }, [
-    isOverflowMenuOpened,
-    initialLabel,
-    renameValue,
-    isRenameOpened,
-    handleRename,
-    resourceType,
-    identifier,
-  ]);
-
-  // Side effect to set active state
-  useEffect(() => {
-    const fetchIsActive = () => {
-      if (
-        pathname.startsWith(href) ||
-        (pathname.startsWith("/home/bookmarks") && label === "All bookmarks")
-      ) {
-        setIsActive(true);
-        return;
-      } else {
-        return setIsActive(false);
-      }
-    };
-    fetchIsActive();
-  }, [pathname, href, label]);
-
-  // Overflow menu options for renaming/deleting a tag or collection.
-  const menuOptions = useMemo(() => {
-    const getMenuOptions = (
-      resourceType: "collection" | "tag",
-      identifier: string
-    ) => {
-      return [
-        {
-          label: `Rename ${
-            resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
-          }`,
-          action: () => {
-            handleRenameOptionClick();
+    // Overflow menu options for renaming/deleting a tag or collection.
+    const menuOptions = useMemo(() => {
+      const getMenuOptions = (
+        resourceType: "collection" | "tag",
+        identifier: string
+      ) => {
+        return [
+          {
+            label: `Rename ${
+              resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
+            }`,
+            action: () => {
+              handleRenameOptionClick();
+            },
           },
-        },
-        {
-          label: `Delete ${
-            resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
-          }`,
-          action: () => handleDelete(resourceType, identifier),
-        },
-      ];
-    };
-    if (resourceType && identifier) {
-      return getMenuOptions(resourceType, identifier);
-    }
-  }, [resourceType, identifier, handleDelete, handleRenameOptionClick]);
+          {
+            label: `Delete ${
+              resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
+            }`,
+            action: () => handleDelete(resourceType, identifier),
+          },
+        ];
+      };
+      if (resourceType && identifier) {
+        return getMenuOptions(resourceType, identifier);
+      }
+    }, [resourceType, identifier, handleDelete, handleRenameOptionClick]);
 
-  const linkContainerClasses = clsx(
-    `
+    const linkContainerClasses = clsx(
+      `
       relative
       flex
       grow-0
@@ -254,17 +254,17 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       text-stone-200
       transition-colors
       duration-100`,
-    isActive && "bg-neutral-600",
-    !isActive && "hover:bg-neutral-700"
-  );
-  const iconClasses = "flex-shrink-0 fill-orange-500";
-  const labelClasses = clsx(
-    "flex-grow text-sm leading-6 truncate overflow-hidden",
-    isRenameOpened && "text-transparent"
-  );
-  const countLabelClasses = "text-end text-xs text-gray-500 font-semibold";
-  const renameInputClasses = clsx(
-    `
+      isActive && "bg-neutral-600",
+      !isActive && "hover:bg-neutral-700"
+    );
+    const iconClasses = "flex-shrink-0 fill-orange-500";
+    const labelClasses = clsx(
+      "flex-grow text-sm leading-6 truncate overflow-hidden",
+      isRenameOpened && "text-transparent"
+    );
+    const countLabelClasses = "text-end text-xs text-gray-500 font-semibold";
+    const renameInputClasses = clsx(
+      `
     absolute
     left-9
     w-56
@@ -279,51 +279,58 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     transition-opacity
     duration-100
   `,
-    isRenameOpened
-      ? "opacity-100 pointer-events-auto"
-      : "opacity-0 pointer-events-none"
-  );
+      isRenameOpened
+        ? "opacity-100 pointer-events-auto"
+        : "opacity-0 pointer-events-none"
+    );
 
-  return (
-    <>
-      <Link
-        href={href}
-        className={linkContainerClasses}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {Icon && <Icon className={iconClasses} />}
-        <span className={labelClasses}>{initialLabel}</span>
-        <span className={countLabelClasses}>{count}</span>
-        {isHovered && menuOptions && (
-          <OverflowMenuButton onClick={handleEllipsesClick} />
-        )}
-        {menuOptions && (
-          <OverflowMenu
-            ref={overflowMenuRef}
-            isOpen={isOverflowMenuOpened}
-            closeMenu={closeMenu}
-            menuOptions={menuOptions}
-          />
-        )}
-        {resourceType && identifier && (
-          <input
-            className={renameInputClasses}
-            ref={renameInputRef}
-            value={renameValue}
-            onClick={(event) => event.preventDefault()}
-            onChange={(event) => setRenameValue(event.currentTarget.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                setIsRenameOpened(false);
-                handleRename(resourceType, identifier, renameValue);
-              }
+    return (
+      <>
+        <Link legacyBehavior href={href} className={linkContainerClasses}>
+          <a
+            className={linkContainerClasses}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={(e) => {
+              setIsActive(true);
             }}
-          ></input>
-        )}
-      </Link>
-    </>
-  );
-};
+          >
+            {Icon && <Icon className={iconClasses} />}
+            <span className={labelClasses}>{initialLabel}</span>
+            <span className={countLabelClasses}>{count}</span>
+            {isHovered && menuOptions && (
+              <OverflowMenuButton onClick={handleEllipsesClick} />
+            )}
+            {menuOptions && (
+              <OverflowMenu
+                ref={overflowMenuRef}
+                isOpen={isOverflowMenuOpened}
+                closeMenu={closeMenu}
+                menuOptions={menuOptions}
+              />
+            )}
+            {resourceType && identifier && (
+              <input
+                id={href}
+                className={renameInputClasses}
+                ref={renameInputRef}
+                value={renameValue}
+                onClick={(event) => event.preventDefault()}
+                onChange={(event) => setRenameValue(event.currentTarget.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    setIsRenameOpened(false);
+                    handleRename(resourceType, identifier, renameValue);
+                  }
+                }}
+              ></input>
+            )}
+          </a>
+        </Link>
+      </>
+    );
+  }
+);
 
+SidebarItem.displayName = "SidebarItem";
 export default SidebarItem;

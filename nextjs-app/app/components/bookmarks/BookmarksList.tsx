@@ -5,23 +5,40 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import BookmarkItem from "./BookmarkItem";
 import { useBookmarks } from "@/app/context/BookmarkContext";
-import { useAuth } from "@/app/context/AuthContext";
+import { Transition } from "@headlessui/react";
 
-interface BookmarkListProps {}
-
-const BookmarkList: React.FC<BookmarkListProps> = () => {
-  const sessionToken = useAuth();
+const BookmarkList: React.FC = () => {
   const { state } = useBookmarks();
-  const [initialItems, setInitialItems] = useState<FullBookmarkType[]>([]);
-
+  const [displayBookmarks, setDisplayBookmarks] = useState<FullBookmarkType[]>(
+    state.bookmarks
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  // Update bookmarks
   useEffect(() => {
-    if (sessionToken) {
-      setInitialItems(state.bookmarks);
+    if (state.bookmarks !== displayBookmarks) {
+      setDisplayBookmarks(state.bookmarks);
+      setIsLoading(false);
     }
-  }, [sessionToken, state.collections, state.tags, state.bookmarks]);
+  }, [state.bookmarks, displayBookmarks]);
+
+  // Synchronize bookmarks loading state
+  useEffect(() => {
+    setIsLoading(state.isBookmarksLoading);
+  }, [state.isBookmarksLoading]);
+
+  const memoizedBookmarkItems = React.useMemo(() => {
+    return displayBookmarks.map((bookmark, index) => (
+      <BookmarkItem
+        index={index}
+        key={`bookmark-${bookmark.id}-${index}`}
+        data={bookmark}
+      />
+    ));
+  }, [displayBookmarks]);
 
   const scrollbarClasses = `
-    overflow-y-scroll
+    overflow-y-auto
     overflow-x-hidden
     scrollbar
     scrollbar-track-stone-700
@@ -35,8 +52,13 @@ const BookmarkList: React.FC<BookmarkListProps> = () => {
     flex
     flex-col
     bg-zinc-800
+    transition
+    ease-in-out
+    delay-75
+    duration-75
   `,
-    scrollbarClasses
+    scrollbarClasses,
+    isLoading ? "opacity-0" : "opacity-100"
   );
 
   const botDividerClasses = `
@@ -49,28 +71,33 @@ const BookmarkList: React.FC<BookmarkListProps> = () => {
 
   return (
     <div className={bookmarkListClasses}>
-      {initialItems.map((bookmark, index) => {
-        return (
-          <BookmarkItem
-            index={index}
-            key={`bookmark-${bookmark.id}-${index}`}
-            data={bookmark}
-          />
-        );
-      })}
-      {/* Bottom divider with number of bookmarks found */}
-      <div className="flex pb-4 items-center justify-center">
-        <div className="flex items-center justify-center w-11/12">
-          <div className={botDividerClasses}></div>
-          <div className="flex items-center space-x-1 mx-2 text-neutral-400">
-            <span className="text-sm">{initialItems.length}</span>
-            <span className="text-sm">
-              {initialItems.length === 1 ? "bookmark" : "bookmarks"}
-            </span>
+      {!isLoading && (
+        <Transition
+          appear={true}
+          show={true}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-100"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          {memoizedBookmarkItems}
+          {/* Bottom divider with number of bookmarks found */}
+          <div className="flex pb-4 items-center justify-center">
+            <div className="flex items-center justify-center w-11/12 py-3">
+              <div className={botDividerClasses}></div>
+              <div className="flex items-center space-x-1 mx-2 text-neutral-400">
+                <span className="text-sm">{displayBookmarks.length}</span>
+                <span className="text-sm">
+                  {displayBookmarks.length === 1 ? "bookmark" : "bookmarks"}
+                </span>
+              </div>
+              <div className={botDividerClasses}></div>
+            </div>
           </div>
-          <div className={botDividerClasses}></div>
-        </div>
-      </div>
+        </Transition>
+      )}
     </div>
   );
 };

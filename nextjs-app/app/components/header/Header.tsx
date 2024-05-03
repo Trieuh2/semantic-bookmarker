@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import { IoIosFolder } from "react-icons/io";
 import { useBookmarks } from "@/app/context/BookmarkContext";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { getUrlInfo } from "@/app/utils/urlActions";
+import Link from "next/link";
+import { Transition } from "@headlessui/react";
 
-interface HeaderProps {}
-
-const Header: React.FC<HeaderProps> = React.memo(() => {
+const Header: React.FC = () => {
   const [headerTitle, setHeaderTitle] = useState<string>("");
   const [isSearchPage, setIsSearchPage] = useState<boolean>(false);
   const [searchType, setSearchType] = useState<string>("bookmarks"); // Search type can be set as 'bookmarks' or 'collections'
@@ -20,7 +20,6 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const router = useRouter();
   const { state } = useBookmarks();
 
   // Initialize labels, buttons, and search state
@@ -41,6 +40,13 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
       setCollectionId(urlInfo.id);
     };
 
+    fetchHeaderTitleFromUrl();
+  }, [pathname, state.collections]);
+
+  // Update search config based on URL params
+  useEffect(() => {
+    const urlInfo = getUrlInfo(pathname);
+
     const setSearchConfig = () => {
       if (urlInfo.directory === "collections") {
         setSearchType("collections");
@@ -57,21 +63,8 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
         setSearchQuery("");
       }
     };
-
-    fetchHeaderTitleFromUrl();
     setSearchConfig();
-  }, [
-    pathname,
-    isSearchPage,
-    searchType,
-    searchParams,
-    searchQuery,
-    router,
-    headerTitle,
-    state.collections,
-    collectionName,
-    collectionId,
-  ]);
+  }, [pathname, searchParams]);
 
   const divClasses = clsx(
     `
@@ -134,39 +127,48 @@ const Header: React.FC<HeaderProps> = React.memo(() => {
   return (
     <div className={divClasses}>
       <SearchBar searchType={searchType} collectionId={collectionId} />
-      <div className={titleClasses}>
-        {headerTitle !== "Bookmarks" && <IoIosFolder />}
-        <span>{headerTitle}</span>
-      </div>
+      <Transition
+        appear={true}
+        show={true}
+        enter="transition-opacity duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className={titleClasses}>
+          {headerTitle !== "Bookmarks" && <IoIosFolder />}
+          <span>{headerTitle}</span>
+        </div>
+      </Transition>
+
       {isSearchPage && (
         <div className={buttonContainerClasses}>
-          <button
-            className={bookmarksSearchBtnClasses}
-            onClick={() =>
-              router.push(`/home/bookmarks/search?q=${searchQuery}`)
-            }
-          >
-            Search All Bookmarks
-          </button>
-          {collectionName && (
-            <button
-              className={collectionsSearchBtnClasses}
-              onClick={() =>
-                router.push(
-                  `/home/collections/${collectionId}/search?q=${searchQuery}`
-                )
-              }
-            >
-              {"Search"}
-              <IoIosFolder className="ml-2 mr-0.5" />
-              {collectionName}
+          <Link href={`/home/bookmarks/search?q=${searchQuery}`}>
+            <button className={bookmarksSearchBtnClasses}>
+              Search All Bookmarks
             </button>
+          </Link>
+
+          {collectionName && (
+            <Link
+              href={`/home/collections/${collectionId}/search?q=${searchQuery}`}
+            >
+              <button className={collectionsSearchBtnClasses}>
+                <div className="flex items-center justify-center">
+                  {"Search"}
+                  <IoIosFolder className="ml-2 mr-0.5" />
+                  {collectionName}
+                </div>
+              </button>
+            </Link>
           )}
         </div>
       )}
     </div>
   );
-});
+};
 
 Header.displayName = "Header";
 export default Header;

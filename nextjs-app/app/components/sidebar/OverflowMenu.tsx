@@ -55,11 +55,13 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
               className={listItemClasses}
               onMouseUp={(event) => {
                 event.preventDefault();
+                event.stopPropagation();
                 option.action();
                 closeMenu();
               }}
               onClick={(event) => {
                 event.preventDefault();
+                event.stopPropagation();
               }}
             >
               {option.label}

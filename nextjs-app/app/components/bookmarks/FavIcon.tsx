@@ -4,7 +4,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { AdvancedImage } from "@cloudinary/react";
 import { CloudConfig, URLConfig, CloudinaryImage } from "@cloudinary/url-gen";
 import { Transition } from "@headlessui/react";
-import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { CgWebsite } from "react-icons/cg";
 
@@ -14,11 +13,12 @@ interface FavIconProps {
 
 const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
   const { userId } = useAuth();
-  const [isShowing, setIsShowing] = useState<boolean>(false);
   const [favIcon, setFavIcon] = useState<CloudinaryImage | null>(null);
+  const [favIconIsLoading, setIsFavIconIsLoading] = useState<boolean>(true);
 
+  // Side effect to fetch the favIcon from Cloudinary
   useEffect(() => {
-    if (domainName) {
+    if (domainName && favIconIsLoading) {
       const folderPath = process.env.NEXT_PUBLIC_CLOUDINARY_IMAGE_FOLDER;
       const favIconPublicId = `${folderPath}/${userId}-${domainName}-favIcon`;
       let cloudConfig = new CloudConfig({
@@ -42,12 +42,10 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
           setFavIcon(null);
         })
         .finally(() => {
-          setIsShowing(true);
+          setIsFavIconIsLoading(false);
         });
-    } else {
-      setIsShowing(true);
     }
-  }, [domainName, userId]);
+  }, [domainName, userId, favIconIsLoading]);
 
   const imgContainerClasses = `
     flex
@@ -76,18 +74,17 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
   return (
     <div className={imgContainerClasses}>
       <Transition
-        show={isShowing}
-        enter="transition-opacity duration-500"
+        appear={true}
+        show={!favIconIsLoading}
+        enter="ease-out duration-200"
         enterFrom="opacity-0"
         enterTo="opacity-100"
-        leave="transition-opacity duration-500"
+        leave="ease-in duration-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
         {favIcon && <AdvancedImage cldImg={favIcon} className={imgClasses} />}
-        {!favIcon && (
-          <CgWebsite className={clsx(imgClasses, "fill-stone-500")} />
-        )}
+        {!favIcon && <CgWebsite className={imgClasses} />}
       </Transition>
     </div>
   );
