@@ -35,6 +35,12 @@ type Action =
       identifier: string;
     }
   | {
+      type: "UPDATE_UNIQUE_RESOURCE_METADATA";
+      resource: "collection" | "tag";
+      name: string;
+      payload: CollectionWithBookmarkCount | TagWithBookmarkCount;
+    }
+  | {
       type: "UPDATE_RESOURCE_NAME";
       resource: "collection" | "tag";
       identifier: string;
@@ -115,11 +121,23 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         [resourceType]: updatedResources,
         bookmarks: updatedBookmarks,
       };
+    case "UPDATE_UNIQUE_RESOURCE_METADATA":
+      resourceType = action.resource === "collection" ? "collections" : "tags";
+      updatedResources = state[resourceType as "collections" | "tags"].map(
+        (resource) =>
+          resource.name === action.name ? action.payload : resource
+      );
+      return {
+        ...state,
+        [resourceType as "collections" | "tags"]: updatedResources,
+      };
     case "UPDATE_RESOURCE_NAME":
       resourceType = action.resource === "collection" ? "collections" : "tags";
       updatedResources = state[resourceType as "collections" | "tags"].map(
-        (item) =>
-          item.id === action.identifier ? { ...item, name: action.name } : item
+        (resource) =>
+          resource.id === action.identifier
+            ? { ...resource, name: action.name }
+            : resource
       );
 
       // Update bookmarks for nested tag or collection names
@@ -260,10 +278,17 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Handle routing validation
   useEffect(() => {
-    if (session) {
+    if (session && !state.isBookmarksLoading) {
       handleRerouting(pathname, router, state.collections, state.tags, session);
     }
-  }, [pathname, router, session, state.collections, state.tags]);
+  }, [
+    pathname,
+    router,
+    session,
+    state.collections,
+    state.tags,
+    !state.isBookmarksLoading,
+  ]);
 
   const value = {
     state,

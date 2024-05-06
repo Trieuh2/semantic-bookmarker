@@ -1,4 +1,6 @@
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
 
 const validEndpoints = ["bookmark", "collection", "tag"];
 
@@ -64,4 +66,67 @@ export const axiosUpdateResource = async (
   } catch (error) {
     onError(error);
   }
+};
+
+export const axiosCreateResource = async (
+  endpoint: string,
+  data: Record<string, any> = {},
+  sessionToken: string,
+  onSuccess: (
+    newResource: CollectionWithBookmarkCount | TagWithBookmarkCount
+  ) => void,
+  onError: (error: any) => void
+) => {
+  try {
+    const response = await axios.post(`/api/${endpoint}`, data, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    });
+
+    onSuccess(response.data.data);
+  } catch (error) {
+    onError(error);
+  }
+};
+
+export const createTempResource = (
+  userId: string,
+  resourceType: "collection" | "tag",
+  name: string
+): CollectionWithBookmarkCount | TagWithBookmarkCount => {
+  let tempResource:
+    | CollectionWithBookmarkCount
+    | TagWithBookmarkCount
+    | undefined;
+  const randomObjectId = uuidv4();
+
+  if (resourceType === "collection") {
+    tempResource = {
+      id: randomObjectId,
+      createdAt: new Date(),
+      name: name,
+      isDefault: false,
+      userId: userId ?? "",
+      _count: {
+        bookmarks: 0,
+      },
+    } as CollectionWithBookmarkCount;
+  } else if (resourceType === "tag") {
+    tempResource = {
+      id: randomObjectId,
+      createdAt: new Date(),
+      name: name,
+      userId: userId ?? "",
+      _count: {
+        tagToBookmarks: 0,
+      },
+    } as TagWithBookmarkCount;
+  }
+
+  if (tempResource === undefined) {
+    throw new Error("tempResource was not assigned a value");
+  }
+
+  return tempResource;
 };

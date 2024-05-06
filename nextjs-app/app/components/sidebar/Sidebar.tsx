@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
             href={`/home/collections/${collection.id}`}
             label={collection.name}
             icon={IoIosFolder}
-            count={collection._count.bookmarks}
+            count={collection?._count?.bookmarks ?? 0}
             resourceType="collection"
             identifier={collection.id}
           />
@@ -45,7 +45,7 @@ const Sidebar: React.FC = () => {
           href={`/home/tags/${tag.id}`}
           label={tag.name}
           icon={HiHashtag}
-          count={tag._count.tagToBookmarks}
+          count={tag?._count?.tagToBookmarks ?? 0}
           resourceType="tag"
           identifier={tag.id}
         />
@@ -75,6 +75,7 @@ const Sidebar: React.FC = () => {
     `,
     scrollbarClasses
   );
+
   return (
     <div className={sidebarClasses}>
       {/* Static SidebarItems */}
@@ -94,13 +95,14 @@ const Sidebar: React.FC = () => {
       {/* Subtract 1 from count due to "Unsorted" being a collection */}
       <SidebarGroup
         name="Collections"
+        resourceType="collection"
         count={Math.max(state.collections.length - 1, 0)}
       >
         <div>{collectionItems}</div>
       </SidebarGroup>
 
       {/* Tags */}
-      <SidebarGroup name="Tags" count={state.tags.length}>
+      <SidebarGroup name="Tags" resourceType="tag" count={state.tags.length}>
         <div>{tagItems}</div>
       </SidebarGroup>
     </div>

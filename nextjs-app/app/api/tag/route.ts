@@ -23,8 +23,8 @@ export async function POST(request: Request) {
     const { name } = body;
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    const tag = createTag(sessionToken, name);
-
+    const tag = await createTag(sessionToken, name);
+    
     return NextResponse.json({ success: true, data: tag });
   } catch (error) {
     handleError(error as Error);
@@ -53,7 +53,7 @@ export async function PATCH(request: Request) {
 
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    
+
     const updatedTag = await updateTag(sessionToken, id, name);
 
     return NextResponse.json({ success: true, data: updatedTag });

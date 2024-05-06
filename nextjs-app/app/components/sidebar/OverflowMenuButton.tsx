@@ -19,6 +19,7 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({ onClick }) => {
     justify-center
     text-center
     rounded-md
+    text-stone-200
     hover:bg-neutral-500
     font-medium
     transition-colors

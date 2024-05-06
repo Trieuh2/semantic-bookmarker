@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const { name } = body;
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    const collection = createCollection(sessionToken, name);
+    const collection = await createCollection(sessionToken, name);
 
     return NextResponse.json({ success: true, data: collection });
   } catch (error: any) {

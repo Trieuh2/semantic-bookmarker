@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import React, { ForwardedRef, forwardRef } from "react";
+import React, { ForwardedRef, forwardRef, useEffect, useState } from "react";
 
 interface OverflowOption {
   label: string;
@@ -10,12 +10,36 @@ interface OverflowOption {
 
 interface OverflowMenuProps {
   isOpen: boolean;
-  closeMenu: () => void;
   menuOptions: OverflowOption[];
+  onClickOutside?: () => void;
 }
 
 const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
-  ({ isOpen, closeMenu, menuOptions }, ref: ForwardedRef<HTMLDivElement>) => {
+  (
+    { isOpen, menuOptions, onClickOutside },
+    ref: ForwardedRef<HTMLDivElement>
+  ) => {
+    // Side effect to close overflow menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          isOpen &&
+          onClickOutside &&
+          ref &&
+          "current" in ref &&
+          ref.current &&
+          !ref.current.contains(event.target as Node)
+        ) {
+          onClickOutside();
+        }
+      };
+      document.addEventListener("mouseup", handleClickOutside);
+
+      return () => {
+        document.removeEventListener("mouseup", handleClickOutside);
+      };
+    }, [isOpen, ref]);
+
     const divClasses = clsx(
       `
       z-50
@@ -30,7 +54,9 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
       transition-opacity
       duration-300
       ease-in-out`,
-      isOpen ? "opacity-100" : "opacity-0"
+      isOpen
+        ? "opacity-100 pointer-events-auto"
+        : "opacity-0 pointer-events-none"
     );
     const listItemClasses = `
       px-4
@@ -43,11 +69,7 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
       `;
 
     return (
-      <div
-        ref={ref}
-        className={divClasses}
-        style={{ pointerEvents: isOpen ? "auto" : "none" }}
-      >
+      <div ref={ref} className={divClasses}>
         <ul>
           {menuOptions.map((option, index) => (
             <li
@@ -57,7 +79,6 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
                 event.preventDefault();
                 event.stopPropagation();
                 option.action();
-                closeMenu();
               }}
               onClick={(event) => {
                 event.preventDefault();

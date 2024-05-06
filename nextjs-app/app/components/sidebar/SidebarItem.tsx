@@ -19,6 +19,7 @@ import {
   axiosDeleteResource,
   axiosUpdateResource,
 } from "@/app/libs/resourceActions";
+import SidebarInput from "./SidebarInput";
 
 interface SidebarItemProps {
   href: string;
@@ -47,24 +48,12 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
     const [renameValue, setRenameValue] = useState<string>(label);
     const renameInputRef = useRef<HTMLInputElement>(null);
 
-    const handleEllipsesClick = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        event.preventDefault(); // Prevent click from propagating to SidebarItem components
-        setIsOverflowMenuOpened((prev) => !prev);
-      },
-      []
-    );
-
-    const handleRenameOptionClick = useCallback(() => {
+    const handleRenameOptionClick = () => {
       if (renameInputRef) {
         setIsRenameOpened(true);
         renameInputRef.current?.focus();
       }
-    }, []);
-
-    const closeMenu = useCallback(() => {
-      setIsOverflowMenuOpened(false);
-    }, []);
+    };
 
     const handleRename = useCallback(
       (
@@ -151,49 +140,23 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       [sessionToken, state, dispatch]
     );
 
-    // Side effect to close overflow menu and rename field
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        // Overflow menu
-        if (
-          overflowMenuRef.current &&
-          !overflowMenuRef.current.contains(event.target as Node)
-        ) {
-          setIsOverflowMenuOpened(false);
+    const handleRenameInputClickOutside = useCallback(() => {
+      // Rename the resource if changes were made
+      if (resourceType && identifier) {
+        if (renameValue.trim() !== "" && renameValue.trim() !== initialLabel) {
+          handleRename(resourceType, identifier, renameValue);
+        } else {
+          setRenameValue(initialLabel); // Reset to initial label if input field was empty
         }
-
-        // Rename input field
-        if (
-          resourceType &&
-          identifier &&
-          renameInputRef.current &&
-          !renameInputRef.current.contains(event.target as Node)
-        ) {
-          if (
-            renameValue.trim() !== "" &&
-            renameValue.trim() !== initialLabel
-          ) {
-            handleRename(resourceType, identifier, renameValue);
-          } else {
-            setRenameValue(initialLabel); // Reset to initial label if input field was empty
-          }
-          setIsRenameOpened(false);
-        }
-      };
-
-      document.addEventListener("mouseup", handleClickOutside);
-
-      return () => {
-        document.removeEventListener("mouseup", handleClickOutside);
-      };
+        setIsRenameOpened(false);
+      }
     }, [
-      isOverflowMenuOpened,
-      initialLabel,
-      renameValue,
-      isRenameOpened,
-      handleRename,
       resourceType,
       identifier,
+      renameValue,
+      initialLabel,
+      handleRename,
+      isRenameOpened,
     ]);
 
     // Side effect to set active state
@@ -224,13 +187,17 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
             }`,
             action: () => {
               handleRenameOptionClick();
+              setIsOverflowMenuOpened(false);
             },
           },
           {
             label: `Delete ${
               resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
             }`,
-            action: () => handleDelete(resourceType, identifier),
+            action: () => {
+              handleDelete(resourceType, identifier);
+              setIsOverflowMenuOpened(false);
+            },
           },
         ];
       };
@@ -263,26 +230,6 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       isRenameOpened && "text-transparent"
     );
     const countLabelClasses = "text-end text-xs text-gray-500 font-semibold";
-    const renameInputClasses = clsx(
-      `
-    absolute
-    left-9
-    w-56
-    py-0.5
-    px-1
-    rounded-md
-    outline-0
-    focused:outline
-    bg-stone-900
-    text-sm
-    text-orange-300
-    transition-opacity
-    duration-100
-  `,
-      isRenameOpened
-        ? "opacity-100 pointer-events-auto"
-        : "opacity-0 pointer-events-none"
-    );
 
     return (
       <>
@@ -299,23 +246,29 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
             <span className={labelClasses}>{initialLabel}</span>
             <span className={countLabelClasses}>{count}</span>
             {isHovered && menuOptions && (
-              <OverflowMenuButton onClick={handleEllipsesClick} />
+              <OverflowMenuButton
+                onClick={(event) => {
+                  event.preventDefault();
+                  setIsOverflowMenuOpened((prev) => !prev);
+                }}
+              />
             )}
             {menuOptions && (
               <OverflowMenu
                 ref={overflowMenuRef}
                 isOpen={isOverflowMenuOpened}
-                closeMenu={closeMenu}
                 menuOptions={menuOptions}
+                onClickOutside={() => {
+                  setIsOverflowMenuOpened(false);
+                }}
               />
             )}
             {resourceType && identifier && (
-              <input
+              <SidebarInput
                 id={href}
-                className={renameInputClasses}
                 ref={renameInputRef}
+                isOpen={isRenameOpened}
                 value={renameValue}
-                onClick={(event) => event.preventDefault()}
                 onChange={(event) => setRenameValue(event.currentTarget.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
@@ -323,7 +276,8 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
                     handleRename(resourceType, identifier, renameValue);
                   }
                 }}
-              ></input>
+                onClickOutside={handleRenameInputClickOutside}
+              />
             )}
           </a>
         </Link>
