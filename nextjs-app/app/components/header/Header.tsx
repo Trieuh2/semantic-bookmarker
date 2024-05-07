@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { getUrlInfo } from "@/app/utils/urlActions";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
+import ActionsMenu from "./ActionsMenu";
 
 const Header: React.FC = () => {
   const [headerTitle, setHeaderTitle] = useState<string>("");
@@ -35,7 +36,14 @@ const Header: React.FC = () => {
       const collection = state.collections.filter(
         (collection) => collection.id === urlInfo.id
       )[0];
-      setHeaderTitle(collection?.name ?? "");
+      const parentCollection = state.collections.filter(
+        (coll) => coll.id === collection.parentId
+      )[0];
+
+      setHeaderTitle(
+        (parentCollection ? parentCollection?.name + " / " : "") +
+          collection?.name ?? ""
+      );
       setCollectionName(collection?.name ?? "");
       setCollectionId(urlInfo.id);
     };
@@ -166,6 +174,7 @@ const Header: React.FC = () => {
           )}
         </div>
       )}
+      <ActionsMenu />
     </div>
   );
 };

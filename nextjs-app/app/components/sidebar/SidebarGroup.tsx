@@ -130,7 +130,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
         <div
           className={clsx(
             "relative flex w-full h-8 items-center py-1 px-3 gap-x-2 hover:cursor-pointer",
-            isNewResourceFieldOpened ? "mb-7" : "mb-0"
+            isNewResourceFieldOpened ? "mb-8" : "mb-0"
           )}
           onClick={() => setIsCollapsed((prevState) => !prevState)}
           onMouseEnter={() => setIsHovered(true)}
@@ -158,6 +158,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
               {resourceType === "tag" && (
                 <HiHashtag className="flex-shrink-0 fill-orange-500" />
               )}
+              {/* New resource name input field */}
               <SidebarInput
                 id={`new-${resourceType}`}
                 ref={newResourceInputRef}

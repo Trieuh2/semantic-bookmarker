@@ -20,10 +20,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name } = body;
+    const { name, parentId } = body;
     const sessionToken =
       request.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    const collection = await createCollection(sessionToken, name);
+    const collection = await createCollection(sessionToken, name, parentId);
 
     return NextResponse.json({ success: true, data: collection });
   } catch (error: any) {

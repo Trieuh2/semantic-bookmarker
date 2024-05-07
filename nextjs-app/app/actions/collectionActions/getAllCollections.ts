@@ -21,7 +21,7 @@ const getAllCollections = async (
       "Error fetching collections. Invalid or expired session."
     );
   }
-  
+
   // Retrieve userId from sessionToken
   const userId = await getUserIdFromSessionToken(sessionToken);
 
@@ -33,6 +33,13 @@ const getAllCollections = async (
     include: {
       _count: {
         select: { bookmarks: true },
+      },
+      children: {
+        include: {
+          _count: {
+            select: { bookmarks: true },
+          },
+        },
       },
     },
   });

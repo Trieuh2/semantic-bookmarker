@@ -16,25 +16,45 @@ import OverflowMenu from "./OverflowMenu";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 import {
+  axiosCreateResource,
   axiosDeleteResource,
   axiosUpdateResource,
+  createTempResource,
 } from "@/app/libs/resourceActions";
 import SidebarInput from "./SidebarInput";
+import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "@/app/types";
+import { useSession } from "next-auth/react";
+import { IoIosFolder } from "react-icons/io";
+import { MdOutlineExpandMore } from "react-icons/md";
 
 interface SidebarItemProps {
   href: string;
   label: string;
   icon?: IconType;
   count?: number | null;
-  resourceType?: "collection" | "tag";
+  resourceType: "collection" | "tag";
   identifier?: string; // collectionId or tagId
+  parentName?: string;
+  children?: React.ReactNode;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = React.memo(
-  ({ href, label, icon: Icon, count, resourceType, identifier }) => {
+  ({
+    href,
+    label,
+    icon: Icon,
+    count,
+    resourceType,
+    identifier,
+    parentName,
+    children,
+  }) => {
     const { state, dispatch } = useBookmarks();
     const pathname = usePathname();
     const { sessionToken } = useAuth();
+    const { data } = useSession();
+
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [isActive, setIsActive] = useState<boolean>(false);
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -43,10 +63,87 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       useState<boolean>(false);
     const overflowMenuRef = useRef<HTMLDivElement>(null);
 
+    const [isNewResourceFieldOpened, setIsNewResourceFieldOpened] =
+      useState<boolean>(false);
+    const [newResourceName, setNewResourceName] = useState<string>("");
+    const newResourceInputRef = useRef<HTMLInputElement>(null);
+
     const [initialLabel, setInitialLabel] = useState<string>(label);
     const [isRenameOpened, setIsRenameOpened] = useState<boolean>(false);
     const [renameValue, setRenameValue] = useState<string>(label);
     const renameInputRef = useRef<HTMLInputElement>(null);
+
+    const handleCreateOptionClick = () => {
+      if (newResourceInputRef) {
+        setIsNewResourceFieldOpened(true);
+        newResourceInputRef.current?.focus();
+      }
+    };
+
+    const handleCreate = useCallback(
+      (resourceType: "collection" | "tag", name: string) => {
+        if (name.trim() !== "") {
+          const stateResourceType = resourceType + "s";
+          const previousResources =
+            state[stateResourceType as "collections" | "tags"];
+
+          // TODO: Handle cases for nested collections
+          // Prevent the user from creating duplicates client-side
+          const isUniqueName = !previousResources.some(
+            (resource) => resource.name === name
+          );
+
+          const onSuccess = (
+            newResource: CollectionWithBookmarkCount | TagWithBookmarkCount
+          ) => {
+            // Update the bare-bones temporary object with the metadata from the response
+            dispatch({
+              type: "UPDATE_UNIQUE_RESOURCE_METADATA",
+              resource: resourceType,
+              name: name,
+              payload: newResource,
+            });
+          };
+          const onError = (error: any) => {
+            console.error(`Error creating type ${resourceType}:`, error);
+            // Dispatch an action to revert to the previous state if there's an error
+            dispatch({
+              type: "SET_RESOURCES",
+              resource: resourceType as "collection" | "tag",
+              payload: previousResources,
+            });
+          };
+
+          // Perform new collection / tag creation
+          if (isUniqueName) {
+            const tempResource = createTempResource(
+              data?.userId ?? "",
+              resourceType,
+              name,
+              identifier
+            );
+
+            // Optimistic update with bare-bones data
+            dispatch({
+              type: "SET_RESOURCES",
+              resource: resourceType as "collection" | "tag",
+              payload: [...previousResources, tempResource] as
+                | CollectionWithBookmarkCount[]
+                | TagWithBookmarkCount[],
+            });
+
+            axiosCreateResource(
+              resourceType,
+              { name, parentId: identifier },
+              sessionToken,
+              onSuccess,
+              onError
+            );
+          }
+        }
+      },
+      [sessionToken, state, dispatch]
+    );
 
     const handleRenameOptionClick = () => {
       if (renameInputRef) {
@@ -180,7 +277,8 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
         resourceType: "collection" | "tag",
         identifier: string
       ) => {
-        return [
+        const uniqueOptions = [];
+        const sharedOptions = [
           {
             label: `Rename ${
               resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
@@ -200,6 +298,21 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
             },
           },
         ];
+
+        // Only top-level collections can create nested collections
+        if (resourceType === "collection" && !parentName) {
+          uniqueOptions.push({
+            label: `Add ${
+              resourceType.charAt(0).toUpperCase() + resourceType.slice(1)
+            }`,
+            action: () => {
+              handleCreateOptionClick();
+              setIsOverflowMenuOpened(false);
+            },
+          });
+        }
+
+        return [...uniqueOptions, ...sharedOptions];
       };
       if (resourceType && identifier) {
         return getMenuOptions(resourceType, identifier);
@@ -222,17 +335,12 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       transition-colors
       duration-100`,
       isActive && "bg-neutral-600",
-      !isActive && "hover:bg-neutral-700"
+      !isActive && "hover:bg-neutral-700",
+      isNewResourceFieldOpened ? "mb-8" : "mb-0"
     );
-    const iconClasses = "flex-shrink-0 fill-orange-500";
-    const labelClasses = clsx(
-      "flex-grow text-sm leading-6 truncate overflow-hidden",
-      isRenameOpened && "text-transparent"
-    );
-    const countLabelClasses = "text-end text-xs text-gray-500 font-semibold";
 
     return (
-      <>
+      <div className={clsx("relative")}>
         <Link legacyBehavior href={href} className={linkContainerClasses}>
           <a
             className={linkContainerClasses}
@@ -242,9 +350,25 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
               setIsActive(true);
             }}
           >
-            {Icon && <Icon className={iconClasses} />}
-            <span className={labelClasses}>{initialLabel}</span>
-            <span className={countLabelClasses}>{count}</span>
+            {Icon && (
+              <Icon
+                className={clsx(
+                  "flex-shrink-0 fill-orange-500",
+                  parentName && "ml-4"
+                )}
+              />
+            )}
+            <span
+              className={clsx(
+                "flex-grow text-sm leading-6 truncate overflow-hidden",
+                isRenameOpened && "text-transparent"
+              )}
+            >
+              {initialLabel}
+            </span>
+            <span className="text-end text-xs text-gray-500 font-semibold">
+              {count}
+            </span>
             {isHovered && menuOptions && (
               <OverflowMenuButton
                 onClick={(event) => {
@@ -263,6 +387,30 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
                 }}
               />
             )}
+            {children && (
+              <button
+                className={clsx(
+                  `
+                  flex  
+                  shrink-0
+                  grow-0
+                  items-center
+                  justify-center
+                  transition-transform
+                `,
+                  isCollapsed ? "rotate-0" : "rotate-180"
+                )}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  setIsCollapsed((prev) => !prev);
+                }}
+              >
+                <MdOutlineExpandMore />
+              </button>
+            )}
+
+            {/* Rename input field */}
             {resourceType && identifier && (
               <SidebarInput
                 id={href}
@@ -277,11 +425,51 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
                   }
                 }}
                 onClickOutside={handleRenameInputClickOutside}
+                nested={parentName ? true : false}
               />
             )}
           </a>
         </Link>
-      </>
+
+        {/* Nested input field for new collection */}
+        {resourceType === "collection" && !parentName && (
+          <div className="absolute top-9 -left-0">
+            <div
+              className={clsx(
+                "flex w-full items-center ml-4 px-4 py-1 gap-x-2",
+                !isNewResourceFieldOpened && "opacity-0 pointer-events-none"
+              )}
+            >
+              <IoIosFolder className="flex shrink-0 fill-orange-500" />
+
+              {/* New resource name input field */}
+              <SidebarInput
+                id={`new-${resourceType}`}
+                ref={newResourceInputRef}
+                isOpen={isNewResourceFieldOpened}
+                value={newResourceName}
+                onChange={(event) =>
+                  setNewResourceName(event.currentTarget.value)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    setIsNewResourceFieldOpened(false);
+                    handleCreate(resourceType, newResourceName);
+                    setNewResourceName("");
+                  }
+                }}
+                onClickOutside={() => {
+                  setNewResourceName("");
+                  setIsNewResourceFieldOpened(false);
+                }}
+                nested
+              />
+            </div>
+          </div>
+        )}
+
+        {!isCollapsed && <>{children}</>}
+      </div>
     );
   }
 );

@@ -10,11 +10,12 @@ interface SidebarInputProps {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onClickOutside?: () => void;
+  nested?: boolean;
 }
 
 const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
   (
-    { id, value, isOpen, onChange, onKeyDown, onClickOutside },
+    { id, value, isOpen, onChange, onKeyDown, onClickOutside, nested },
     ref: ForwardedRef<HTMLInputElement>
   ) => {
     // Side effect to close rename field when clicking outside
@@ -38,11 +39,9 @@ const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
       };
     }, [isOpen, onClickOutside, ref]);
 
-    const renameInputClasses = clsx(
+    const inputClasses = clsx(
       `
       absolute
-      left-9
-      w-56
       py-0.5
       px-1
       rounded-md
@@ -56,13 +55,14 @@ const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
     `,
       isOpen
         ? "opacity-100 pointer-events-auto"
-        : "opacity-0 pointer-events-none"
+        : "opacity-0 pointer-events-none",
+      nested ? "w-52 left-[52px]" : "w-56 left-9"
     );
 
     return (
       <input
         id={id}
-        className={renameInputClasses}
+        className={inputClasses}
         ref={ref}
         value={value}
         onClick={(event) => {

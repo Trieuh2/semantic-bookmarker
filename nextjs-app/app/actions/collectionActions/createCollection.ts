@@ -10,7 +10,8 @@ import { Collection } from "@prisma/client";
 
 const createCollection = async (
   sessionToken: string,
-  name: string
+  name: string,
+  parentId: string
 ): Promise<Collection> => {
   // Validate request parameters
   if (!name) {
@@ -32,6 +33,7 @@ const createCollection = async (
     where: {
       userId,
       name,
+      parentId,
     },
   });
 
@@ -46,6 +48,7 @@ const createCollection = async (
     data: {
       userId,
       name,
+      parentId
     },
   });
 

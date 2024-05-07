@@ -14,10 +14,9 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({ onClick }) => {
     grow-0
     shrink-0
     py-1
-    px-2
+    px-1
     items-center
     justify-center
-    text-center
     rounded-md
     text-stone-200
     hover:bg-neutral-500

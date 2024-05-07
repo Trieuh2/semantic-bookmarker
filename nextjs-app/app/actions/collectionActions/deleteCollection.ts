@@ -41,13 +41,51 @@ const deleteCollection = async (
 
   // Set all associated Bookmark's collectionId to the Unsorted collection
   const unsortedCollection = await getOrCreateUnsortedCollection(userId);
+
+  // Proceed with deletion
+  const deletedCollection = await handleNestedCollectionDeletion(
+    userId,
+    collection.id,
+    unsortedCollection.id
+  );
+
+  if (!deletedCollection) {
+    throw new Error(
+      "Error encountered during Collection deletion. Internal Server Error."
+    );
+  }
+  return deletedCollection;
+};
+
+const handleNestedCollectionDeletion = async (
+  userId: string,
+  parentId: string,
+  unsortedCollectionId: string
+) => {
+  const childrenCollections = await prisma.collection.findMany({
+    where: {
+      userId,
+      parentId,
+    },
+  });
+
+  // DFS to ensure all nested collections are also updated
+  for (const child of childrenCollections) {
+    await handleNestedCollectionDeletion(
+      userId,
+      child.id,
+      unsortedCollectionId
+    );
+  }
+
+  // Update all bookmarks associated with this Collection
   await prisma.bookmark.updateMany({
     where: {
       userId,
-      collectionId: collection.id,
+      collectionId: parentId,
     },
     data: {
-      collectionId: unsortedCollection.id,
+      collectionId: unsortedCollectionId,
     },
   });
 
@@ -55,15 +93,10 @@ const deleteCollection = async (
   const deletedCollection = await prisma.collection.delete({
     where: {
       userId,
-      id: collection.id,
+      id: parentId,
     },
   });
 
-  if (!deletedCollection) {
-    throw new Error(
-      "Error encountered during Collection deletion. Internal Server Error."
-    );
-  }
   return deletedCollection;
 };
 

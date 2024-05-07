@@ -93,7 +93,8 @@ export const axiosCreateResource = async (
 export const createTempResource = (
   userId: string,
   resourceType: "collection" | "tag",
-  name: string
+  name: string,
+  parentId?: string // nested collection parent id
 ): CollectionWithBookmarkCount | TagWithBookmarkCount => {
   let tempResource:
     | CollectionWithBookmarkCount
@@ -108,6 +109,7 @@ export const createTempResource = (
       name: name,
       isDefault: false,
       userId: userId ?? "",
+      parentId: parentId,
       _count: {
         bookmarks: 0,
       },
