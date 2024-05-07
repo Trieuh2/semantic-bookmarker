@@ -122,6 +122,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
               )}
             >
               <Input
+                classNameOverride="pr-8"
                 id={"newCollectionField"}
                 onChange={(event) =>
                   setInputFieldValue(event.currentTarget.value)
@@ -155,6 +156,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
                 key={state.selectedCollection}
                 name={state.selectedCollection}
                 isFirst={true}
+                isLast={state.collectionOptions.size === 1}
                 onMouseUp={() => handleOptionBtnOnMouseUp()}
               />
               {Array.from(state.collectionOptions)

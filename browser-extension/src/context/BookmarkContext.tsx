@@ -12,6 +12,7 @@ interface BookmarkState {
   initialValues: Bookmark | null;
   title: string;
   note: string;
+  excerpt: string;
   page_url: string;
   selectedCollection: string;
   collectionOptions: Set<string>;
@@ -32,6 +33,7 @@ type Action =
         | "initialValues"
         | "title"
         | "note"
+        | "excerpt"
         | "page_url"
         | "selectedCollection"
         | "collectionOptions"
@@ -75,6 +77,7 @@ const initialState = {
   initialValues: null,
   title: "",
   note: "",
+  excerpt: "",
   page_url: "",
   selectedCollection: "Unsorted",
   collectionOptions: new Set([]),
@@ -95,6 +98,7 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           | "initialValues"
           | "title"
           | "note"
+          | "excerpt"
           | "page_url"
           | "selectedCollection"
           | "collectionOptions"
@@ -170,6 +174,34 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
               page_url: activeTab?.url ?? "",
               note: "",
             },
+          });
+
+          // Function to be injected and executed in the context of the webpage
+          function getMetaDescription() {
+            const metaDescription = document.querySelector(
+              'meta[name="description"]'
+            ) as HTMLMetaElement;
+            return metaDescription ? metaDescription.content : "";
+          }
+          // Fetch meta description through content script
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const currentTab = tabs[0];
+            if (currentTab && currentTab.id !== undefined) {
+              chrome.scripting.executeScript(
+                {
+                  target: { tabId: currentTab.id },
+                  func: getMetaDescription,
+                },
+                (results) => {
+                  const description = results[0]?.result ?? "";
+                  dispatch({
+                    type: "SET_STATE",
+                    variable: "excerpt",
+                    payload: description,
+                  });
+                }
+              );
+            }
           });
         } catch (error) {
           console.log(
@@ -368,7 +400,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Side effect to send a message to background service worker for updating the Bookmark record data
   useEffect(() => {
-    if (state.bookmarkServerRecord && !state.isLoading) {
+    if (state.sessionToken && state.bookmarkServerRecord && !state.isLoading) {
       const haveRequiredFields = () => {
         return (
           state.title &&
@@ -395,9 +427,10 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
         return (
           state.title !== state.bookmarkServerRecord?.title ||
           state.note !== state.bookmarkServerRecord.note ||
+          state.excerpt !== state.bookmarkServerRecord.excerpt ||
           state.page_url !== state.bookmarkServerRecord.page_url ||
           state.selectedCollection !==
-            state.bookmarkServerRecord.collection.name ||
+            (state.bookmarkServerRecord?.collection?.name ?? false) ||
           !tagsHaveChanged() ||
           state.favIconUrl !== state.bookmarkServerRecord.favIconUrl
         );
@@ -409,10 +442,10 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
           id: state.bookmarkServerRecord?.id,
           title: state.title,
           note: state.note,
+          excerpt: state.excerpt,
           collection_name: state.selectedCollection,
           tags: Array.from(state.tagSet),
           page_url: state.page_url,
-          excerpt: "",
           favIconUrl: state.favIconUrl,
         };
 
@@ -436,6 +469,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     state.title,
     state.page_url,
     state.note,
+    state.excerpt,
     state.tagSet,
     state.selectedCollection,
     state.sessionToken,

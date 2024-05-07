@@ -11,6 +11,7 @@ interface InputProps {
   value?: string;
   autoFocus?: boolean;
   disabled?: boolean;
+  classNameOverride?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -22,6 +23,7 @@ const Input: React.FC<InputProps> = ({
   value,
   autoFocus = false,
   disabled = false,
+  classNameOverride,
 }) => {
   const { state } = useBookmarks();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +64,7 @@ const Input: React.FC<InputProps> = ({
         ref={inputRef}
         id={id}
         type={type}
-        className={inputClasses}
+        className={clsx(inputClasses, classNameOverride)}
         onChange={onChange}
         onKeyDown={onKeyDown}
         onBlur={onBlur}

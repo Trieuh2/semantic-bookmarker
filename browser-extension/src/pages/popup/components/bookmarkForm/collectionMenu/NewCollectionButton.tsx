@@ -58,9 +58,13 @@ const NewCollectionButton: React.FC<NewCollectionButtonProps> = ({
   const buttonClasses = clsx(
     `
     flex
-    text-start
-    rounded-md
+    grow-0
+    shrink-0
+    h-8
     p-1
+    rounded-md
+    text-start
+    text-ellipsis
     bg-zinc-800
     transition-opacity
     duration-100`,

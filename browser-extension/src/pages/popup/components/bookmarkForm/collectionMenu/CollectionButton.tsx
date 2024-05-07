@@ -19,10 +19,13 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   const buttonClasses = clsx(
     `
     flex
-    text-start
-    rounded-md
+    grow-0
+    shrink-0
+    max-w-64
+    max-h-8
     p-1
     mx-2
+    rounded-md
     border
     border-transparent
     bg-zinc-900
@@ -44,7 +47,11 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
       onMouseUp={() => onMouseUp()}
     >
       <FaBoxArchive className={iconClasses} />
-      {name}
+      <span
+        className="text-start text-ellipsis overflow-hidden text-nowrap"
+      >
+        {name}
+      </span>
       <IoMdArrowDropdown className={iconClasses} />
     </button>
   );

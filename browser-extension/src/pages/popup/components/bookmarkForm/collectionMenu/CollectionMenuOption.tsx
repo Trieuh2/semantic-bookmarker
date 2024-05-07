@@ -18,8 +18,8 @@ const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
 }) => {
   const listItemClasses = clsx(
     `
+    max-w-64
     p-1
-    text-nowrap
     bg-zinc-900
     border
     border-transparent
@@ -40,7 +40,7 @@ const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
   return (
     <li className={listItemClasses} onMouseUp={() => onMouseUp()}>
       {isFirst ? (
-        <div className="flex">
+        <div className="flex text-start text-ellipsis items-center ">
           <FaBoxArchive className={iconClasses} />
           {name}
           <IoMdArrowDropdown className={iconClasses} />
