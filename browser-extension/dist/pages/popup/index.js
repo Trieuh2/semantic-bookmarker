@@ -1,4 +1,9 @@
-import { c as createCommonjsModule, e as apiFetchBookmark, f as apiCreateBookmark } from '../../bookmarkAPI-40e17e4c.js';
+import { c as apiFetchBookmark, d as apiCreateBookmark } from '../../bookmarkAPI-42b2d83e.js';
+
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+	return fn(module, module.exports), module.exports;
+}
 
 /**
  * @license React
