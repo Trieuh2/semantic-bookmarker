@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext", "ES2020.Intl"],
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "dom.iterable", "ESNext", "ES2017", "ES2020.Intl", "ES6"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "CommonJS",
+    "target": "ES2018",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -17,8 +19,9 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/app/*": ["app/*"],
     }
   },
   "include": [
@@ -26,7 +29,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "/app/api/auth/[...nextauth]"
+    "app/api/auth/[...nextauth]"
   ],
   "exclude": ["node_modules"]
 }

@@ -13,8 +13,10 @@ interface Updates {
   [key: string]: string | undefined;
   title?: string;
   note?: string;
+  collectionId?: string;
   page_url?: string;
   excerpt?: string;
+  favIconUrl?: string;
 }
 
 const updateBookmark = async (
@@ -22,6 +24,7 @@ const updateBookmark = async (
   id: string,
   title?: string,
   note?: string,
+  collectionId?: string,
   collection_name?: string,
   tags?: string[],
   page_url?: string,
@@ -49,17 +52,22 @@ const updateBookmark = async (
     );
   }
 
-  const potentialUpdates: Updates = { title, note, page_url, excerpt, favIconUrl };
+  const potentialUpdates: Updates = {
+    title,
+    note,
+    page_url,
+    excerpt,
+    favIconUrl,
+  };
 
-  let updates = Object.keys(potentialUpdates)
-    .filter((key) => potentialUpdates[key] !== undefined)
-    .reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: potentialUpdates[key],
-      }),
-      {} as Updates
-    );
+  // Only include non-undefined values in the updates
+  const updates = Object.entries(potentialUpdates).reduce<Updates>(
+    (acc, [key, value]) => {
+      if (value !== undefined) acc[key] = value;
+      return acc;
+    },
+    {}
+  );
 
   // Handle Tags and TagToBookmark updates
   if (tags && tags.length) {
@@ -77,14 +85,13 @@ const updateBookmark = async (
   }
 
   // Ensure the collection is also created
-  if (collection_name) {
+  if (collection_name && !collectionId) {
     const collection = await createOrFetchCollection(
       sessionToken,
       collection_name ?? "Unsorted"
     );
-    updates.collectionId = collection.id;
+    updates["collectionId"] = collection.id;
   }
-  delete updates.collection_name;
 
   const updatedBookmark = await prisma.bookmark.update({
     where: { id },
@@ -261,4 +268,4 @@ const updateTagToBookmarks = async (
   }
 };
 
-export { updateBookmark };
+export default updateBookmark;

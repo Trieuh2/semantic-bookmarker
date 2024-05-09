@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"next dev\" \"npm:taskScheduler\"",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "concurrently \"next start\" \"npm:taskScheduler\"",
+    "lint": "next lint",
+    "taskScheduler": "ts-node ./app/libs/taskScheduler.ts"
+  },
+  "_moduleAliases": {
+    "@/app": "app"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.5.1",
@@ -22,9 +26,14 @@
     "cloudinary": "^2.2.0",
     "cloudinary-react": "^1.8.1",
     "clsx": "^2.1.0",
+    "dotenv": "^16.4.5",
+    "install": "^0.13.0",
+    "ioredis": "^5.4.1",
     "lodash": "^4.17.21",
+    "module-alias": "^2.2.3",
     "next": "14.1.4",
     "next-auth": "^4.24.7",
+    "npm": "^10.7.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.2",
@@ -36,17 +45,21 @@
   "devDependencies": {
     "@types/lodash": "^4.17.0",
     "@types/next-auth": "^3.15.0",
-    "@types/node": "^20",
+    "@types/node": "^20.12.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.0.1",
+    "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "postcss": "^8",
     "prisma": "^5.11.0",
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5"
   }
 }
