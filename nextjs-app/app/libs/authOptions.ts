@@ -47,9 +47,12 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
-      const sessionRecord = await prisma.session.findUnique({
+      const sessionRecord = await prisma.session.findFirst({
         where: {
           userId: user.id,
+        },
+        orderBy: {
+          expires: "desc",
         },
       });
 
