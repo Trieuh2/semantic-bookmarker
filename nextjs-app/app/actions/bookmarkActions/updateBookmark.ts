@@ -55,6 +55,7 @@ const updateBookmark = async (
   const potentialUpdates: Updates = {
     title,
     note,
+    collectionId,
     page_url,
     excerpt,
     favIconUrl,
@@ -70,18 +71,9 @@ const updateBookmark = async (
   );
 
   // Handle Tags and TagToBookmark updates
-  if (tags && tags.length) {
-    const tagsUpdate = await updateTagsAndTagToBookmarks(
-      sessionToken,
-      tags,
-      id
-    );
-
-    if (!tagsUpdate) {
-      throw new Error(
-        "Error updating Bookmark record. Failed to create/update the associated Tag and TagToBookmarks records for this Bookmark."
-      );
-    }
+  if (tags) {
+    const { updatedTags, updatedTagToBookmarks } =
+      await updateTagsAndTagToBookmarks(sessionToken, tags, id);
   }
 
   // Ensure the collection is also created
@@ -96,6 +88,19 @@ const updateBookmark = async (
   const updatedBookmark = await prisma.bookmark.update({
     where: { id },
     data: { ...updates },
+    include: {
+      tagToBookmarks: {
+        include: {
+          tag: {
+            include: {
+              _count: {
+                select: { tagToBookmarks: true },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!updatedBookmark) {
@@ -131,7 +136,7 @@ const updateTagsAndTagToBookmarks = async (
 };
 
 const updateTags = async (userId: string, tagNames: string[]) => {
-  if (!userId || !tagNames) {
+  if (!userId || tagNames === undefined) {
     throw new BadRequestError(
       "Error updating Bookmark record. Failed to update associated tags due to missing userId or tagNames."
     );
@@ -187,7 +192,7 @@ const updateTagToBookmarks = async (
   id: string,
   tags: Tag[]
 ) => {
-  if (!userId || !id || !tags) {
+  if (!userId || !id || tags === undefined) {
     throw new BadRequestError(
       "Error updating Bookmark record. Error creating TagToBookmark associated record. Missing userId, id, or tags parameters."
     );
@@ -259,7 +264,6 @@ const updateTagToBookmarks = async (
         "Error updating Bookmark record. Failed to delete associated TagToBookmark record."
       );
     }
-
     return tagToBookmarks;
   } catch (error) {
     throw new Error(

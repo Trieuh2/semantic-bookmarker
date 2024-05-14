@@ -9,7 +9,7 @@ import { BsGoogle } from "react-icons/bs";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Input from "@/app/components/inputs/Input";
-import Button from "@/app/components/Button";
+import Button from "@/app/components/buttons/Button";
 import axios from "axios";
 
 type Variant = "LOGIN" | "REGISTER";

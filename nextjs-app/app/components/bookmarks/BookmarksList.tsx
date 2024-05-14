@@ -13,28 +13,22 @@ const BookmarkList: React.FC = () => {
     state.bookmarks
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  // Update bookmarks
-  useEffect(() => {
-    if (state.bookmarks !== displayBookmarks) {
-      setDisplayBookmarks(state.bookmarks);
-      setIsLoading(false);
-    }
-  }, [state.bookmarks, displayBookmarks]);
 
-  // Synchronize bookmarks loading state
   useEffect(() => {
+    setDisplayBookmarks(state.bookmarks);
     setIsLoading(state.isBookmarksLoading);
-  }, [state.isBookmarksLoading]);
+  }, [state.bookmarks, state.isBookmarksLoading]);
 
   const memoizedBookmarkItems = React.useMemo(() => {
-    return displayBookmarks.map((bookmark, index) => (
-      <BookmarkItem
-        index={index}
-        key={`bookmark-${bookmark.id}-${index}`}
-        data={bookmark}
-      />
-    ));
+    if (displayBookmarks) {
+      return displayBookmarks.map((bookmark, index) => (
+        <BookmarkItem
+          index={index}
+          key={`bookmark-${bookmark.id}-${index}`}
+          data={bookmark}
+        />
+      ));
+    }
   }, [displayBookmarks]);
 
   const scrollbarClasses = `
@@ -51,6 +45,7 @@ const BookmarkList: React.FC = () => {
     h-full
     flex
     flex-col
+    flex-grow
     bg-zinc-800
     transition
     ease-in-out
@@ -62,13 +57,12 @@ const BookmarkList: React.FC = () => {
   );
 
   const botDividerClasses = `
-    relative  
+    relative
     w-11/12
     h-px
     bg-zinc-700
     self-center
   `;
-
   return (
     <div className={bookmarkListClasses}>
       {!isLoading && (
@@ -82,15 +76,19 @@ const BookmarkList: React.FC = () => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          {memoizedBookmarkItems}
-          {/* Bottom divider with number of bookmarks found */}
-          <div className="flex pb-4 items-center justify-center">
+          <div className="flex-grow">{memoizedBookmarkItems}</div>
+          <div
+            className={clsx(
+              "flex pb-4 items-center justify-center",
+              displayBookmarks.length === 0 && "mt-12"
+            )}
+          >
             <div className="flex items-center justify-center w-11/12 py-3">
               <div className={botDividerClasses}></div>
               <div className="flex items-center space-x-1 mx-2 text-neutral-400">
-                <span className="text-sm">{displayBookmarks.length}</span>
+                <span className="text-sm">{displayBookmarks?.length ?? 0}</span>
                 <span className="text-sm">
-                  {displayBookmarks.length === 1 ? "bookmark" : "bookmarks"}
+                  {displayBookmarks?.length === 1 ? "bookmark" : "bookmarks"}
                 </span>
               </div>
               <div className={botDividerClasses}></div>

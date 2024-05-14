@@ -5,6 +5,7 @@ import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";
 import { AuthProvider } from "../context/AuthContext";
 import { BookmarkProvider } from "../context/BookmarkContext";
+import DetailedBookmarkPanel from "../components/DetailedBookmarkPanel";
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,10 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
             <Sidebar />
             <div className="flex flex-col w-full">
               <Header />
-              {children}
+              <div className="flex overflow-hidden h-full w-full">
+                {children}
+                <DetailedBookmarkPanel />
+              </div>
             </div>
           </BookmarkProvider>
         </AuthProvider>

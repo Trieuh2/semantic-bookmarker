@@ -1,6 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-import { CollectionWithBookmarkCount, TagWithBookmarkCount } from "../types";
+import {
+  CollectionWithBookmarkCount,
+  FullBookmarkType,
+  TagToBookmarkWithTag,
+  TagWithBookmarkCount,
+} from "../types";
 
 const validEndpoints = ["bookmark", "collection", "tag"];
 
@@ -52,17 +57,24 @@ export const axiosUpdateResource = async (
   endpoint: string,
   data: Record<string, any> = {},
   sessionToken: string,
-  onSuccess: () => void,
+  onSuccess:
+    | ((updatedActiveBookmark?: FullBookmarkType) => void)
+    | (() => void),
   onError: (error: any) => void
-) => {
+): Promise<void> => {
   try {
-    await axios.patch(`/api/${endpoint}`, data, {
+    const response = await axios.patch(`/api/${endpoint}`, data, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${sessionToken}`,
       },
     });
-    onSuccess();
+
+    if (onSuccess.length === 0) {
+      onSuccess();
+    } else if (onSuccess.length === 1 && response.data.data) {
+      onSuccess(response.data.data as FullBookmarkType);
+    }
   } catch (error) {
     onError(error);
   }
@@ -72,9 +84,7 @@ export const axiosCreateResource = async (
   endpoint: string,
   data: Record<string, any> = {},
   sessionToken: string,
-  onSuccess: (
-    newResource: CollectionWithBookmarkCount | TagWithBookmarkCount
-  ) => void,
+  onSuccess: (newResource: any) => void,
   onError: (error: any) => void
 ) => {
   try {
@@ -92,38 +102,66 @@ export const axiosCreateResource = async (
 
 export const createTempResource = (
   userId: string,
-  resourceType: "collection" | "tag",
+  resourceType: "collection" | "tag" | "tagToBookmark",
   name: string,
-  parentId?: string // nested collection parent id
-): CollectionWithBookmarkCount | TagWithBookmarkCount => {
+  parentId?: string, // nested collection parent id
+  tagToBookmarksCount?: number,
+  tag?: TagWithBookmarkCount
+):
+  | CollectionWithBookmarkCount
+  | TagWithBookmarkCount
+  | TagToBookmarkWithTag => {
   let tempResource:
     | CollectionWithBookmarkCount
     | TagWithBookmarkCount
+    | TagToBookmarkWithTag
     | undefined;
-  const randomObjectId = uuidv4();
+  const randomObjectId = uuidv4() + "temp";
 
-  if (resourceType === "collection") {
-    tempResource = {
-      id: randomObjectId,
-      createdAt: new Date(),
-      name: name,
-      isDefault: false,
-      userId: userId ?? "",
-      parentId: parentId,
-      _count: {
-        bookmarks: 0,
-      },
-    } as CollectionWithBookmarkCount;
-  } else if (resourceType === "tag") {
-    tempResource = {
-      id: randomObjectId,
-      createdAt: new Date(),
-      name: name,
-      userId: userId ?? "",
-      _count: {
-        tagToBookmarks: 0,
-      },
-    } as TagWithBookmarkCount;
+  switch (resourceType) {
+    case "collection":
+      tempResource = {
+        id: randomObjectId,
+        createdAt: new Date(),
+        name: name,
+        isDefault: false,
+        userId: userId ?? "",
+        parentId: parentId,
+        _count: {
+          bookmarks: 0,
+        },
+      } as CollectionWithBookmarkCount;
+      break;
+    case "tag":
+      tempResource = {
+        id: randomObjectId,
+        createdAt: new Date(),
+        name: name,
+        userId: userId ?? "",
+        _count: {
+          tagToBookmarks: tagToBookmarksCount ?? 0,
+        },
+      } as TagWithBookmarkCount;
+      break;
+    case "tagToBookmark":
+      tempResource = {
+        id: randomObjectId,
+        createdAt: new Date(),
+        tagId: randomObjectId,
+        bookmarkId: "",
+        userId: userId ?? "",
+        tag: {
+          id: randomObjectId,
+          createdAt: new Date(),
+          name: name,
+          userId: userId ?? "",
+        },
+      } as TagToBookmarkWithTag;
+
+      if (tag) {
+        tempResource = { ...tempResource, tagId: tag.id, tag };
+      }
+      break;
   }
 
   if (tempResource === undefined) {

@@ -12,6 +12,7 @@ import getBookmarksFromSearch from "@/app/actions/bookmarkActions/getBookmarksFr
 import { FullBookmarkType } from "@/app/types";
 import { BadRequestError } from "@/app/libs/errors";
 import { encrypt } from "@/app/libs/encryption";
+import updateBookmark from "@/app/actions/bookmarkActions/updateBookmark";
 
 async function fetchData(
   sessionToken: string,
@@ -93,6 +94,7 @@ export async function PATCH(req: any) {
       page_url,
       excerpt,
       favIconUrl,
+      performNow,
     } = body;
     if (!id) {
       throw new BadRequestError(
@@ -100,35 +102,52 @@ export async function PATCH(req: any) {
       );
     }
 
-    // Encrypt session token to validate aggregate changes
     const sessionToken =
       req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    const encryptedSessionToken = encrypt(sessionToken);
 
-    // Create a unique key for Redis storage
-    const redisKey = `bookmark:update:${id}:${encryptedSessionToken}`;
-    await Promise.all(
-      [
-        title !== undefined && redis.hset(redisKey, "title", title),
-        note !== undefined && redis.hset(redisKey, "note", note),
-        collectionId !== undefined &&
-          redis.hset(redisKey, "collectionId", collectionId),
-        collection_name !== undefined &&
-          redis.hset(redisKey, "collection_name", collection_name),
-        tags !== undefined &&
-          redis.hset(redisKey, "tags", JSON.stringify(tags)),
-        page_url !== undefined && redis.hset(redisKey, "page_url", page_url),
-        excerpt !== undefined && redis.hset(redisKey, "excerpt", excerpt),
-        favIconUrl !== undefined &&
-          redis.hset(redisKey, "favIconUrl", favIconUrl),
-      ].filter(Boolean)
-    );
-    await redis.expire(redisKey, 3600); // Set expiry to 1 hour
+    if (performNow) {
+      const updatedBookmark = await updateBookmark(
+        sessionToken,
+        id,
+        title,
+        note,
+        collectionId,
+        collection_name,
+        tags,
+        page_url,
+        excerpt,
+        favIconUrl
+      );
+      return NextResponse.json({ status: 200, data: updatedBookmark });
+    } else {
+      // Encrypt session token to validate aggregate changes
+      const encryptedSessionToken = encrypt(sessionToken);
 
-    return NextResponse.json({
-      success: true,
-      data: "Bookmark update scheduled",
-    });
+      // Create a unique key for Redis storage
+      const redisKey = `bookmark:update:${id}:${encryptedSessionToken}`;
+      await Promise.all(
+        [
+          title !== undefined && redis.hset(redisKey, "title", title),
+          note !== undefined && redis.hset(redisKey, "note", note),
+          collectionId !== undefined &&
+            redis.hset(redisKey, "collectionId", collectionId),
+          collection_name !== undefined &&
+            redis.hset(redisKey, "collection_name", collection_name),
+          tags !== undefined &&
+            redis.hset(redisKey, "tags", JSON.stringify(tags)),
+          page_url !== undefined && redis.hset(redisKey, "page_url", page_url),
+          excerpt !== undefined && redis.hset(redisKey, "excerpt", excerpt),
+          favIconUrl !== undefined &&
+            redis.hset(redisKey, "favIconUrl", favIconUrl),
+        ].filter(Boolean)
+      );
+      await redis.expire(redisKey, 3600); // Set expiry to 1 hour
+
+      return NextResponse.json({
+        success: true,
+        data: "Bookmark update scheduled",
+      });
+    }
   } catch (error) {
     return handleError(error as Error);
   }

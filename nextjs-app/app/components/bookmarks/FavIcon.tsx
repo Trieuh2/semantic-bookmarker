@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/app/context/AuthContext";
+import { useBookmarks } from "@/app/context/BookmarkContext";
 import { AdvancedImage } from "@cloudinary/react";
 import { CloudConfig, URLConfig, CloudinaryImage } from "@cloudinary/url-gen";
 import { Transition } from "@headlessui/react";
@@ -11,14 +12,14 @@ interface FavIconProps {
   domainName?: string;
 }
 
-const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
+const FavIcon: React.FC<FavIconProps> = React.memo(({ domainName }) => {
   const { userId } = useAuth();
+  const { state } = useBookmarks();
   const [favIcon, setFavIcon] = useState<CloudinaryImage | null>(null);
-  const [favIconIsLoading, setIsFavIconIsLoading] = useState<boolean>(true);
 
   // Side effect to fetch the favIcon from Cloudinary
   useEffect(() => {
-    if (domainName && favIconIsLoading) {
+    if (domainName && !state.isBookmarksLoading) {
       const folderPath = process.env.NEXT_PUBLIC_CLOUDINARY_IMAGE_FOLDER;
       const favIconPublicId = `${folderPath}/${userId}-${domainName}-favIcon`;
       let cloudConfig = new CloudConfig({
@@ -35,17 +36,14 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
           if (response.ok) {
             setFavIcon(image);
           } else {
-            throw new Error(`Image not valid for ${domainName}`);
+            setFavIcon(null);
           }
         })
         .catch((error) => {
           setFavIcon(null);
-        })
-        .finally(() => {
-          setIsFavIconIsLoading(false);
         });
     }
-  }, [domainName, userId, favIconIsLoading]);
+  }, [domainName, userId, state.isBookmarksLoading]);
 
   const imgContainerClasses = `
     flex
@@ -75,7 +73,7 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
     <div className={imgContainerClasses}>
       <Transition
         appear={true}
-        show={!favIconIsLoading}
+        show={true}
         enter="ease-out duration-200"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -88,6 +86,7 @@ const FavIcon: React.FC<FavIconProps> = ({ domainName }) => {
       </Transition>
     </div>
   );
-};
+});
 
+FavIcon.displayName = "FavIcon";
 export default FavIcon;

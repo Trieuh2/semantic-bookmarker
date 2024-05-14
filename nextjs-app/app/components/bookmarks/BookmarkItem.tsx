@@ -7,6 +7,7 @@ import { TbHash } from "react-icons/tb";
 import FavIcon from "./FavIcon";
 import { getDomainNameFromPageUrl } from "@/app/utils/urlActions";
 import React from "react";
+import { useBookmarks } from "@/app/context/BookmarkContext";
 
 interface BookmarkItemProps {
   index: Number;
@@ -15,6 +16,8 @@ interface BookmarkItemProps {
 
 const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
   ({ index, data }) => {
+    const { state, dispatch } = useBookmarks();
+
     const domainName = getDomainNameFromPageUrl(data.page_url);
     const formatDate = (date: Date) => {
       const dateObj = new Date(date);
@@ -35,75 +38,67 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
       return friendlyDate;
     };
 
-    const mainContainerClasses = `
-    flex
-    flex-col
-    gap-x-1
-    px-6
-    py-4
-  `;
-
-    const dividerClasses = `
-    w-11/12
-    h-px
-    bg-zinc-700
-    self-center
-  `;
-
-    const titleClasses = `
-    inline-block
-    max-w-screen-lg
-    break-words
-    text-white
-    text-base
-    font-bold
-  `;
-
-    const tagsClasses = `
-    flex
-    gap-2
-    text-orange-300
-    text-sm
-    px-1
-  `;
-
-    const infoContainerClasses = `
-    flex
-    grow-0
-    shrink-0
-    max-w-md
-    gap-x-2
-    text-sm
-    text-neutral-400
-    p-1
-  `;
+    const handleItemClick = () => {
+      if (state.activeBookmark?.id === data.id) {
+        dispatch({
+          type: "TOGGLE_DETAILED_PANEL_WITH_BOOKMARK",
+          payload: {
+            isShowing: !state.isShowingDetailedPanel,
+            activeBookmark: data,
+          },
+        });
+      } else {
+        dispatch({
+          type: "SHOW_DETAILED_PANEL_WITH_BOOKMARK",
+          payload: {
+            activeBookmark: data,
+          },
+        });
+      }
+    };
 
     return (
       <div
         className="
-        relative
-        flex
-        flex-col
-        grow-0
-        shrink-0
-        h-30
-        hover:bg-neutral-700
-        hover:cursor-pointer
-      "
+          relative
+          flex
+          flex-col
+          grow-0
+          shrink-0
+          min-h-24
+          hover:bg-neutral-700
+          hover:cursor-pointer
+          transition
+          duration-200
+        "
       >
-        <a className="absolute inset-0" href={data.page_url} target="_blank" />
-
         {/* Top Divider */}
-        {index !== 0 && <div className={dividerClasses} />}
-        <div className="flex pl-2 justify-start items-center">
+        {index !== 0 && <div className="w-full h-px bg-zinc-700 self-center" />}
+        <div
+          className="flex pl-2 justify-start items-center"
+          onClick={(event) => {
+            handleItemClick();
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
           <FavIcon domainName={domainName} />
-          <div className={mainContainerClasses}>
+          <div className="flex flex-col gap-x-1 px-6 py-4">
             {/* Title */}
-            <span className={titleClasses}>{data.title}</span>
+            <a
+              className="inline-block max-w-screen-lg break-words text-white text-base font-bold hover:underline underline-offset-2 z-10"
+              href={data.page_url}
+              target="_blank"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              {data.title}
+            </a>
 
             {/* Tags */}
             {data.tagToBookmarks && (
-              <div className={tagsClasses}>
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-orange-300 text-sm px-1">
                 {data.tagToBookmarks.map((tagToBookmark, index) => {
                   const tagLink = "/home/tags/" + tagToBookmark.tagId;
                   return (
@@ -111,6 +106,9 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
                       key={`tagToBookmark-${tagToBookmark.tagId}-${index}`}
                       href={tagLink}
                       className="flex hover:underline items-center z-10"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                      }}
                     >
                       <TbHash />
                       {tagToBookmark.tag?.name}
@@ -121,11 +119,12 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
             )}
 
             {/* Information Container */}
-            <div className={infoContainerClasses}>
+            <div className="flex grow-0 shrink-0 max-w-md gap-x-2 text-sm text-neutral-400 p-1">
               {/* Collection */}
               <Link
                 href={`/home/collections/${data.collectionId}`}
                 className="hover:underline z-10"
+                onClick={(event) => event.stopPropagation()}
               >
                 <span className="flex gap-2 items-center">
                   <IoIosFolder />
@@ -133,9 +132,11 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
                 </span>
               </Link>
               <span>·</span>
+
               {/* Page URL */}
               <span>{domainName}</span>
               <span>·</span>
+
               {/* Friendly Date */}
               <span>{formatDate(data.createdAt)}</span>
             </div>

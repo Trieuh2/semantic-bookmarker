@@ -25,6 +25,8 @@ interface BookmarkState {
   tags: TagWithBookmarkCount[];
   bookmarks: FullBookmarkType[];
   isBookmarksLoading: boolean;
+  isShowingDetailedPanel: boolean;
+  activeBookmark: FullBookmarkType | undefined | null;
 }
 
 // Define actions
@@ -36,9 +38,14 @@ type Action =
     }
   | {
       type: "UPDATE_UNIQUE_RESOURCE_METADATA";
-      resource: "collection" | "tag";
-      name: string;
-      payload: CollectionWithBookmarkCount | TagWithBookmarkCount;
+      resource: "collection" | "tag" | "bookmark";
+      identifierType: "name" | "id";
+      identifier: string;
+      payload:
+        | CollectionWithBookmarkCount
+        | TagWithBookmarkCount
+        | FullBookmarkType
+        | Record<string, any>;
     }
   | {
       type: "UPDATE_RESOURCE_NAME";
@@ -57,6 +64,19 @@ type Action =
   | {
       type: "SET_BOOKMARKS_LOADING_STATE";
       payload: boolean;
+    }
+  | {
+      type: "TOGGLE_DETAILED_PANEL_WITH_BOOKMARK";
+      payload: {
+        isShowing: boolean;
+        activeBookmark: FullBookmarkType;
+      };
+    }
+  | {
+      type: "SHOW_DETAILED_PANEL_WITH_BOOKMARK";
+      payload: {
+        activeBookmark: FullBookmarkType;
+      };
     };
 
 interface BookmarkContextType {
@@ -73,6 +93,8 @@ const initialState = {
   tags: [],
   bookmarks: [],
   isBookmarksLoading: true,
+  isShowingDetailedPanel: false,
+  activeBookmark: null,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -80,6 +102,7 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
   let updatedResources;
   let updatedBookmarks;
   let updatedTagToBookmarks;
+  let updatedActiveBookmark;
 
   switch (action.type) {
     case "FILTER_RESOURCE":
@@ -110,26 +133,79 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           );
           updatedCollection = unsortedCollection;
         }
+
         return {
           ...bookmark,
           tagToBookmarks: updatedTagToBookmarks,
+          collectionId: updatedCollection?.id ?? "",
           collection: updatedCollection,
         };
       });
+
+      if (state.activeBookmark) {
+        updatedActiveBookmark = updatedBookmarks.find(
+          (bookmark) => bookmark.id === state.activeBookmark?.id
+        );
+
+        if (updatedActiveBookmark === undefined) {
+          updatedActiveBookmark = state.activeBookmark;
+        }
+      } else {
+        updatedActiveBookmark = state.activeBookmark;
+      }
+
       return {
         ...state,
         [resourceType]: updatedResources,
         bookmarks: updatedBookmarks,
+        activeBookmark: updatedActiveBookmark,
       };
     case "UPDATE_UNIQUE_RESOURCE_METADATA":
-      resourceType = action.resource === "collection" ? "collections" : "tags";
-      updatedResources = state[resourceType as "collections" | "tags"].map(
-        (resource) =>
-          resource.name === action.name ? action.payload : resource
-      );
+      if (action.resource === "collection") {
+        resourceType = "collections";
+      } else if (action.resource === "tag") {
+        resourceType = "tags";
+      } else {
+        resourceType = "bookmarks";
+      }
+
+      updatedResources = state[
+        resourceType as "collections" | "tags" | "bookmarks"
+      ].map((resource: any) => {
+        if (action.identifierType === "name") {
+          return resource.name === action.identifier
+            ? { ...resource, ...action.payload }
+            : resource;
+        }
+        if (action.identifierType === "id") {
+          return resource.id === action.identifier
+            ? { ...resource, ...action.payload }
+            : resource;
+        }
+      });
+
+      // TODO: Include relational updates to Tag's TTB count and Collection's children count
+      // Update active bookmark details if necessary
+      if (
+        action.resource === "bookmark" &&
+        state.activeBookmark?.id === action.identifier
+      ) {
+        updatedActiveBookmark = updatedResources.find(
+          (bookmark) => bookmark.id === state.activeBookmark?.id
+        );
+
+        if (updatedActiveBookmark === undefined) {
+          updatedActiveBookmark = state.activeBookmark;
+        }
+      } else {
+        updatedActiveBookmark = state.activeBookmark;
+      }
+
       return {
         ...state,
-        [resourceType as "collections" | "tags"]: updatedResources,
+        [resourceType as "collections" | "tags" | "bookmarks"]:
+          updatedResources,
+        activeBookmark: updatedActiveBookmark,
       };
     case "UPDATE_RESOURCE_NAME":
       resourceType = action.resource === "collection" ? "collections" : "tags";
@@ -166,10 +242,22 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
           collection: updatedCollection,
         };
       });
+
+      // Update active bookmark details if necessary
+      if (state.activeBookmark) {
+        updatedActiveBookmark = updatedBookmarks.find(
+          (bookmark) => bookmark.id === state.activeBookmark?.id
+        );
+        if (updatedActiveBookmark === undefined) {
+          updatedActiveBookmark = state.activeBookmark;
+        }
+      }
+
       return {
         ...state,
         [resourceType]: updatedResources,
         bookmarks: updatedBookmarks,
+        activeBookmark: updatedActiveBookmark,
       };
     case "SET_RESOURCES":
       if (action.resource === "collection") {
@@ -187,6 +275,18 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
       return {
         ...state,
         isBookmarksLoading: action.payload,
+      };
+    case "TOGGLE_DETAILED_PANEL_WITH_BOOKMARK":
+      return {
+        ...state,
+        isShowingDetailedPanel: action.payload.isShowing,
+        activeBookmark: action.payload.activeBookmark,
+      };
+    case "SHOW_DETAILED_PANEL_WITH_BOOKMARK":
+      return {
+        ...state,
+        isShowingDetailedPanel: true,
+        activeBookmark: action.payload.activeBookmark,
       };
     default:
       return state;
@@ -287,7 +387,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     session,
     state.collections,
     state.tags,
-    !state.isBookmarksLoading,
+    state.isBookmarksLoading,
   ]);
 
   const value = {
