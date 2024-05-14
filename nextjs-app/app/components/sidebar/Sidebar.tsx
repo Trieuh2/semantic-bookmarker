@@ -14,72 +14,75 @@ const Sidebar: React.FC = () => {
   const { state } = useBookmarks();
 
   const unsortedCollection = useMemo(() => {
-    const collection = state.collections.find(
-      (collection) => collection.isDefault
-    );
-    return collection;
+    if (state.collections) {
+      const collection = state.collections.find(
+        (collection) => collection.isDefault
+      );
+      return collection;
+    }
   }, [state.collections]);
 
   const collectionItems = useMemo(() => {
-    // Creating a map to store parent-child relationships
-    const childCollectionsMap = new Map();
+    if (state.collections) {
+      // Creating a map to store parent-child relationships
+      const childCollectionsMap = new Map();
 
-    // Separating child collections in a map for quick lookup and counting bookmarks
-    state.collections.forEach((collection) => {
-      if (collection.parentId) {
-        if (!childCollectionsMap.has(collection.parentId)) {
-          childCollectionsMap.set(collection.parentId, {
-            children: [],
-            totalBookmarks: 0,
-          });
+      // Separating child collections in a map for quick lookup and counting bookmarks
+      state.collections.forEach((collection) => {
+        if (collection.parentId) {
+          if (!childCollectionsMap.has(collection.parentId)) {
+            childCollectionsMap.set(collection.parentId, {
+              children: [],
+              totalBookmarks: 0,
+            });
+          }
+          let parent = childCollectionsMap.get(collection.parentId);
+          parent.children.push(collection);
+          parent.totalBookmarks += collection?._count?.bookmarks ?? 0;
         }
-        let parent = childCollectionsMap.get(collection.parentId);
-        parent.children.push(collection);
-        parent.totalBookmarks += collection?._count?.bookmarks ?? 0;
-      }
-    });
-
-    // Processing only non-default, top-level collections
-    return state.collections
-      .filter(
-        (parentCollection) =>
-          !parentCollection.isDefault && !parentCollection.parentId
-      )
-      .map((parentCollection) => {
-        const children = childCollectionsMap.get(parentCollection.id);
-        const totalBookmarks =
-          (parentCollection?._count?.bookmarks ?? 0) +
-          (children?.totalBookmarks ?? 0);
-
-        return (
-          <SidebarItem
-            key={`collection-${parentCollection.id}`}
-            href={`/home/collections/${parentCollection.id}`}
-            label={parentCollection.name}
-            icon={IoIosFolder}
-            count={totalBookmarks}
-            resourceType="collection"
-            identifier={parentCollection.id}
-            children={
-              children &&
-              children.children.map(
-                (childCollection: CollectionWithBookmarkCount) => (
-                  <SidebarItem
-                    key={`collection-${childCollection.id}`}
-                    href={`/home/collections/${childCollection.id}`}
-                    label={childCollection.name}
-                    icon={IoIosFolder}
-                    count={childCollection?._count?.bookmarks ?? 0}
-                    resourceType="collection"
-                    identifier={childCollection.id}
-                    parentName={parentCollection.name}
-                  />
-                )
-              )
-            }
-          />
-        );
       });
+
+      // Processing only non-default, top-level collections
+      return state.collections
+        .filter(
+          (parentCollection) =>
+            !parentCollection.isDefault && !parentCollection.parentId
+        )
+        .map((parentCollection) => {
+          const children = childCollectionsMap.get(parentCollection.id);
+          const totalBookmarks =
+            (parentCollection?._count?.bookmarks ?? 0) +
+            (children?.totalBookmarks ?? 0);
+
+          return (
+            <SidebarItem
+              key={`collection-${parentCollection.id}`}
+              href={`/home/collections/${parentCollection.id}`}
+              label={parentCollection.name}
+              icon={IoIosFolder}
+              count={totalBookmarks}
+              resourceType="collection"
+              identifier={parentCollection.id}
+            >
+              {children &&
+                children.children.map(
+                  (childCollection: CollectionWithBookmarkCount) => (
+                    <SidebarItem
+                      key={`collection-${childCollection.id}`}
+                      href={`/home/collections/${childCollection.id}`}
+                      label={childCollection.name}
+                      icon={IoIosFolder}
+                      count={childCollection?._count?.bookmarks ?? 0}
+                      resourceType="collection"
+                      identifier={childCollection.id}
+                      parentName={parentCollection.name}
+                    />
+                  )
+                )}
+            </SidebarItem>
+          );
+        });
+    }
   }, [state.collections]);
 
   const tagItems = useMemo(
@@ -143,7 +146,11 @@ const Sidebar: React.FC = () => {
       <SidebarGroup
         name="Collections"
         resourceType="collection"
-        count={Math.max(state.collections.length - 1, 0)}
+        count={
+          state.collections?.length
+            ? Math.max(state.collections.length - 1, 0)
+            : 0
+        }
       >
         <div>{collectionItems}</div>
       </SidebarGroup>

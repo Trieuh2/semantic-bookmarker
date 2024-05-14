@@ -38,7 +38,7 @@ const OverflowMenu = forwardRef<HTMLDivElement, OverflowMenuProps>(
       return () => {
         document.removeEventListener("mouseup", handleClickOutside);
       };
-    }, [isOpen, ref]);
+    }, [isOpen, ref, onClickOutside]);
 
     const divClasses = clsx(
       `

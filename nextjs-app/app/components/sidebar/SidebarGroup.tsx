@@ -77,12 +77,13 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
           const onSuccess = (
             newResource: CollectionWithBookmarkCount | TagWithBookmarkCount
           ) => {
-            // Update the bare-bones temporary object with the metadata from the response
+            // Update the temporary object with the actual created object returned from server
             dispatch({
-              type: "UPDATE_UNIQUE_RESOURCE_METADATA",
-              resource: resourceType,
-              name: name,
-              payload: newResource,
+              type: "SET_RESOURCES",
+              resource: resourceType as "collection" | "tag",
+              payload: [...previousResources, newResource] as
+                | CollectionWithBookmarkCount[]
+                | TagWithBookmarkCount[],
             });
           };
           const onError = (error: any) => {
@@ -103,7 +104,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
               name
             );
 
-            // Optimistic update with bare-bones data
+            // Optimistic client-side update with temporary object
             dispatch({
               type: "SET_RESOURCES",
               resource: resourceType as "collection" | "tag",
@@ -112,6 +113,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
                 | TagWithBookmarkCount[],
             });
 
+            // Server-side creation request
             axiosCreateResource(
               resourceType,
               { name },
@@ -122,7 +124,7 @@ const SidebarGroup: React.FC<SidebarGroupProps> = React.memo(
           }
         }
       },
-      [sessionToken, state, dispatch]
+      [sessionToken, state, dispatch, data?.userId]
     );
 
     return (

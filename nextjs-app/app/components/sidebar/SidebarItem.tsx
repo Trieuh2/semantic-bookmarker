@@ -87,7 +87,6 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
           const previousResources =
             state[stateResourceType as "collections" | "tags"];
 
-          // TODO: Handle cases for nested collections
           // Prevent the user from creating duplicates client-side
           const isUniqueName = !previousResources.some(
             (resource) => resource.name === name
@@ -96,12 +95,13 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
           const onSuccess = (
             newResource: CollectionWithBookmarkCount | TagWithBookmarkCount
           ) => {
-            // Update the bare-bones temporary object with the metadata from the response
+            // Update the temporary object with the actual created object returned from server
             dispatch({
-              type: "UPDATE_UNIQUE_RESOURCE_METADATA",
-              resource: resourceType,
-              name: name,
-              payload: newResource,
+              type: "SET_RESOURCES",
+              resource: resourceType as "collection" | "tag",
+              payload: [...previousResources, newResource] as
+                | CollectionWithBookmarkCount[]
+                | TagWithBookmarkCount[],
             });
           };
           const onError = (error: any) => {
@@ -123,7 +123,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
               identifier
             );
 
-            // Optimistic update with bare-bones data
+            // Optimistic client-side update with temporary object
             dispatch({
               type: "SET_RESOURCES",
               resource: resourceType as "collection" | "tag",
@@ -132,6 +132,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
                 | TagWithBookmarkCount[],
             });
 
+            // Server-side creation request
             axiosCreateResource(
               resourceType,
               { name, parentId: identifier },
@@ -142,15 +143,15 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
           }
         }
       },
-      [sessionToken, state, dispatch]
+      [sessionToken, state, dispatch, data?.userId, identifier]
     );
 
-    const handleRenameOptionClick = () => {
+    const handleRenameOptionClick = useCallback(() => {
       if (renameInputRef) {
         setIsRenameOpened(true);
         renameInputRef.current?.focus();
       }
-    };
+    }, [renameInputRef]);
 
     const handleRename = useCallback(
       (
@@ -221,6 +222,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
           });
         };
 
+        // Optimistic removal of resource
         dispatch({
           type: "FILTER_RESOURCE",
           resource: resourceType,
@@ -247,14 +249,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
         }
         setIsRenameOpened(false);
       }
-    }, [
-      resourceType,
-      identifier,
-      renameValue,
-      initialLabel,
-      handleRename,
-      isRenameOpened,
-    ]);
+    }, [resourceType, identifier, renameValue, initialLabel, handleRename]);
 
     // Side effect to set active state
     useEffect(() => {
@@ -317,7 +312,13 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       if (resourceType && identifier) {
         return getMenuOptions(resourceType, identifier);
       }
-    }, [resourceType, identifier, handleDelete, handleRenameOptionClick]);
+    }, [
+      resourceType,
+      identifier,
+      handleDelete,
+      handleRenameOptionClick,
+      parentName,
+    ]);
 
     const linkContainerClasses = clsx(
       `
@@ -332,8 +333,8 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
       px-4
       gap-x-2
       text-stone-200
-      transition-colors
-      duration-100`,
+      transition
+      duration-200`,
       isActive && "bg-neutral-600",
       !isActive && "hover:bg-neutral-700",
       isNewResourceFieldOpened ? "mb-8" : "mb-0"

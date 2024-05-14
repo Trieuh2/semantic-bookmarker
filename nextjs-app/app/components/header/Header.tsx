@@ -36,9 +36,13 @@ const Header: React.FC = () => {
       const collection = state.collections.filter(
         (collection) => collection.id === urlInfo.id
       )[0];
-      const parentCollection = state.collections.filter(
-        (coll) => coll.id === collection.parentId
-      )[0];
+
+      let parentCollection;
+      if (collection?.parentId) {
+        parentCollection = state.collections.filter(
+          (coll) => coll.id === collection.parentId
+        )[0];
+      }
 
       setHeaderTitle(
         (parentCollection ? parentCollection?.name + " / " : "") +

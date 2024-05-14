@@ -76,4 +76,5 @@ const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
   }
 );
 
+SidebarInput.displayName = "SidebarInput";
 export default SidebarInput;
