@@ -1,14 +1,28 @@
 import "module-alias/register";
 import processBatchUpdates from "./batchProcessor";
+import redis from "./redis";
 
-// Set up the function to run at a scheduled interval
-function setupIntervalJobs() {
+async function setupIntervalJobs() {
   console.log("Setting up interval jobs...");
 
-  // Schedule the batch processing to run every second
   setInterval(async () => {
-    await processBatchUpdates();
-  }, 1000);
+    const lock = await redis.set(
+      "lock:processBatchUpdates",
+      "true",
+      "EX",
+      10,
+      "NX"
+    );
+    if (lock) {
+      try {
+        await processBatchUpdates();
+      } finally {
+        await redis.del("lock:processBatchUpdates");
+      }
+    } else {
+      console.log("Process is already running.");
+    }
+  }, 1000); // Runs every second, but ensures no overlap
 }
 
 setupIntervalJobs();
