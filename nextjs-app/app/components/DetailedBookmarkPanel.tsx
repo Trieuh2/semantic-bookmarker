@@ -748,7 +748,7 @@ const DetailedBookmarkPanel: React.FC = () => {
               <div className="flex w-full gap-x-1 mx-4">
                 <div>
                   <button
-                    className="px-4 py-1 text-starttext-white font-semibold rounded-md bg-red-500 hover:bg-red-400 active:bg-red-500 transition duration-200"
+                    className="px-4 py-1 text-start text-white font-medium rounded-md bg-red-600 hover:bg-red-500 active:bg-red-600 transition duration-200"
                     onClick={() => setIsRemoveBookmarkModalOpened(true)}
                   >
                     Remove Bookmark

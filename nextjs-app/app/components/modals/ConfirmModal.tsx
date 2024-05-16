@@ -55,13 +55,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <div className="mt-4 flex justify-between gap-4">
                 <Button
                   onClick={handleConfirmAction}
-                  classNames="bg-red-500 hover:bg-red-400 active:bg-red-500"
+                  classNames="bg-red-600 hover:bg-red-500 active:bg-red-600 text-white"
                 >
                   Confirm
                 </Button>
                 <Button
                   onClick={handleCancelAction}
-                  classNames="bg-gray-500 hover:bg-gray-400 active:bg-gray-500"
+                  classNames="bg-gray-600 hover:bg-gray-500 active:bg-gray-600 text-white"
                 >
                   Cancel
                 </Button>
