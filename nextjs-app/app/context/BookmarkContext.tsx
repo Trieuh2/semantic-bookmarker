@@ -33,7 +33,7 @@ interface BookmarkState {
 type Action =
   | {
       type: "FILTER_RESOURCE";
-      resource: "collection" | "tag";
+      resource: "collection" | "tag" | "bookmark";
       identifier: string;
     }
   | {
@@ -100,58 +100,83 @@ const initialState = {
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
   let resourceType;
   let updatedResources;
-  let updatedBookmarks;
+  let updatedCollections = state.collections;
+  let updatedTags = state.tags;
+  let updatedBookmarks = state.bookmarks;
   let updatedTagToBookmarks;
   let updatedActiveBookmark;
+  let updatedIsShowingDetailedPanel = state.isShowingDetailedPanel;
 
   switch (action.type) {
     case "FILTER_RESOURCE":
-      resourceType = action.resource === "collection" ? "collections" : "tags";
+      if (action.resource === "collection") {
+        resourceType = "collections";
+      } else if (action.resource === "tag") {
+        resourceType = "tags";
+      } else {
+        resourceType = "bookmarks";
+      }
 
-      updatedResources = state[resourceType as "collections" | "tags"].filter(
-        (item) => item.id !== action.identifier
-      );
+      updatedResources = state[
+        resourceType as "collections" | "tags" | "bookmarks"
+      ].filter((item) => item.id !== action.identifier);
 
-      // Update bookmarks to align with updated resources
-      updatedBookmarks = state.bookmarks.map((bookmark) => {
-        // Update bookmarks to filter removed tag if necessary
-        updatedTagToBookmarks =
-          bookmark.tagToBookmarks && action.resource === "tag"
-            ? bookmark.tagToBookmarks?.filter(
-                (ttb) => ttb.tag?.id !== action.identifier
-              )
-            : bookmark.tagToBookmarks;
+      // Update bookmarks to align with updated tags/collections resources
+      if (resourceType === "collections" || resourceType === "tags") {
+        updatedBookmarks = state.bookmarks.map((bookmark) => {
+          // Update bookmarks to filter removed tag if necessary
+          updatedTagToBookmarks =
+            bookmark.tagToBookmarks && action.resource === "tag"
+              ? bookmark.tagToBookmarks?.filter(
+                  (ttb) => ttb.tag?.id !== action.identifier
+                )
+              : bookmark.tagToBookmarks;
 
-        // Find the "Unsorted" collection with all its properties
-        let updatedCollection = bookmark.collection;
-        if (
-          action.resource === "collection" &&
-          bookmark.collection?.id === action.identifier
-        ) {
-          const unsortedCollection = state.collections.find(
-            (collection) => collection.name === "Unsorted"
+          // If a collection belonging to a bookmark is deleted, set that bookmark's collection to 'Unsorted'
+          let updatedCollection = bookmark.collection;
+          if (
+            action.resource === "collection" &&
+            bookmark.collection?.id === action.identifier
+          ) {
+            const unsortedCollection = state.collections.find(
+              (collection) => collection.name === "Unsorted"
+            );
+            updatedCollection = unsortedCollection;
+          }
+
+          return {
+            ...bookmark,
+            tagToBookmarks: updatedTagToBookmarks,
+            collectionId: updatedCollection?.id ?? "",
+            collection: updatedCollection,
+          };
+        });
+
+        // Update active bookmark details with updated tag/collection data
+        if (state.activeBookmark) {
+          updatedActiveBookmark = updatedBookmarks.find(
+            (bookmark) => bookmark.id === state.activeBookmark?.id
           );
-          updatedCollection = unsortedCollection;
-        }
 
-        return {
-          ...bookmark,
-          tagToBookmarks: updatedTagToBookmarks,
-          collectionId: updatedCollection?.id ?? "",
-          collection: updatedCollection,
-        };
-      });
-
-      if (state.activeBookmark) {
-        updatedActiveBookmark = updatedBookmarks.find(
-          (bookmark) => bookmark.id === state.activeBookmark?.id
-        );
-
-        if (updatedActiveBookmark === undefined) {
+          if (updatedActiveBookmark === undefined) {
+            updatedActiveBookmark = state.activeBookmark;
+          }
+        } else {
           updatedActiveBookmark = state.activeBookmark;
         }
-      } else {
-        updatedActiveBookmark = state.activeBookmark;
+      }
+
+      // If a bookmark is removed, set related states to filter this
+      if (
+        state.activeBookmark &&
+        resourceType === "bookmarks" &&
+        state.activeBookmark?.id === action.identifier
+      ) {
+        updatedActiveBookmark = undefined;
+        updatedIsShowingDetailedPanel = false;
+        updatedBookmarks = updatedResources as FullBookmarkType[];
+
+        // TODO: Update collection and tag count for related bookmark
       }
 
       return {
@@ -159,6 +184,7 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         [resourceType]: updatedResources,
         bookmarks: updatedBookmarks,
         activeBookmark: updatedActiveBookmark,
+        isShowingDetailedPanel: updatedIsShowingDetailedPanel,
       };
     case "UPDATE_UNIQUE_RESOURCE_METADATA":
       if (action.resource === "collection") {
@@ -184,7 +210,57 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         }
       });
 
-      // TODO: Include relational updates to Tag's TTB count and Collection's children count
+      if (action.resource === "collection") {
+        updatedCollections = updatedResources;
+      } else if (action.resource === "tag") {
+        updatedTags = updatedResources;
+      } else {
+        updatedBookmarks = updatedResources;
+      }
+
+      // Update collections data related to bookmarks' update
+      if (
+        (action.resource === "bookmark" && "collectionId" in action.payload) ||
+        "collection" in action.payload
+      ) {
+        const prevBookmark = state.bookmarks.find(
+          (bookmark) => bookmark.id === action.identifier
+        );
+        const prevCollectionId = prevBookmark?.collectionId;
+
+        updatedCollections = state.collections.map((collection) => {
+          // Decrement count of bookmarks for previous collection
+          if (collection.id === prevCollectionId) {
+            const updatedBookmarksCount = collection._count.bookmarks - 1;
+            return {
+              ...collection,
+              _count: {
+                bookmarks: updatedBookmarksCount,
+              },
+            };
+          }
+          // Increment count for new collection
+          else if (
+            "collectionId" in action.payload &&
+            collection.id === action.payload.collectionId
+          ) {
+            const constUpdatedBookmarkCount = collection._count.bookmarks + 1;
+            return {
+              ...collection,
+              _count: {
+                bookmarks: constUpdatedBookmarkCount,
+              },
+            };
+          } else {
+            return collection;
+          }
+        });
+      }
+
+      // Update tags data related to bookmarks' update
+      if (action.resource === "bookmark" && "") {
+      }
+
       // Update active bookmark details if necessary
       if (
         action.resource === "bookmark" &&
@@ -203,8 +279,9 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
 
       return {
         ...state,
-        [resourceType as "collections" | "tags" | "bookmarks"]:
-          updatedResources,
+        collections: updatedCollections,
+        tags: updatedTags,
+        bookmarks: updatedBookmarks,
         activeBookmark: updatedActiveBookmark,
       };
     case "UPDATE_RESOURCE_NAME":
