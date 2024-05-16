@@ -7,14 +7,13 @@ import BookmarkItem from "./bookmarks/BookmarkItem";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Transition } from "@headlessui/react";
 import {
-  axiosCreateResource,
+  axiosDeleteResource,
   axiosUpdateResource,
   createTempResource,
 } from "../libs/resourceActions";
 // import { data } from "@tensorflow/tfjs";
 import { useSession } from "next-auth/react";
 import {
-  CollectionWithBookmarkCount,
   FullBookmarkType,
   TagWithBookmarkCount,
 } from "../types";
@@ -22,7 +21,6 @@ import React from "react";
 import CollectionMenu from "./collectionMenu/CollectionMenu";
 import TagButton from "./buttons/TagButton";
 import { useAuth } from "../context/AuthContext";
-import { statSync } from "fs";
 
 const DetailedBookmarkPanel: React.FC = () => {
   const { state, dispatch } = useBookmarks();
@@ -492,6 +490,36 @@ const DetailedBookmarkPanel: React.FC = () => {
     axiosUpdateResource("bookmark", payload, sessionToken, () => {}, onError);
   };
 
+  const handleRemoveBookmark = () => {
+    const prevBookmarks = [...state.bookmarks];
+
+    // Update local state to filter this bookmark from the list of bookmarks
+    dispatch({
+      type: "FILTER_RESOURCE",
+      resource: "bookmark",
+      identifier: state.activeBookmark?.id ?? "",
+    });
+
+    const onError = (error: Error) => {
+      // Undo optimistic update
+      console.log("Error removing bookmark.", error);
+      dispatch({
+        type: "SET_RESOURCES",
+        resource: "bookmark",
+        payload: prevBookmarks,
+      });
+    };
+
+    // Send server delete request
+    axiosDeleteResource(
+      "bookmark",
+      state.activeBookmark?.id ?? "",
+      sessionToken,
+      () => {},
+      onError
+    );
+  };
+
   return (
     <>
       {state.activeBookmark !== null && (
@@ -685,7 +713,7 @@ const DetailedBookmarkPanel: React.FC = () => {
             </div>
 
             {/* Excerpt */}
-            <div className="px-4 mt-2 flex-grow w-full">
+            <div className="px-4 mt-2 w-full">
               <span className="text-white font-bold text-lg">Excerpt</span>
               <div className="px-4">
                 <div
@@ -709,6 +737,21 @@ const DetailedBookmarkPanel: React.FC = () => {
                       ? excerptTextAreaValue
                       : "No excerpt was parsed for this bookmark."}
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-4 mt-16 flex-grow w-full">
+              <span className="text-white font-bold text-lg">Actions</span>
+              <div className="flex w-full gap-x-1 mx-4">
+                <div>
+                  <button
+                    className="px-4 text-start text-white font-semibold rounded-md bg-red-900 hover:bg-red-400 transition duration-200"
+                    onClick={() => handleRemoveBookmark()}
+                  >
+                    Remove Bookmark
+                  </button>
                 </div>
               </div>
             </div>

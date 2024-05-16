@@ -3,6 +3,7 @@ import { isCustomError } from "./isCustomError";
 
 export function handleError(error: Error): NextResponse {
   if (isCustomError(error)) {
+    console.log(error);
     return NextResponse.json(
       { success: false, error: error.message },
       {
