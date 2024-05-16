@@ -4,14 +4,20 @@ import React, { useMemo } from "react";
 import { IoIosBookmarks, IoIosFolder } from "react-icons/io";
 import { FaBoxArchive } from "react-icons/fa6";
 import { HiHashtag } from "react-icons/hi";
+import { MdLogout } from "react-icons/md";
 import SidebarItem from "./SidebarItem";
-import clsx from "clsx";
 import SidebarGroup from "./SidebarGroup";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 import { CollectionWithBookmarkCount } from "@/app/types";
+import { axiosDeleteResource } from "@/app/libs/resourceActions";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const Sidebar: React.FC = () => {
   const { state } = useBookmarks();
+  const { sessionToken } = useAuth();
+  const router = useRouter();
 
   const unsortedCollection = useMemo(() => {
     if (state.collections) {
@@ -101,64 +107,84 @@ const Sidebar: React.FC = () => {
     [state.tags]
   );
 
-  const scrollbarClasses = `
-    overflow-y-scroll
-    scrollbar
-    scrollbar-track-stone-700
-    scrollbar-thumb-stone-500
-  `;
+  const handleLogout = () => {
+    // Server side signout
 
-  const sidebarClasses = clsx(
-    `
-    h-full
-    flex
-    flex-col
-    shrink-0
-    grow-0
-    w-72
-    bg-neutral-800
-    border-r
-    border-neutral-700
-    font-light
-    `,
-    scrollbarClasses
-  );
+
+    // Client-side signout
+    signOut();
+    router.push("/");
+  };
 
   return (
-    <div className={sidebarClasses}>
+    <div className="h-screen flex flex-col border-r border-stone-700">
       {/* Static SidebarItems */}
-      <SidebarItem
-        href="/home/bookmarks"
-        label="All bookmarks"
-        icon={IoIosBookmarks}
-        resourceType="collection"
-      />
-      <SidebarItem
-        href={`/home/collections/${unsortedCollection?.id}`}
-        count={unsortedCollection?._count.bookmarks}
-        label="Unsorted"
-        icon={FaBoxArchive}
-        resourceType="collection"
-      />
+      <div className="sticky top-0 z-10 bg-neutral-800 border-b border-stone-700">
+        <SidebarItem
+          href="/home/bookmarks"
+          label="All bookmarks"
+          icon={IoIosBookmarks}
+          resourceType="collection"
+        />
+        <SidebarItem
+          href={`/home/collections/${unsortedCollection?.id}`}
+          count={unsortedCollection?._count.bookmarks}
+          label="Unsorted"
+          icon={FaBoxArchive}
+          resourceType="collection"
+        />
+      </div>
 
-      {/* Collections */}
-      {/* Subtract 1 from count due to "Unsorted" being a collection */}
-      <SidebarGroup
-        name="Collections"
-        resourceType="collection"
-        count={
-          state.collections?.length
-            ? Math.max(state.collections.length - 1, 0)
-            : 0
-        }
+      <div
+        className="
+          flex-grow
+          h-full
+          w-72
+          bg-neutral-800
+          border-r
+          border-neutral-700
+          font-light
+          overflow-y-scroll
+          scrollbar
+          scrollbar-track-stone-700
+          scrollbar-thumb-stone-500
+        "
       >
-        <div>{collectionItems}</div>
-      </SidebarGroup>
+        {/* Collections */}
+        {/* Subtract 1 from count due to "Unsorted" being a collection */}
+        <SidebarGroup
+          name="Collections"
+          resourceType="collection"
+          count={
+            state.collections?.length
+              ? Math.max(state.collections.length - 1, 0)
+              : 0
+          }
+        >
+          <div>{collectionItems}</div>
+        </SidebarGroup>
 
-      {/* Tags */}
-      <SidebarGroup name="Tags" resourceType="tag" count={state.tags.length}>
-        <div>{tagItems}</div>
-      </SidebarGroup>
+        {/* Tags */}
+        <SidebarGroup name="Tags" resourceType="tag" count={state.tags.length}>
+          <div>{tagItems}</div>
+        </SidebarGroup>
+      </div>
+
+      {/* Footer */}
+      <div className="sticky bottom-0 bg-neutral-800 border-t border-neutral-700 h-16">
+        <div
+          className="flex items-center justify-center h-full gap-x-1 text-white text-sm hover:cursor-pointer"
+          onClick={() => handleLogout()}
+        >
+          {/* Footer content here */}
+          <MdLogout
+            size={18}
+            fill="white"
+            style={{ transform: "rotate(180deg)" }}
+          />
+          Logout
+        </div>
+      </div>
     </div>
   );
 };

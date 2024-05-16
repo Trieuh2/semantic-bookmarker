@@ -505,9 +505,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Handle routing validation
   useEffect(() => {
-    if (session && !state.isBookmarksLoading) {
-      handleRerouting(pathname, router, state.collections, state.tags, session);
-    }
+    handleRerouting(pathname, router, state.collections, state.tags, session);
   }, [
     pathname,
     router,
