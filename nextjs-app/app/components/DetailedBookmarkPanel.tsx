@@ -13,14 +13,12 @@ import {
 } from "../libs/resourceActions";
 // import { data } from "@tensorflow/tfjs";
 import { useSession } from "next-auth/react";
-import {
-  FullBookmarkType,
-  TagWithBookmarkCount,
-} from "../types";
+import { FullBookmarkType, TagWithBookmarkCount } from "../types";
 import React from "react";
 import CollectionMenu from "./collectionMenu/CollectionMenu";
 import TagButton from "./buttons/TagButton";
 import { useAuth } from "../context/AuthContext";
+import ConfirmModal from "./modals/ConfirmModal";
 
 const DetailedBookmarkPanel: React.FC = () => {
   const { state, dispatch } = useBookmarks();
@@ -52,6 +50,9 @@ const DetailedBookmarkPanel: React.FC = () => {
   const [excerptTextAreaValue, setExcerptTextAreaValue] = useState<string>(
     state?.activeBookmark?.excerpt ?? ""
   );
+
+  const [isRemoveBookmarkModalOpened, setIsRemoveBookmarkModalOpened] =
+    useState<boolean>(false);
 
   // Synchronize active bookmark state
   useEffect(() => {
@@ -747,11 +748,23 @@ const DetailedBookmarkPanel: React.FC = () => {
               <div className="flex w-full gap-x-1 mx-4">
                 <div>
                   <button
-                    className="px-4 text-start text-white font-semibold rounded-md bg-red-900 hover:bg-red-400 transition duration-200"
-                    onClick={() => handleRemoveBookmark()}
+                    className="px-4 py-1 text-starttext-white font-semibold rounded-md bg-red-500 hover:bg-red-400 active:bg-red-500 transition duration-200"
+                    onClick={() => setIsRemoveBookmarkModalOpened(true)}
                   >
                     Remove Bookmark
                   </button>
+                  <ConfirmModal
+                    title="Remove Bookmark?"
+                    description="This action cannot be undone."
+                    isOpen={isRemoveBookmarkModalOpened}
+                    handleConfirmAction={() => {
+                      handleRemoveBookmark();
+                      setIsRemoveBookmarkModalOpened(false);
+                    }}
+                    handleCancelAction={() =>
+                      setIsRemoveBookmarkModalOpened(false)
+                    }
+                  ></ConfirmModal>
                 </div>
               </div>
             </div>
