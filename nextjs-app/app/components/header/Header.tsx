@@ -9,7 +9,7 @@ import clsx from "clsx";
 import { getUrlInfo } from "@/app/utils/urlActions";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
-import ActionsMenu from "./ActionsMenu";
+// import ActionsMenu from "./ActionsMenu";
 
 const Header: React.FC = () => {
   const [headerTitle, setHeaderTitle] = useState<string>("");
@@ -156,29 +156,34 @@ const Header: React.FC = () => {
       </Transition>
 
       {isSearchPage && (
-        <div className={buttonContainerClasses}>
-          <Link href={`/home/bookmarks/search?q=${searchQuery}`}>
-            <button className={bookmarksSearchBtnClasses}>
-              Search All Bookmarks
-            </button>
-          </Link>
-
-          {collectionName && (
-            <Link
-              href={`/home/collections/${collectionId}/search?q=${searchQuery}`}
-            >
-              <button className={collectionsSearchBtnClasses}>
-                <div className="flex items-center justify-center">
-                  {"Search"}
-                  <IoIosFolder className="ml-2 mr-0.5" />
-                  {collectionName}
-                </div>
+        <>
+          <div className={buttonContainerClasses}>
+            <Link href={`/home/bookmarks/search?q=${searchQuery}`}>
+              <button className={bookmarksSearchBtnClasses}>
+                Search All Bookmarks
               </button>
             </Link>
-          )}
-        </div>
+
+            {collectionName && (
+              <Link
+                href={`/home/collections/${collectionId}/search?q=${searchQuery}`}
+              >
+                <button className={collectionsSearchBtnClasses}>
+                  <div className="flex items-center justify-center">
+                    {"Search"}
+                    <IoIosFolder className="ml-2 mr-0.5" />
+                    {collectionName}
+                  </div>
+                </button>
+              </Link>
+            )}
+          </div>
+          <div className="px-2 py-2 text-sm">
+            {state.bookmarks.length === 1 ? "1 search result" : `${state.bookmarks.length} search results`}
+          </div>
+        </>
       )}
-      <ActionsMenu />
+      {/* <ActionsMenu /> */}
     </div>
   );
 };
