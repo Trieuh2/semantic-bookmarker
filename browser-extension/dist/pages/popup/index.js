@@ -4131,7 +4131,7 @@ const FavIcon = ({}) => {
     w-8
   `;
     return (react.createElement("div", { className: divClasses },
-        react.createElement("div", { className: imgContainerClasses }, favIconUrl ? (react.createElement("img", { className: imgClasses, src: favIconUrl })) : (react.createElement(CgWebsite, { className: imgClasses })))));
+        react.createElement("div", { className: imgContainerClasses }, favIconUrl ? (react.createElement("img", { className: imgClasses, src: favIconUrl })) : (react.createElement(CgWebsite, { className: imgClasses, color: "white" })))));
 };
 
 const TitleSection = ({}) => {

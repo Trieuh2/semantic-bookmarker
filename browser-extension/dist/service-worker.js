@@ -1,5 +1,5 @@
 // SIMPLE RELOADER IMPORT
-              import "./assets/background-page-reloader-47a6fffc.js"
+              import "./assets/background-page-reloader-49b468f5.js"
               import { a as apiUpdateBookmark, b as apiDeleteBookmark } from './bookmarkAPI-42b2d83e.js';
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

@@ -82,7 +82,7 @@ const FavIcon: React.FC<FavIconProps> = React.memo(({ domainName }) => {
         leaveTo="opacity-0"
       >
         {favIcon && <AdvancedImage cldImg={favIcon} className={imgClasses} />}
-        {!favIcon && <CgWebsite className={imgClasses} />}
+        {!favIcon && <CgWebsite className={imgClasses} color="white" />}
       </Transition>
     </div>
   );

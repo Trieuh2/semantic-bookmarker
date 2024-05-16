@@ -44,7 +44,7 @@ const FavIcon: React.FC<FavIconProps> = ({}) => {
         {favIconUrl ? (
           <img className={imgClasses} src={favIconUrl}></img>
         ) : (
-          <CgWebsite className={imgClasses} />
+          <CgWebsite className={imgClasses} color="white" />
         )}
       </div>
     </div>
