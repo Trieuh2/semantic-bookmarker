@@ -298,11 +298,11 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
             "collectionId" in action.payload &&
             collection.id === action.payload.collectionId
           ) {
-            const constUpdatedBookmarkCount = collection._count.bookmarks + 1;
+            const updatedBookmarkCount = collection._count.bookmarks + 1;
             return {
               ...collection,
               _count: {
-                bookmarks: constUpdatedBookmarkCount,
+                bookmarks: updatedBookmarkCount,
               },
             };
           } else {

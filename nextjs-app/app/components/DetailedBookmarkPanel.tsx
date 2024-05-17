@@ -1,24 +1,35 @@
 "use client";
 
+import React from "react";
 import clsx from "clsx";
 import _ from "lodash";
-import { useBookmarks } from "../context/BookmarkContext";
-import BookmarkItem from "./bookmarks/BookmarkItem";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Transition } from "@headlessui/react";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+
+import BookmarkItem from "./bookmarks/BookmarkItem";
+import CollectionMenu from "./collectionMenu/CollectionMenu";
+import TagButton from "./buttons/TagButton";
+import ConfirmModal from "./modals/ConfirmModal";
+import { HiOutlineSparkles } from "react-icons/hi2";
+
+import { useBookmarks } from "../context/BookmarkContext";
 import {
   axiosDeleteResource,
   axiosUpdateResource,
   createTempResource,
 } from "../libs/resourceActions";
-// import { data } from "@tensorflow/tfjs";
-import { useSession } from "next-auth/react";
 import { FullBookmarkType, TagWithBookmarkCount } from "../types";
-import React from "react";
-import CollectionMenu from "./collectionMenu/CollectionMenu";
-import TagButton from "./buttons/TagButton";
-import { useAuth } from "../context/AuthContext";
-import ConfirmModal from "./modals/ConfirmModal";
+import PuffLoader from "react-spinners/PuffLoader";
+// import { data } from "@tensorflow/tfjs";
 
 const DetailedBookmarkPanel: React.FC = () => {
   const { state, dispatch } = useBookmarks();
@@ -53,6 +64,11 @@ const DetailedBookmarkPanel: React.FC = () => {
 
   const [isRemoveBookmarkModalOpened, setIsRemoveBookmarkModalOpened] =
     useState<boolean>(false);
+
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isMatchModalOpened, setIsMatchModalOpened] = useState<boolean>(false);
+  const [matchedCollectionName, setMatchedCollectionName] =
+    useState<string>("");
 
   // Synchronize active bookmark state
   useEffect(() => {
@@ -109,6 +125,91 @@ const DetailedBookmarkPanel: React.FC = () => {
 
     adjustHeight();
   }, [excerptTextAreaValue]);
+
+  const matchBookmarkToCollections = useCallback(async () => {
+    if (sessionToken && state.activeBookmark && state.collections) {
+      const bookmarks = [state.activeBookmark];
+      const collection_names = state.collections.map(
+        (collection) => collection.name
+      );
+
+      try {
+        const response = await axios.post(
+          "/api/embedding",
+          { bookmarks, collection_names },
+          {
+            headers: {
+              Authorization: `Bearer ${sessionToken}`,
+            },
+          }
+        );
+        setIsProcessing(false);
+        setIsMatchModalOpened(true);
+        setMatchedCollectionName(Object.keys(response.data.data)[0]);
+      } catch (error) {
+        console.error("Error matching bookmark to collections:", error);
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  }, [sessionToken, state.activeBookmark, state.collections]);
+
+  const handleConfirmCollectionMatch = () => {
+    const prevBookmarkState = { ...state.activeBookmark };
+    console.log(matchedCollectionName);
+    if (matchedCollectionName !== "") {
+      const matchedCollection = state.collections.find(
+        (collection) => collection.name === matchedCollectionName
+      );
+
+      if (matchedCollection) {
+        // Optimistic client-side update
+        dispatch({
+          type: "UPDATE_UNIQUE_RESOURCE_METADATA",
+          resource: "bookmark",
+          identifierType: "id",
+          identifier: state.activeBookmark?.id ?? "",
+          payload: {
+            id: state.activeBookmark?.id ?? "",
+            collectionId: matchedCollection.id,
+            collection: matchedCollection,
+          },
+        });
+
+        const onError = (error: Error) => {
+          console.error(
+            "Error assigning matched collection to bookmark.",
+            error
+          );
+          // Undo optimistic client-side update
+          dispatch({
+            type: "UPDATE_UNIQUE_RESOURCE_METADATA",
+            resource: "bookmark",
+            identifierType: "id",
+            identifier: prevBookmarkState?.id ?? "",
+            payload: {
+              id: prevBookmarkState?.id ?? "",
+              collectionId: matchedCollection.id,
+              collection: matchedCollection,
+            },
+          });
+        };
+
+        // Server side update
+        const payload = {
+          id: state.activeBookmark?.id ?? "",
+          collectionId: matchedCollection.id,
+        };
+        axiosUpdateResource(
+          "bookmark",
+          payload,
+          sessionToken,
+          () => {},
+          onError
+        );
+      }
+    }
+  };
 
   const handleTextAreaOnChange = (field: "title" | "note", value: string) => {
     if (!state.activeBookmark) {
@@ -224,20 +325,6 @@ const DetailedBookmarkPanel: React.FC = () => {
                 payload: [...state.tags, newTag],
               });
             }
-            // else if (activeTagNames.includes(newTagInputValue) && newTag) {
-            //   const updatedTags = state.tags.map((tag) => {
-            //     if (tag.name === newTagInputValue) {
-            //       return newTag;
-            //     } else {
-            //       return tag;
-            //     }
-            //   });
-            //   dispatch({
-            //     type: "SET_RESOURCES",
-            //     resource: "tag",
-            //     payload: updatedTags,
-            //   });
-            // }
           }
         };
 
@@ -745,27 +832,69 @@ const DetailedBookmarkPanel: React.FC = () => {
             {/* Actions */}
             <div className="px-4 mt-16 flex-grow w-full">
               <span className="text-white font-bold text-lg">Actions</span>
-              <div className="flex w-full gap-x-1 mx-4">
-                <div>
-                  <button
-                    className="px-4 py-1 text-start text-white font-medium rounded-md bg-red-600 hover:bg-red-500 active:bg-red-600 transition duration-200"
-                    onClick={() => setIsRemoveBookmarkModalOpened(true)}
-                  >
-                    Remove Bookmark
-                  </button>
-                  <ConfirmModal
-                    title="Remove Bookmark?"
-                    description="This action cannot be undone."
-                    isOpen={isRemoveBookmarkModalOpened}
-                    handleConfirmAction={() => {
-                      handleRemoveBookmark();
-                      setIsRemoveBookmarkModalOpened(false);
-                    }}
-                    handleCancelAction={() =>
-                      setIsRemoveBookmarkModalOpened(false)
-                    }
-                  ></ConfirmModal>
-                </div>
+              <div className="flex w-full gap-x-2 mx-4">
+                {/* Match Collection Button and Modal*/}
+                <button
+                  className={clsx(
+                    "flex gap-x-1 px-4 py-1 items-center text-start text-white font-medium rounded-md transition duration-200",
+                    !isProcessing &&
+                      "bg-purple-600 active:bg-purple-600 hover:bg-purple-500",
+                    isProcessing && "bg-purple-600/50 cursor-pointer-none"
+                  )}
+                  disabled={isProcessing}
+                  onClick={() => {
+                    setIsProcessing(true);
+                    matchBookmarkToCollections();
+                  }}
+                >
+                  {isProcessing ? (
+                    <PuffLoader loading={isProcessing} size={24}></PuffLoader>
+                  ) : (
+                    <HiOutlineSparkles size={24} />
+                  )}
+                  Match Collection
+                </button>
+                <ConfirmModal
+                  title="Match Collection"
+                  description=""
+                  isOpen={isMatchModalOpened}
+                  handleConfirmAction={() => {
+                    handleConfirmCollectionMatch();
+                    setIsMatchModalOpened(false);
+                  }}
+                  handleCancelAction={() => {
+                    setIsMatchModalOpened(false);
+                  }}
+                >
+                  <div className="text-neutral-400">
+                    Assign this bookmark to the&nbsp;
+                    <span className="text-orange-300">
+                      {matchedCollectionName}
+                    </span>
+                    &nbsp;collection?
+                  </div>
+                </ConfirmModal>
+
+                {/* Remove Bookmark Button and Modal */}
+                <button
+                  className="px-4 py-1 text-start text-white font-medium rounded-md bg-red-600 hover:bg-red-500 active:bg-red-600 transition duration-200"
+                  onClick={() => setIsRemoveBookmarkModalOpened(true)}
+                >
+                  Remove Bookmark
+                </button>
+                <ConfirmModal
+                  title="Remove Bookmark?"
+                  description="This action cannot be undone."
+                  isOpen={isRemoveBookmarkModalOpened}
+                  handleConfirmAction={() => {
+                    handleRemoveBookmark();
+                    setIsRemoveBookmarkModalOpened(false);
+                  }}
+                  handleCancelAction={() =>
+                    setIsRemoveBookmarkModalOpened(false)
+                  }
+                  danger
+                />
               </div>
             </div>
 

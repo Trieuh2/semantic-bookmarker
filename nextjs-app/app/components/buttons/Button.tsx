@@ -14,7 +14,7 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth,
   children,
   onClick,
-  disabled,
+  disabled = false,
   classNames,
 }) => {
   const buttonClasses = clsx(
@@ -29,10 +29,8 @@ const Button: React.FC<ButtonProps> = ({
     duration-150
     `,
     fullWidth && "w-full",
-    disabled
-      ? "opacity-50 cursor-default bg-zinc-900 outline-0"
-      : "bg-orange-300 hover:bg-orange-200 active:bg-orange-400",
-    classNames
+    disabled ? "opacity-50 cursor-default bg-zinc-900 outline-0" : null,
+    classNames || "bg-orange-300 hover:bg-orange-200 active:bg-orange-400"
   );
 
   return (
