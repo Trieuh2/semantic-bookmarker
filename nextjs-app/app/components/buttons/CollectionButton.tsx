@@ -1,5 +1,5 @@
 import React from "react";
-import { IoMdArrowDropdown } from "react-icons/io";
+import { IoIosFolder, IoMdArrowDropdown } from "react-icons/io";
 import { FaBoxArchive } from "react-icons/fa6";
 import clsx from "clsx";
 
@@ -40,7 +40,11 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     <button className={buttonClasses} onMouseUp={() => onMouseUp()}>
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center">
-          <FaBoxArchive className="mx-2" />
+          {name === "Unsorted" ? (
+            <FaBoxArchive className="mx-2" />
+          ) : (
+            <IoIosFolder className="mx-2" />
+          )}
           <span className="text-start text-ellipsis overflow-hidden text-nowrap">
             {name}
           </span>
