@@ -22,6 +22,8 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
   const collectionMenuRef = useRef<HTMLDivElement>(null);
   const [isCollectionMenuOpen, setIsCollectionMenuOpen] =
     useState<boolean>(false);
+  const [isCollectionMenuScrollable, setIsCollectionMenuScrollable] =
+    useState<boolean>(false);
 
   const [displayCollections, setDisplayCollections] = useState<
     CollectionWithBookmarkCount[]
@@ -35,6 +37,10 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
     if (state.collections) {
       const updatedCollections = state.collections.map((coll) => coll);
       setDisplayCollections(updatedCollections);
+
+      if (state.collections.length > 6) {
+        setIsCollectionMenuScrollable(true);
+      }
     }
 
     if (state.activeBookmark && state.collections) {
@@ -101,6 +107,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
     scrollbar-track-rounded-md
     scrollbar-track-neutral-500
     overflow-y-scroll
+    overflow-x-hidden
   `;
 
   const collectionMenuClasses = clsx(
@@ -148,6 +155,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
                 handleOptionBtnOnMouseUp(selectedCollection);
               }
             }}
+            isCollectionMenuScrollable={isCollectionMenuScrollable}
           />
           {displayCollections &&
             Array.from(displayCollections).map((collection, index) => {
@@ -155,7 +163,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
                 <CollectionMenuOption
                   key={collection.name}
                   name={collection.name}
-                  isLast={displayCollections.length - 1 === index}
+                  isLast={displayCollections.length === index}
                   onMouseUp={() => {
                     handleOptionBtnOnMouseUp(collection);
                     setIsCollectionMenuOpen(false);

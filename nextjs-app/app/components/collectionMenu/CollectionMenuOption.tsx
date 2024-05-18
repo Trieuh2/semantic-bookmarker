@@ -8,6 +8,7 @@ interface CollectionMenuOptionProps {
   onMouseUp: () => void;
   isFirst?: boolean;
   isLast?: boolean;
+  isCollectionMenuScrollable?: boolean;
 }
 
 const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
@@ -15,6 +16,7 @@ const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
   onMouseUp,
   isFirst = false,
   isLast = false,
+  isCollectionMenuScrollable = false,
 }) => {
   const listItemClasses = clsx(
     `
@@ -30,14 +32,11 @@ const CollectionMenuOption: React.FC<CollectionMenuOptionProps> = ({
     transition
     ease-in-out
     `,
-    isFirst && "rounded-t-md",
-    isLast && "rounded-b-md"
+    isFirst && isCollectionMenuScrollable && "rounded-tl-md",
+    isFirst && !isCollectionMenuScrollable && "rounded-t-md",
+    isLast && isCollectionMenuScrollable && "rounded-bl-md",
+    isLast && !isCollectionMenuScrollable && "rounded-b-md"
   );
-
-  const iconClasses = `
-    self-center
-    mx-2
-  `;
 
   return (
     <li className={listItemClasses} onMouseUp={() => onMouseUp()}>

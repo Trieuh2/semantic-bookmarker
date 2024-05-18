@@ -30,6 +30,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     ring-stone-700
     text-white
     text-sm
+    overflow-hidden
     hover:text-orange-300
     transition
     duration-200`,
@@ -45,7 +46,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
           ) : (
             <IoIosFolder className="mx-2" />
           )}
-          <span className="text-start text-ellipsis overflow-hidden text-nowrap">
+          <span className="text-start overflow-hidden text-nowrap">
             {name}
           </span>
         </div>
