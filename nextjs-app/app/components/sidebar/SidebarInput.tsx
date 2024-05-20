@@ -56,7 +56,7 @@ const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
       isOpen
         ? "opacity-100 pointer-events-auto"
         : "opacity-0 pointer-events-none",
-      nested ? "w-52 left-[52px]" : "w-56 left-9"
+      nested ? "w-[220px] left-[52px]" : "w-[232px] left-9"
     );
 
     return (

@@ -374,7 +374,12 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
             >
               {initialLabel}
             </span>
-            <span className="text-end text-xs text-gray-500 font-semibold">
+            <span
+              className={clsx(
+                "text-end text-xs text-gray-500 font-semibold",
+                isRenameOpened && "text-transparent"
+              )}
+            >
               {count}
             </span>
             {isHovered && menuOptions && (
@@ -417,7 +422,6 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
                 <MdOutlineExpandMore />
               </button>
             )}
-
             {/* Rename input field */}
             {resourceType && identifier && (
               <SidebarInput
