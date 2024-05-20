@@ -124,7 +124,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
     transition-opacity
     duration-200
     `,
-    state.collections.length >= 7 && scrollbarClasses,
+    state.collections.length >= 6 && scrollbarClasses,
     isCollectionMenuOpen
       ? "ring-2 ring-orange-300 opacity-100"
       : "ring-2 ring-transparent opacity-0 pointer-events-none"
