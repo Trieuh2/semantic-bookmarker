@@ -241,7 +241,7 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
 
     const handleRenameInputClickOutside = useCallback(() => {
       // Rename the resource if changes were made
-      if (resourceType && identifier) {
+      if (resourceType && identifier && isRenameOpened) {
         if (renameValue.trim() !== "" && renameValue.trim() !== initialLabel) {
           handleRename(resourceType, identifier, renameValue);
         } else {
@@ -249,7 +249,14 @@ const SidebarItem: React.FC<SidebarItemProps> = React.memo(
         }
         setIsRenameOpened(false);
       }
-    }, [resourceType, identifier, renameValue, initialLabel, handleRename]);
+    }, [
+      resourceType,
+      identifier,
+      isRenameOpened,
+      renameValue,
+      initialLabel,
+      handleRename,
+    ]);
 
     // Side effect to set active state
     useEffect(() => {
