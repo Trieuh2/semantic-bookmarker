@@ -27,6 +27,8 @@ interface BookmarkState {
   isBookmarksLoading: boolean;
   isShowingDetailedPanel: boolean;
   activeBookmark: FullBookmarkType | undefined | null;
+  activeCollection: CollectionWithBookmarkCount | undefined | null;
+  activeTag: TagWithBookmarkCount | undefined | null;
 }
 
 // Define actions
@@ -77,6 +79,14 @@ type Action =
       payload: {
         activeBookmark: FullBookmarkType;
       };
+    }
+  | {
+      type: "SET_ACTIVE_COLLECTION_OR_TAG";
+      resource: "activeCollection" | "activeTag";
+      activeResource: CollectionWithBookmarkCount | TagWithBookmarkCount;
+    }
+  | {
+      type: "SET_ACTIVE_COLLECTION_AND_TAG_TO_NULL";
     };
 
 interface BookmarkContextType {
@@ -95,6 +105,8 @@ const initialState = {
   isBookmarksLoading: true,
   isShowingDetailedPanel: false,
   activeBookmark: null,
+  activeCollection: null,
+  activeTag: null,
 };
 
 function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
@@ -104,7 +116,9 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
   let updatedTags = state.tags;
   let updatedBookmarks = state.bookmarks;
   let updatedTagToBookmarks;
-  let updatedActiveBookmark;
+  let updatedActiveBookmark = state.activeBookmark;
+  let updatedActiveCollection;
+  let updatedActiveTag;
   let updatedIsShowingDetailedPanel = state.isShowingDetailedPanel;
 
   switch (action.type) {
@@ -272,59 +286,124 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         updatedBookmarks = updatedResources;
       }
 
-      // Bookmarks update: related collections update
-      if (
-        (action.resource === "bookmark" && "collectionId" in action.payload) ||
-        "collection" in action.payload
-      ) {
-        const prevBookmark = state.bookmarks.find(
-          (bookmark) => bookmark.id === action.identifier
-        );
-        const prevCollectionId = prevBookmark?.collectionId;
-
-        updatedCollections = state.collections.map((collection) => {
-          // Decrement count of bookmarks for previous collection
-          if (collection.id === prevCollectionId) {
-            const updatedBookmarksCount = collection._count.bookmarks - 1;
-            return {
-              ...collection,
-              _count: {
-                bookmarks: updatedBookmarksCount,
-              },
-            };
-          }
-          // Increment count for new collection
-          else if (
-            "collectionId" in action.payload &&
-            collection.id === action.payload.collectionId
-          ) {
-            const updatedBookmarkCount = collection._count.bookmarks + 1;
-            return {
-              ...collection,
-              _count: {
-                bookmarks: updatedBookmarkCount,
-              },
-            };
-          } else {
-            return collection;
-          }
-        });
-      }
-
       // Active bookmark
       if (
         action.resource === "bookmark" &&
         state.activeBookmark?.id === action.identifier
       ) {
-        updatedActiveBookmark = updatedResources.find(
-          (bookmark) => bookmark.id === state.activeBookmark?.id
-        );
-
-        if (updatedActiveBookmark === undefined) {
-          updatedActiveBookmark = state.activeBookmark;
+        // Case: activeBookmark is part of the currently displayed list of bookmarks
+        if (
+          updatedBookmarks.find(
+            (bookmark) => bookmark.id === state.activeBookmark?.id
+          )
+        ) {
+          updatedActiveBookmark = updatedBookmarks.find(
+            (bookmark) => bookmark.id === state.activeBookmark?.id
+          );
+        } else {
+          updatedActiveBookmark = {
+            ...state.activeBookmark,
+            ...action.payload,
+          };
         }
       } else {
         updatedActiveBookmark = state.activeBookmark;
+      }
+
+      // Bookmarks update: related collections update
+      if (
+        (action.resource === "bookmark" && "collectionId" in action.payload) ||
+        "collection" in action.payload
+      ) {
+        const prevCollectionId = state.activeBookmark?.collectionId;
+        const newCollectionId = action.payload.collectionId;
+
+        if (prevCollectionId !== newCollectionId) {
+          updatedCollections = state.collections.map((collection) => {
+            // Decrement count of bookmarks for previous collection
+            if (collection.id === prevCollectionId) {
+              const updatedBookmarksCount = collection._count.bookmarks - 1;
+              return {
+                ...collection,
+                _count: {
+                  bookmarks: updatedBookmarksCount,
+                },
+              };
+            }
+            // Increment count for new collection
+            else if (collection.id === newCollectionId) {
+              const updatedBookmarkCount = collection._count.bookmarks + 1;
+              return {
+                ...collection,
+                _count: {
+                  bookmarks: updatedBookmarkCount,
+                },
+              };
+            } else {
+              return collection;
+            }
+          });
+        }
+      }
+
+      // (Collection pages): Handle cases where the updated bookmark is added/removed from the current page
+      if (
+        updatedActiveBookmark &&
+        state.activeCollection &&
+        action.resource === "bookmark" &&
+        "collectionId" in action.payload
+      ) {
+        // Push updated bookmark to displayed bookmarks list if curr page should contain the bookmark post-update
+        if (
+          state.activeCollection?.id === action.payload.collectionId &&
+          !updatedBookmarks.find(
+            (bookmark) => bookmark.id === action.identifier
+          )
+        ) {
+          updatedBookmarks.push(updatedActiveBookmark);
+        }
+        // Remove bookmark from curr list if updated bookmark should not be displayed on curr page, post-update
+        else if (
+          state.activeCollection?.id !== action.payload.collectionId &&
+          updatedBookmarks.find(
+            (bookmark) => bookmark.id === action.identifier
+          ) !== undefined
+        ) {
+          updatedBookmarks = updatedBookmarks.filter(
+            (bookmark) => bookmark.id !== action.identifier
+          );
+        }
+      }
+
+      // (Tag pages): Handle cases where the updated bookmark is added/removed from the current page
+      if (
+        updatedActiveBookmark &&
+        state.activeTag &&
+        action.resource === "bookmark" &&
+        "tagToBookmarks" in action.payload
+      ) {
+        const updatedBookmarkTagIds = updatedActiveBookmark.tagToBookmarks?.map(
+          (ttb) => ttb.tagId
+        );
+
+        // Push updated bookmark to displayed bookmarks list if curr page should contain the bookmark post-update
+        if (
+          updatedBookmarkTagIds?.includes(state.activeTag.id) &&
+          !updatedBookmarks.find(
+            (bookmark) => bookmark.id === action.identifier
+          )
+        ) {
+          updatedBookmarks.push(updatedActiveBookmark);
+        }
+        // Remove bookmark from curr list if updated bookmark should not be displayed on curr page, post-update
+        else if (
+          !updatedBookmarkTagIds?.includes(state.activeTag.id) &&
+          updatedBookmarks.find((bookmark) => bookmark.id === action.identifier)
+        ) {
+          updatedBookmarks = updatedBookmarks.filter(
+            (bookmark) => bookmark.id !== action.identifier
+          );
+        }
       }
 
       return {
@@ -415,6 +494,27 @@ function bookmarkReducer(state: BookmarkState, action: Action): BookmarkState {
         isShowingDetailedPanel: true,
         activeBookmark: action.payload.activeBookmark,
       };
+    case "SET_ACTIVE_COLLECTION_OR_TAG":
+      if (action.resource === "activeCollection") {
+        updatedActiveCollection =
+          action.activeResource as CollectionWithBookmarkCount;
+        updatedActiveTag = null;
+      } else {
+        updatedActiveTag = action.activeResource as TagWithBookmarkCount;
+        updatedActiveCollection = null;
+      }
+      return {
+        ...state,
+        activeCollection: updatedActiveCollection,
+        activeTag: updatedActiveTag,
+      };
+    case "SET_ACTIVE_COLLECTION_AND_TAG_TO_NULL":
+      return {
+        ...state,
+        activeCollection: null,
+        activeTag: null,
+      };
+
     default:
       return state;
   }
@@ -450,7 +550,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
     return params;
   }, [pathname, searchParams]);
 
-  // Fetch bookmarks as the page route changes
+  // Side effects on page route changes
   useEffect(() => {
     const fetchBookmarks = async () => {
       dispatch({
@@ -483,6 +583,37 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (sessionToken) {
       fetchBookmarks();
+
+      // Set activeCollection / activeTag state
+      const urlInfo = getUrlInfo(pathname);
+      const resourceId = urlInfo.id;
+
+      if (urlInfo.directory === "collections" && resourceId) {
+        const currCollection = state.collections.find(
+          (collection) => collection.id === resourceId
+        );
+
+        if (currCollection) {
+          dispatch({
+            type: "SET_ACTIVE_COLLECTION_OR_TAG",
+            resource: "activeCollection",
+            activeResource: currCollection,
+          });
+        }
+      } else if (urlInfo.directory === "tags" && resourceId) {
+        const currTag = state.tags.find((tag) => tag.id === resourceId);
+        if (currTag) {
+          dispatch({
+            type: "SET_ACTIVE_COLLECTION_OR_TAG",
+            resource: "activeTag",
+            activeResource: currTag,
+          });
+        }
+      } else {
+        dispatch({
+          type: "SET_ACTIVE_COLLECTION_AND_TAG_TO_NULL",
+        });
+      }
     }
   }, [sessionToken, pathname, searchParams, fetchParameters]);
 

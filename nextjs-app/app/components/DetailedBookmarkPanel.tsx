@@ -156,7 +156,7 @@ const DetailedBookmarkPanel: React.FC = () => {
 
   const handleConfirmCollectionMatch = () => {
     const prevBookmarkState = { ...state.activeBookmark };
-    console.log(matchedCollectionName);
+    
     if (matchedCollectionName !== "") {
       const matchedCollection = state.collections.find(
         (collection) => collection.name === matchedCollectionName
