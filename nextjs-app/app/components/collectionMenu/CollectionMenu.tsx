@@ -38,8 +38,11 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
       const updatedCollections = state.collections.map((coll) => coll);
       setDisplayCollections(updatedCollections);
 
-      if (state.collections.length > 6) {
+      // Add 1 since the current selected collection is an extra Collection Menu option
+      if (state.collections.length + 1 > 6) {
         setIsCollectionMenuScrollable(true);
+      } else {
+        setIsCollectionMenuScrollable(false);
       }
     }
 
@@ -124,7 +127,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
     transition-opacity
     duration-200
     `,
-    state.collections.length >= 6 && scrollbarClasses,
+    isCollectionMenuScrollable && scrollbarClasses,
     isCollectionMenuOpen
       ? "ring-2 ring-orange-300 opacity-100"
       : "ring-2 ring-transparent opacity-0 pointer-events-none"
@@ -163,7 +166,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = ({}) => {
                 <CollectionMenuOption
                   key={collection.name}
                   name={collection.name}
-                  isLast={displayCollections.length === index}
+                  isLast={displayCollections.length - 1 === index}
                   onMouseUp={() => {
                     handleOptionBtnOnMouseUp(collection);
                     setIsCollectionMenuOpen(false);
