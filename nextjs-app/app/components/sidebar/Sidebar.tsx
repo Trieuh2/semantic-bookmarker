@@ -9,14 +9,11 @@ import SidebarItem from "./SidebarItem";
 import SidebarGroup from "./SidebarGroup";
 import { useBookmarks } from "@/app/context/BookmarkContext";
 import { CollectionWithBookmarkCount } from "@/app/types";
-import { axiosDeleteResource } from "@/app/libs/resourceActions";
-import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const Sidebar: React.FC = () => {
   const { state } = useBookmarks();
-  const { sessionToken } = useAuth();
   const router = useRouter();
 
   const unsortedCollection = useMemo(() => {
@@ -108,10 +105,6 @@ const Sidebar: React.FC = () => {
   );
 
   const handleLogout = () => {
-    // Server side signout
-
-
-    // Client-side signout
     signOut();
     router.push("/");
   };
@@ -119,7 +112,7 @@ const Sidebar: React.FC = () => {
   return (
     <div className="h-screen flex flex-col border-r border-stone-700">
       {/* Static SidebarItems */}
-      <div className="sticky top-0 z-10 bg-neutral-800 border-b border-stone-700">
+      <div className="sticky top-0 z-10 bg-neutral-800">
         <SidebarItem
           href="/home/bookmarks"
           label="All bookmarks"
@@ -144,8 +137,8 @@ const Sidebar: React.FC = () => {
           border-r
           border-neutral-700
           font-light
-          overflow-y-scroll
-          scrollbar
+          overflow-y-auto
+          scrollbar-thin
           scrollbar-track-stone-700
           scrollbar-thumb-stone-500
         "
@@ -171,7 +164,7 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="sticky bottom-0 bg-neutral-800 border-t border-neutral-700 h-16">
+      <div className="sticky bottom-0 bg-neutral-800 h-16">
         <div
           className="flex items-center justify-center h-full gap-x-1 text-white text-sm hover:cursor-pointer"
           onClick={() => handleLogout()}
