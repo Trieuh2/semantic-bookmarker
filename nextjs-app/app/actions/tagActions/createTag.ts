@@ -35,9 +35,10 @@ const createTag = async (sessionToken: string, name: string) => {
   });
 
   if (existingTag) {
-    throw new ConflictError(
-      "Failed to create Tag. A tag with this name already exists. Tag names must be unique."
-    );
+    return existingTag;
+    // throw new ConflictError(
+    //   "Failed to create Tag. A tag with this name already exists. Tag names must be unique."
+    // );
   }
 
   // Attempt to create new Tag
