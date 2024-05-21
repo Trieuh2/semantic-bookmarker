@@ -13,10 +13,11 @@ import clsx from "clsx";
 interface BookmarkItemProps {
   index: Number;
   data: FullBookmarkType;
+  inDetailedBookmarkPanel?: boolean;
 }
 
 const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
-  ({ index, data }) => {
+  ({ index, data, inDetailedBookmarkPanel }) => {
     const { state, dispatch } = useBookmarks();
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -73,8 +74,13 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
           duration-200
           hover:cursor-pointer
         `,
-          state.activeBookmark?.id !== data.id && isHovered && "bg-neutral-700 ",
-          state.activeBookmark?.id === data.id && state.isShowingDetailedPanel && "bg-neutral-600"
+          state.activeBookmark?.id !== data.id &&
+            isHovered &&
+            "bg-neutral-700 ",
+          state.activeBookmark?.id === data.id &&
+            state.isShowingDetailedPanel &&
+            !inDetailedBookmarkPanel &&
+            "bg-neutral-600"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
