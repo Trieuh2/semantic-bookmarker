@@ -20,6 +20,7 @@ import CollectionMenu from "./collectionMenu/CollectionMenu";
 import TagButton from "./buttons/TagButton";
 import ConfirmModal from "./modals/ConfirmModal";
 import { HiOutlineSparkles } from "react-icons/hi2";
+import { MdModeEdit } from "react-icons/md";
 
 import { useBookmarks } from "../context/BookmarkContext";
 import {
@@ -29,7 +30,6 @@ import {
 } from "../libs/resourceActions";
 import { FullBookmarkType, TagWithBookmarkCount } from "../types";
 import PuffLoader from "react-spinners/PuffLoader";
-// import { data } from "@tensorflow/tfjs";
 
 const DetailedBookmarkPanel: React.FC = () => {
   const { state, dispatch } = useBookmarks();
@@ -156,7 +156,7 @@ const DetailedBookmarkPanel: React.FC = () => {
 
   const handleConfirmCollectionMatch = () => {
     const prevBookmarkState = { ...state.activeBookmark };
-    
+
     if (matchedCollectionName !== "") {
       const matchedCollection = state.collections.find(
         (collection) => collection.name === matchedCollectionName
@@ -627,9 +627,22 @@ const DetailedBookmarkPanel: React.FC = () => {
               !state.isShowingDetailedPanel && "max-w-0"
             )}
           >
+            {/* HEADER */}
+            <div className="px-4 py-2 mt-1 w-full border-b border-zinc-700">
+              <span className="flex gap-x-1 items-center text-xl text-white font-bold">
+                <MdModeEdit size={24}></MdModeEdit>
+                Edit Bookmark Details
+              </span>
+            </div>
+
+            {/* BOOKMARK ITEM PREVIEW */}
             <div className="border-b border-zinc-700">
               {state.activeBookmark && (
-                <BookmarkItem index={0} data={state.activeBookmark} />
+                <BookmarkItem
+                  index={0}
+                  data={state.activeBookmark}
+                  inDetailedBookmarkPanel
+                />
               )}
             </div>
             {/* Title Section */}
