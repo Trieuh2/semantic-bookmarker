@@ -160,7 +160,7 @@ const Header: React.FC = () => {
           <div className={buttonContainerClasses}>
             <Link href={`/home/bookmarks/search?q=${searchQuery}`}>
               <button className={bookmarksSearchBtnClasses}>
-                Search All Bookmarks
+                Search "{searchQuery}" in All Bookmarks
               </button>
             </Link>
 
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
               >
                 <button className={collectionsSearchBtnClasses}>
                   <div className="flex items-center justify-center">
-                    {"Search"}
+                    Search "{searchQuery}" in
                     <IoIosFolder className="ml-2 mr-0.5" />
                     {collectionName}
                   </div>
@@ -179,7 +179,9 @@ const Header: React.FC = () => {
             )}
           </div>
           <div className="px-2 py-2 text-sm">
-            {state.bookmarks.length === 1 ? "1 search result" : `${state.bookmarks.length} search results`}
+            {state.bookmarks.length === 1
+              ? "1 search result"
+              : `${state.bookmarks.length} search results`}
           </div>
         </>
       )}
