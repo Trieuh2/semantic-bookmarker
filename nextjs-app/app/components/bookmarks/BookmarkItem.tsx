@@ -6,8 +6,9 @@ import { IoIosFolder } from "react-icons/io";
 import { TbHash } from "react-icons/tb";
 import FavIcon from "./FavIcon";
 import { getDomainNameFromPageUrl } from "@/app/utils/urlActions";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useBookmarks } from "@/app/context/BookmarkContext";
+import clsx from "clsx";
 
 interface BookmarkItemProps {
   index: Number;
@@ -17,6 +18,7 @@ interface BookmarkItemProps {
 const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
   ({ index, data }) => {
     const { state, dispatch } = useBookmarks();
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const domainName = getDomainNameFromPageUrl(data.page_url);
     const formatDate = (date: Date) => {
@@ -59,18 +61,23 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
 
     return (
       <div
-        className="
+        className={clsx(
+          `
           relative
           flex
           flex-col
           grow-0
           shrink-0
           min-h-24
-          hover:bg-neutral-700
-          hover:cursor-pointer
           transition
           duration-200
-        "
+          hover:cursor-pointer
+        `,
+          state.activeBookmark?.id !== data.id && isHovered && "bg-neutral-700 ",
+          state.activeBookmark?.id === data.id && state.isShowingDetailedPanel && "bg-neutral-600"
+        )}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Top Divider */}
         {index !== 0 && <div className="w-full h-px bg-zinc-700 self-center" />}
