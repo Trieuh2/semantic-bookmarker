@@ -22,9 +22,9 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
               <Header />
               <div className="flex overflow-hidden h-full w-full">
                 {children}
-                <DetailedBookmarkPanel />
               </div>
             </div>
+            <DetailedBookmarkPanel />
           </BookmarkProvider>
         </AuthProvider>
       </Suspense>
