@@ -74,7 +74,7 @@ const BookmarkItem: React.FC<BookmarkItemProps> = React.memo(
           duration-200
           hover:cursor-pointer
         `,
-          state.activeBookmark?.id !== data.id &&
+          (state.activeBookmark?.id !== data.id || inDetailedBookmarkPanel) &&
             isHovered &&
             "bg-neutral-700 ",
           state.activeBookmark?.id === data.id &&
