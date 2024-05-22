@@ -257,6 +257,7 @@ const updateTagToBookmarks = async (
           tagId: {
             in: tagIdsForDeletion,
           },
+          bookmarkId: id,
         },
       });
     } catch (error) {
