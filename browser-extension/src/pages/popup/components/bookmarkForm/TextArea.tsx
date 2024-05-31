@@ -101,7 +101,7 @@ const TextArea: React.FC<TextAreaProps> = ({
     bg-transparent
     text-white
     text-sm
-    break-all
+    break-words
     focus:outline-none
     transition`,
     scrollbarClasses,
