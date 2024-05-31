@@ -3,8 +3,11 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "@/app/libs/errors";
-import getIsSessionValid from "../sessionActions/getIsSessionValid";
+
+import prisma from "@/app/libs/prismadb";
 import cloudinary from "@/app/libs/cloudinarydb";
+
+import getIsSessionValid from "../sessionActions/getIsSessionValid";
 import getUserIdFromSessionToken from "../sessionActions/getUserIdFromSessionToken";
 
 const uploadImage = async (
@@ -26,7 +29,7 @@ const uploadImage = async (
     );
   }
 
-  const bookmark = await prisma?.bookmark.findUnique({
+  const bookmark = await prisma.bookmark.findUnique({
     where: {
       id: bookmarkId,
     },
