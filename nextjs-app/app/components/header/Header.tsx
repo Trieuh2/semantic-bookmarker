@@ -160,7 +160,7 @@ const Header: React.FC = () => {
           <div className={buttonContainerClasses}>
             <Link href={`/home/bookmarks/search?q=${searchQuery}`}>
               <button className={bookmarksSearchBtnClasses}>
-                Search "{searchQuery}" in All Bookmarks
+                Search &quot;{searchQuery}&quot; in All Bookmarks
               </button>
             </Link>
 
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
               >
                 <button className={collectionsSearchBtnClasses}>
                   <div className="flex items-center justify-center">
-                    Search "{searchQuery}" in
+                    Search &quot;{searchQuery}&quot; in
                     <IoIosFolder className="ml-2 mr-0.5" />
                     {collectionName}
                   </div>
