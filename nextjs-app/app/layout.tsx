@@ -11,7 +11,13 @@ interface RootLayoutProps {
 
 export const metadata: Metadata = {
   title: "Semantic Bookmarker",
-  description: "Semantic Bookmarker aims to provide users with bookmarking capabilities that enhance the out-of-the-box browser experience. ",
+  description:
+    "Semantic Bookmarker aims to provide users with bookmarking capabilities that enhance the out-of-the-box browser experience.",
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
