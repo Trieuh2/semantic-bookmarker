@@ -623,7 +623,7 @@ const DetailedBookmarkPanel: React.FC = () => {
         >
           <div
             className={clsx(
-              "flex flex-col h-full w-[28rem] border-l border-zinc-700 bg-zinc-800 overflow-y-auto overflow-x-hidden scrollbar scrollbar-track-stone-700 scrollbar-thumb-stone-500",
+              "flex flex-col h-full w-[28rem] border-l border-zinc-700 bg-neutral-800 overflow-y-auto overflow-x-hidden scrollbar scrollbar-track-stone-700 scrollbar-thumb-stone-500",
               !state.isShowingDetailedPanel && "max-w-0"
             )}
           >
