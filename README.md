@@ -1,21 +1,24 @@
 # Semantic Bookmarker
+https://github.com/Trieuh2/semantic-bookmarker/assets/34781377/e1490ec0-a172-44e1-aac1-d7b8b30e3320
+
+
 
 ## Description
 
-Semantic Bookmarker is a tool that uses natural language processing (NLP) to categorize and retrieve saved web pages by semantic relevance. Users can add hashtags, and search by title, notes, URL, and metadata description for an enriched bookmarking experience.
+Semantic Bookmarker is an enhanced bookmarking tool that allows users to attribute addtitional text information with every bookmark. The application delivers a traditional bookmarking experience but introduces new capabilities to help manage, search, and maintain large amounts of bookmarks with ease.
 
 ### Key Functionalities
-
+- **Semantic Categorization**: Utilizes TensorFlow and Universal Sentence Encoder model to automatically categorize a bookmark a user's most relevant pre-existing collection.
 - **Enhanced Bookmarking**: Save and organize bookmarks with additional metadata, including web-scraped excerpts and user-defined tags, collections, and notes.
+- **Enriched Search Results**: Search results provide bookmarks that contain the search query in any of the bookmark's metadata (title, note, collection name, tags, url, and web-scraped excerpt). 
 - **Browser Extension**: Create, update and delete bookmarks using the custom browser extension.
+- **Real-Time Updates**: Bookmark updates are performed in real-time with user input using Redis and a custom batch processing service worker on the backend server.
 - **Session Synchronization**: User sessions are synchronized between the web application and local browser extension.
-- **Simple Usage**: Click on the extension icon to add a bookmark for the current page.
-- **Semantic Categorization**: Utilizes TensorFlow and Universal Sentence Encoder model to automatically categorize a bookmark to pre-existing collections.
-- **Real-Time Updates**: Reliably performs real-time updates using Redis and a custom batch processing service worker on the backend.
 - **Responsive Design**: Optimistic updates provide a snappy experience similar to using offline programs.
 - **Reusable Design**: Frontend components are developed in React and reused between the extension and web application for consistent UX.
+- **User Friendly**: Click on the extension icon to add a bookmark for the current page. This app was designed with a traditional but enhanced experience in mind.
 - **Authentication**: Users can login with Google OAuth or register with username and credentials (both integrated using Next-Auth).
-- **Security**: Sensitive information is encrypted using AES-256-CBC (such as passwords in MongoDB and batched update payloads stored in Redis).
+- **Security**: Zero-trust architecture for performing actions/accessing resources. Passwords are encrypted using Bcrypt and temporary data stored in Redis is encrypted using AES-256-CBC.
 
 ## Browser Extension
 
@@ -23,6 +26,8 @@ Semantic Bookmarker is a tool that uses natural language processing (NLP) to cat
 ![TypeScript badge](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS badge](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Google Chrome Browser badge](https://img.shields.io/badge/Google_chrome-4285F4?style=for-the-badge&logo=Google-chrome&logoColor=white)
+
+![Semantic Bookmarker Extension Demo](https://github.com/Trieuh2/semantic-bookmarker/assets/34781377/10a662f5-6876-465e-8d5d-cd491850a8c5)
 
 ### Frontend
 
@@ -46,6 +51,8 @@ Every CRUD operation is always validated by the server using the sessionToken as
 ![Prisma badge](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
 ![Cloudinary badge](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=Cloudinary&logoColor=white)
 ![TensorFlow badge](https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)
+
+![Semantic Bookmarker Web Demo](https://github.com/Trieuh2/semantic-bookmarker/assets/34781377/0f39dce0-41c2-4d14-9714-b42a1485a43c)
 
 ### Frontend
 
@@ -75,14 +82,14 @@ Cloudinary was chosen for this project due to its storage optimization, performa
 
 This project uses [TensorFlow](https://www.tensorflow.org/js/guide/nodejs) and the [Universal Sentence Encoder (USE)](https://www.tensorflow.org/hub/tutorials/semantic_similarity_with_tf_hub_universal_encoder) model to semantically rank and match a user's bookmarks against their collections. This allows users to categorize their bookmarks based on the contextual meaning of their saved bookmark, rather than having to manually organize bookmarks to a contextually related collection.
 
-Note: This is currently implemented server-side.
+
 
 #### Overview:
-
+Note: This is currently implemented server-side.
 1. Embeddings are created against all of the user's collection names.
 2. An embedding is created using bookmark's metadata (combines the title, note, url, and excerpt).
 3. Cosine similarity ranks the best matching collection to the bookmark.
-4. Returns highest ranked collection to client for approving/denying match action.
+4. Server returns the highest ranked collection to client for approving/denying the auto-match changes.
 
 ## Future Considerations
 
