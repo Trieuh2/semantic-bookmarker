@@ -1,7 +1,6 @@
 # Semantic Bookmarker
+
 https://github.com/Trieuh2/semantic-bookmarker/assets/34781377/e1490ec0-a172-44e1-aac1-d7b8b30e3320
-
-
 
 ## Description
 
@@ -35,7 +34,8 @@ The extension is built with React, TypeScript, and Tailwind CSS, providing a con
 
 ### Data Flow
 
-![Screenshot of data flow diagram illustrating how data is transferred between client, server and databases](<media/Extension Data Flow.png>)
+<img width="6720" alt="Extension Data Flow" src="https://github.com/Trieuh2/semantic-bookmarker/assets/34781377/d745d658-0aac-412b-906e-a3dd4d804946">
+
 When the user clicks on the extension button, various requests are performed to validate the user session and perform any CRUD operations for Bookmarks, Tags, and Collections. The diagram illustrates the client, server, and database interactions that occur from within the browser extension as the starting point.
 
 Every CRUD operation is always validated by the server using the sessionToken as the bearer token before performing any database action.
