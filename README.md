@@ -80,16 +80,16 @@ Cloudinary was chosen for this project due to its storage optimization, performa
 
 ### Machine Learning
 
-This project uses [TensorFlow](https://www.tensorflow.org/js/guide/nodejs) and the [Universal Sentence Encoder (USE)](https://www.tensorflow.org/hub/tutorials/semantic_similarity_with_tf_hub_universal_encoder) model to semantically rank and match a user's bookmarks against their collections. This allows users to categorize their bookmarks based on the contextual meaning of their saved bookmark, rather than having to manually organize bookmarks to a contextually related collection.
+This project uses [TensorFlow](https://www.tensorflow.org/js/guide/nodejs) and the [Universal Sentence Encoder (USE)](https://www.tensorflow.org/hub/tutorials/semantic_similarity_with_tf_hub_universal_encoder) model to semantically rank and match a user's bookmarks against their collections. Within the application, the USE model is used to automate the categorization of a user's bookmark against all of their collections when clicking on "Auto Match".
 
-
+Note: The semantic ranking logic is currently implemented server-side.
 
 #### Overview:
-Note: This is currently implemented server-side.
-1. Embeddings are created against all of the user's collection names.
-2. An embedding is created using bookmark's metadata (combines the title, note, url, and excerpt).
-3. Cosine similarity ranks the best matching collection to the bookmark.
-4. Server returns the highest ranked collection to client for approving/denying the auto-match changes.
+
+1. Embeddings are created against all of the user's collection names at time of executing the "Auto Match" feature.
+2. An embedding is created using the target bookmark's metadata (combines the title, note, url, and excerpt).
+3. Cosine similarity is used to score the similarity between the bookmark embedding and each collection embedding.
+4. The server returns the collection with the highest similarity score to client for approving/denying the matching action.
 
 ## Future Considerations
 
